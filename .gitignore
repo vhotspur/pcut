@@ -1,0 +1,9 @@
+*.o
+*.out
+
+.project
+.cproject
+
+
+Makefile.depend
+libpcut.a
