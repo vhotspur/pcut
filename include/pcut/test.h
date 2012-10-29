@@ -41,6 +41,7 @@ enum {
 };
 
 void pcut_failed_assertion(const char *message);
+void pcut_failed_assertion_fmt(const char *fmt, ...);
 
 typedef struct pcut_item pcut_item_t;
 typedef void (*pcut_test_func_t)(void);
@@ -72,6 +73,15 @@ struct pcut_item {
 				pcut_failed_assertion("Expected <"#expected "> but got <" #actual ">"); \
 			} \
 		} while (0)
+
+#define PCUT_ASSERT_INT_EQUALS(expected, actual) \
+	do {\
+		long pcut_expected_eval = (expected); \
+		long pcut_actual_eval = (actual); \
+		if (!((pcut_expected_eval) == (pcut_actual_eval))) { \
+			pcut_failed_assertion_fmt("Expected <%ld> but got <%ld>", pcut_expected_eval, pcut_actual_eval); \
+		} \
+	} while (0)
 
 
 static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = {

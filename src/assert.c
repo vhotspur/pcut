@@ -29,8 +29,22 @@
 #define PCUT_INTERNAL
 #include "helper.h"
 #include <setjmp.h>
+#include <stdarg.h>
+
+#define MAX_MESSAGE_LENGTH 256
+static char message_buffer[MAX_MESSAGE_LENGTH + 1];
 
 void pcut_failed_assertion(const char *message) {
 	pcut_bad_test_message = message;
 	longjmp(pcut_bad_test_jmp, 1);
+}
+
+
+void pcut_failed_assertion_fmt(const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(message_buffer, MAX_MESSAGE_LENGTH, fmt, args);
+	va_end(args);
+
+	pcut_failed_assertion(message_buffer);
 }
