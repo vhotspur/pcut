@@ -29,8 +29,11 @@
 #include "helper.h"
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 int pcut_error_count;
+#define MAX_COMMAND_LINE_LENGTH 1024
+static char command_line_buffer[MAX_COMMAND_LINE_LENGTH];
 
 static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	pcut_item_t *it = pcut_get_real(first);
@@ -43,22 +46,45 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	return NULL;
 }
 
-static int run_test(pcut_item_t *test) {
+static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	assert(test->kind == PCUT_KIND_TEST);
+
+	if (respawn) {
+		snprintf(command_line_buffer, MAX_COMMAND_LINE_LENGTH,
+		    "%s -t%d", prog_path, test->id);
+		int exit_ok, exit_status;
+		int rc = pcut_respawn(command_line_buffer, &exit_ok, &exit_status);
+		printf("    Test `%s': ", test->test.name);
+		if (rc != 0) {
+			printf("failed to respawn: %s\n", strerror(rc));
+			return 2;
+		}
+		if (exit_ok) {
+			if (exit_status == 0) {
+				printf("OK\n");
+				return 0;
+			} else {
+				printf("FAILED (%d)\n", exit_status);
+				return 1;
+			}
+		} else {
+			printf("ABORTED (%d)\n", exit_status);
+			return 3;
+		}
+	}
+
 
 	const char *error_message = pcut_run_test(test->test.func);
 
-	printf("    Test `%s': ", test->test.name);
 	if (error_message == NULL) {
-		printf("OK\n");
 		return 0;
 	} else {
-		printf("FAIL\n      %s\n", error_message);
+		printf("    FAILED `%s': %s\n", test->test.name, error_message);
 		return 1;
 	}
 }
 
-static int run_suite(pcut_item_t *suite, pcut_item_t **last) {
+static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
 	pcut_item_t *it = pcut_get_real_next(suite);
 	if (it->kind == PCUT_KIND_TESTSUITE) {
 		goto leave_ok;
@@ -74,7 +100,7 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last) {
 			continue;
 		}
 
-		int test_failed = run_test(it);
+		int test_failed = run_test(it, 1, prog_path);
 		if (test_failed) {
 			goto leave_fail;
 		}
@@ -127,7 +153,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			return 3;
 		}
 
-		return run_suite(suite, NULL);
+		return run_suite(suite, NULL, argv[0]);
 	}
 
 	if (run_only_test > 0) {
@@ -141,7 +167,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			return 3;
 		}
 
-		return run_test(test);
+		return run_test(test, 0, argv[0]);
 	}
 
 	/* Otherwise, run the whole thing. */
@@ -149,7 +175,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	while (it != NULL) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
 			pcut_item_t *tmp;
-			int suite_failed = run_suite(it, &tmp);
+			int suite_failed = run_suite(it, &tmp, argv[0]);
 			if (suite_failed) {
 				/* Do something. */
 			}

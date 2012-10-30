@@ -27,6 +27,9 @@
  */
 
 #include <stdlib.h>
+#include <errno.h>
+#include <sys/wait.h>
+#include <assert.h>
 #include "helper.h"
 
 pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
@@ -51,4 +54,31 @@ pcut_item_t *pcut_get_real(pcut_item_t *item) {
 	} else {
 		return item;
 	}
+}
+
+int pcut_respawn(const char *cmdline, int *normal_exit, int *exit_code) {
+	int status = system(cmdline);
+	if (status == -1) {
+		return errno;
+	}
+
+	/* POSIX specific handling. */
+
+	if (WIFEXITED(status)) {
+		/* Normal termination (though a test might failed). */
+		*normal_exit = 1;
+		*exit_code = WEXITSTATUS(status);
+		return 0;
+	}
+
+	if (WIFSIGNALED(status)) {
+		/* Process was killed. */
+		*normal_exit = 0;
+		*exit_code = WTERMSIG(status);
+		return 0;
+	}
+
+	/* We shall not get here. */
+	assert(0 && "unreachable code");
+	return ENOSYS;
 }
