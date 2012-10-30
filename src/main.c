@@ -46,9 +46,9 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 static int run_test(pcut_item_t *test) {
 	assert(test->kind == PCUT_KIND_TEST);
 
-	printf("    Test `%s': ", test->test.name);
-
 	const char *error_message = pcut_run_test(test->test.func);
+
+	printf("    Test `%s': ", test->test.name);
 	if (error_message == NULL) {
 		printf("OK\n");
 		return 0;
