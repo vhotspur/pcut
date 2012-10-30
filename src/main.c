@@ -94,7 +94,7 @@ leave_fail:
 }
 
 
-int pcut_main(pcut_item_t *last, int argc, const char *argv[]) {
+int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	pcut_item_t *items = pcut_fix_list_get_real_head(last);
 
 	int run_only_suite = -1;
