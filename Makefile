@@ -33,7 +33,14 @@ INCLUDES = -Iinclude
 CFLAGS = $(INCLUDES) -Wall -Wextra -std=c99
 DEPEND = Makefile.depend
 
-SOURCES = src/list.c src/main.c src/print.c src/helper.c src/run.c src/assert.c
+SOURCES = \
+	src/assert.c \
+	src/helper.c \
+	src/list.c \
+	src/main.c \
+	src/print.c \
+	src/run.c
+	
 OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))
 
 .PHONY: all samples clean

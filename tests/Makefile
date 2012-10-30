@@ -33,10 +33,8 @@ CFLAGS = $(INCLUDES) -Wall -Wextra
 LDFLAGS = -L../ -lpcut
 DEPEND = Makefile.depend
 
-APP_DEPS = $(APP_OBJECTS) ../include/pcut/*.h ../libpcut.a
+APP_DEPS = $(APP_OBJECTS)
 APP_OBJECTS = tested.o
-
-SOURCES = tested.c simple.c suite_all.c suite1.c suite2.c suites.c null.c
 
 TEST_APPS = simple.out suites.out multisuite.out null.out
 
