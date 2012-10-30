@@ -26,7 +26,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define PCUT_INTERNAL
 #include <assert.h>
 #include "helper.h"
 #include <pcut/test.h>

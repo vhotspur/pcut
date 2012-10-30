@@ -29,6 +29,8 @@
 #include <pcut/test.h>
 #include "tested.h"
 
+PCUT_INIT
+
 PCUT_TEST_SUITE("intmin");
 
 PCUT_TEST(test_min) {

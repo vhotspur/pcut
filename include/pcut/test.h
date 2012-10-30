@@ -85,11 +85,7 @@ struct pcut_item {
 	} while (0)
 
 
-static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = {
-		.previous = NULL,
-		.id = -1,
-		.kind = PCUT_KIND_SKIP
-};
+
 
 #define PCUT_TEST(name) PCUT_TEST_IMPL(name, __COUNTER__)
 
@@ -105,7 +101,14 @@ pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last);
 int pcut_main(pcut_item_t *last, int argc, const char *argv[]);
 void pcut_print_items(pcut_item_t *first);
 
-PCUT_TEST_SUITE("Default");
+
+#define PCUT_INIT \
+	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
+			.previous = NULL, \
+			.id = -1, \
+			.kind = PCUT_KIND_SKIP \
+	}; \
+	PCUT_TEST_SUITE("Default");
 
 #define PCUT_MAIN \
 	static pcut_item_t pcut_item_last = { \
@@ -115,11 +118,5 @@ PCUT_TEST_SUITE("Default");
 	int main(int argc, char *argv[]) { \
 		return pcut_main(&pcut_item_last, argc, argv); \
 	}
-
-#ifdef PCUT_INTERNAL
-/* Fix unused variable warning on pcut_item_0 */
-static void __attribute((unused)) pcut_fix_warnings(void) { (void) pcut_item_1; }
-#endif
-
 
 #endif

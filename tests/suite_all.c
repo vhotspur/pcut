@@ -28,6 +28,8 @@
 
 #include <pcut/test.h>
 
+PCUT_INIT
+
 PCUT_IMPORT(intpow_suite);
 PCUT_IMPORT(intmin_suite);
 
