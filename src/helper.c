@@ -41,3 +41,15 @@ pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
 
 	return item;
 }
+
+pcut_item_t *pcut_get_real(pcut_item_t *item) {
+	if (item == NULL) {
+		return NULL;
+	}
+
+	if (item->kind == PCUT_KIND_SKIP) {
+		return pcut_get_real_next(item);
+	} else {
+		return item;
+	}
+}

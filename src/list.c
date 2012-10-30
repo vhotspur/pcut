@@ -27,6 +27,8 @@
  */
 
 #define PCUT_INTERNAL
+#include <assert.h>
+#include "helper.h"
 #include <pcut/test.h>
 
 
@@ -51,6 +53,18 @@ static void fix_nested(pcut_item_t *nested) {
 	nested->kind = PCUT_KIND_SKIP;
 }
 
+static void set_ids(pcut_item_t *first) {
+	assert(first != NULL);
+	int id = 1;
+	if (first->kind == PCUT_KIND_SKIP) {
+		first = pcut_get_real_next(first);
+	}
+	for (pcut_item_t *it = first; it != NULL; it = pcut_get_real_next(it)) {
+		it->id = id;
+		id++;
+	}
+}
+
 pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last) {
 	last->next = NULL;
 
@@ -65,6 +79,8 @@ pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last) {
 		next = it;
 		it = it->previous;
 	}
+
+	set_ids(next);
 
 	return next;
 }

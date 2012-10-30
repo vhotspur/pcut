@@ -28,31 +28,135 @@
 
 #define PCUT_INTERNAL
 #include "helper.h"
+#include <assert.h>
+#include <string.h>
 
 int pcut_error_count;
 
-int pcut_main(pcut_item_t *last) {
-	pcut_item_t *items = pcut_fix_list_get_real_head(last);
-	// pcut_print_items(items);
-
-	for (pcut_item_t *it = items; it != NULL; it = pcut_get_real_next(it)) {
-		switch (it->kind) {
-		case PCUT_KIND_TESTSUITE:
-			printf("Running test suite `%s'...\n", it->suite.name);
-			break;
-		case PCUT_KIND_TEST: {
-			printf("   Test `%s': ", it->test.name);
-
-			const char *error_message = pcut_run_test(it->test.func);
-			if (error_message == NULL) {
-				printf("OK\n");
-			} else {
-				printf("FAIL\n      %s\n", error_message);
-			}
-			break;
+static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
+	pcut_item_t *it = pcut_get_real(first);
+	while (it != NULL) {
+		if (it->id == id) {
+			return it;
 		}
-		default:
-			break;
+		it = pcut_get_real_next(it);
+	}
+	return NULL;
+}
+
+static int run_test(pcut_item_t *test) {
+	assert(test->kind == PCUT_KIND_TEST);
+
+	printf("    Test `%s': ", test->test.name);
+
+	const char *error_message = pcut_run_test(test->test.func);
+	if (error_message == NULL) {
+		printf("OK\n");
+		return 0;
+	} else {
+		printf("FAIL\n      %s\n", error_message);
+		return 1;
+	}
+}
+
+static int run_suite(pcut_item_t *suite, pcut_item_t **last) {
+	pcut_item_t *it = pcut_get_real_next(suite);
+	if (it->kind == PCUT_KIND_TESTSUITE) {
+		goto leave_ok;
+	}
+
+	printf("  Suite `%s'\n", suite->suite.name);
+
+	for (; it != NULL; it = pcut_get_real_next(it)) {
+		if (it->kind == PCUT_KIND_TESTSUITE) {
+			goto leave_ok;
+		}
+		if (it->kind != PCUT_KIND_TEST) {
+			continue;
+		}
+
+		int test_failed = run_test(it);
+		if (test_failed) {
+			goto leave_fail;
+		}
+	}
+
+leave_ok:
+	if (last != NULL) {
+		*last = it;
+	}
+	return 0;
+
+leave_fail:
+	if (last != NULL) {
+		*last = it;
+	}
+	return 5;
+}
+
+
+int pcut_main(pcut_item_t *last, int argc, const char *argv[]) {
+	pcut_item_t *items = pcut_fix_list_get_real_head(last);
+
+	int run_only_suite = -1;
+	int run_only_test = -1;
+
+	if (argc > 1) {
+		if (strncmp(argv[1], "-s", 2) == 0) {
+			sscanf(argv[1] + 2, "%d", &run_only_suite);
+		} else if (strncmp(argv[1], "-t", 2) == 0) {
+			sscanf(argv[1] + 2, "%d", &run_only_test);
+		} else if (strcmp(argv[1], "-l") == 0) {
+			pcut_print_tests(items);
+			return 0;
+		}
+	}
+
+	if ((run_only_suite >= 0) && (run_only_test >= 0)) {
+		printf("Specify either -s or -t!\n");
+		return 1;
+	}
+
+	if (run_only_suite > 0) {
+		pcut_item_t *suite = pcut_find_by_id(items, run_only_suite);
+		if (suite == NULL) {
+			printf("Suite not found, aborting!\n");
+			return 2;
+		}
+		if (suite->kind != PCUT_KIND_TESTSUITE) {
+			printf("Invalid suite id!\n");
+			return 3;
+		}
+
+		return run_suite(suite, NULL);
+	}
+
+	if (run_only_test > 0) {
+		pcut_item_t *test = pcut_find_by_id(items, run_only_test);
+		if (test == NULL) {
+			printf("Test not found, aborting!\n");
+			return 2;
+		}
+		if (test->kind != PCUT_KIND_TEST) {
+			printf("Invalid test id!\n");
+			return 3;
+		}
+
+		return run_test(test);
+	}
+
+	/* Otherwise, run the whole thing. */
+	pcut_item_t *it = items;
+	while (it != NULL) {
+		if (it->kind == PCUT_KIND_TESTSUITE) {
+			pcut_item_t *tmp;
+			int suite_failed = run_suite(it, &tmp);
+			if (suite_failed) {
+				/* Do something. */
+			}
+			it = tmp;
+		} else {
+			it = pcut_get_real_next(it);
 		}
 	}
 

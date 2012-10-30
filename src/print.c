@@ -29,6 +29,8 @@
 #define PCUT_INTERNAL
 #include <pcut/test.h>
 #include <stdio.h>
+#include <assert.h>
+#include "helper.h"
 
 void pcut_print_items(pcut_item_t *first) {
 	pcut_item_t *it = first;
@@ -53,4 +55,20 @@ void pcut_print_items(pcut_item_t *first) {
 		it = it->next;
 	}
 	printf("----\n");
+}
+
+void pcut_print_tests(pcut_item_t *first) {
+	for (pcut_item_t *it = pcut_get_real(first); it != NULL; it = pcut_get_real_next(it)) {
+		switch (it->kind) {
+		case PCUT_KIND_TESTSUITE:
+			printf("  Suite `%s' [%d]\n", it->suite.name, it->id);
+			break;
+		case PCUT_KIND_TEST:
+			printf("    Test `%s' [%d]\n", it->test.name, it->id);
+			break;
+		default:
+			assert(0 && "unreachable case in item-kind switch");
+			break;
+		}
+	}
 }

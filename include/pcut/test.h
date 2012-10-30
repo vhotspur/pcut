@@ -49,6 +49,7 @@ typedef void (*pcut_test_func_t)(void);
 struct pcut_item {
 	pcut_item_t *previous;
 	pcut_item_t *next;
+	int id;
 	int kind;
 	union {
 		struct {
@@ -86,6 +87,7 @@ struct pcut_item {
 
 static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = {
 		.previous = NULL,
+		.id = -1,
 		.kind = PCUT_KIND_SKIP
 };
 
@@ -100,22 +102,23 @@ static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = {
 	PCUT_IMPORT_IMPL(identifier, __COUNTER__)
 
 pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last);
-int pcut_main(pcut_item_t *last);
+int pcut_main(pcut_item_t *last, int argc, const char *argv[]);
 void pcut_print_items(pcut_item_t *first);
 
+PCUT_TEST_SUITE("Default");
 
 #define PCUT_MAIN \
 	static pcut_item_t pcut_item_last = { \
 			.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, __COUNTER__)), \
 			.kind = PCUT_KIND_SKIP \
 	}; \
-	int main() { \
-		return pcut_main(&pcut_item_last); \
+	int main(int argc, char *argv[]) { \
+		return pcut_main(&pcut_item_last, argc, argv); \
 	}
 
 #ifdef PCUT_INTERNAL
 /* Fix unused variable warning on pcut_item_0 */
-static void __attribute((unused)) pcut_fix_warnings(void) { (void) pcut_item_0; }
+static void __attribute((unused)) pcut_fix_warnings(void) { (void) pcut_item_1; }
 #endif
 
 

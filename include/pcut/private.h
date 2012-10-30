@@ -48,6 +48,7 @@
 		static pcut_item_t PCUT_ITEM_NAME(number) = { \
 				.previous = &PCUT_ITEM_NAME_PREV(number), \
 				.next = NULL, \
+				.id = -1, \
 				.kind = itemkind, \
 				__VA_ARGS__ \
 		}; \
