@@ -36,9 +36,9 @@ DEPEND = Makefile.depend
 APP_DEPS = $(APP_OBJECTS) ../include/pcut/*.h ../libpcut.a
 APP_OBJECTS = tested.o
 
-SOURCES = tested.c simple.c suite_all.c suite1.c suite2.c suites.c
+SOURCES = tested.c simple.c suite_all.c suite1.c suite2.c suites.c null.c
 
-TEST_APPS = simple.out suites.out multisuite.out
+TEST_APPS = simple.out suites.out multisuite.out null.out
 
 .PHONY: all run clean
 
@@ -57,6 +57,9 @@ suites.out: $(APP_DEPS) suites.o
 	
 multisuite.out: $(APP_DEPS) suite_all.o suite1.o suite2.o
 	$(LD) -o $@ $(APP_OBJECTS) suite_all.o suite1.o suite2.o $(LDFLAGS)
+	
+null.out: $(APP_DEPS) null.o
+	$(LD) -o $@ $(APP_OBJECTS) null.o $(LDFLAGS)
 
 %.o: %.c $(DEPEND)
 	$(CC) -c -o $@ $(CFLAGS) $<
