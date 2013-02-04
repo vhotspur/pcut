@@ -139,11 +139,9 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	int run_only_test = -1;
 
 	if (argc > 1) {
-		if (strncmp(argv[1], "-s", 2) == 0) {
-			sscanf(argv[1] + 2, "%d", &run_only_suite);
-		} else if (strncmp(argv[1], "-t", 2) == 0) {
-			sscanf(argv[1] + 2, "%d", &run_only_test);
-		} else if (strcmp(argv[1], "-l") == 0) {
+		pcut_is_arg_with_number(argv[1], "-s", &run_only_suite);
+		pcut_is_arg_with_number(argv[1], "-t", &run_only_test);
+		if (strcmp(argv[1], "-l") == 0) {
 			pcut_print_tests(items);
 			return 0;
 		}

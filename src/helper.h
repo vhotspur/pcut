@@ -39,5 +39,6 @@ pcut_item_t *pcut_get_real(pcut_item_t *item);
 const char* pcut_run_test(pcut_test_func_t function);
 void pcut_print_tests(pcut_item_t *first);
 int pcut_respawn(const char *app_path, const char *arg, int *normal_exit, int *exit_code);
+int pcut_is_arg_with_number(const char *arg, const char *opt, int *value);
 
 #endif

@@ -55,3 +55,13 @@ pcut_item_t *pcut_get_real(pcut_item_t *item) {
 		return item;
 	}
 }
+
+int pcut_is_arg_with_number(const char *arg, const char *opt, int *value) {
+	int opt_len = strlen(opt);
+	if (strncmp(arg, opt, opt_len) != 0) {
+		return 0;
+	}
+	int val = atoi(arg + opt_len);
+	*value = val;
+	return 1;
+}
