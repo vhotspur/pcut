@@ -30,6 +30,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define MAX_TEST_NUMBER_WIDTH 24
+
 #if defined(PCUT_OS_STDC)
 #	include <string.h>
 #elif defined(PCUT_OS_HELENOS)
@@ -44,8 +46,6 @@
 #endif
 
 int pcut_error_count;
-#define MAX_COMMAND_LINE_LENGTH 1024
-static char command_line_buffer[MAX_COMMAND_LINE_LENGTH];
 
 static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	pcut_item_t *it = pcut_get_real(first);
@@ -62,10 +62,10 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	assert(test->kind == PCUT_KIND_TEST);
 
 	if (respawn) {
-		snprintf(command_line_buffer, MAX_COMMAND_LINE_LENGTH,
-		    "%s -t%d", prog_path, test->id);
+		char test_arg[MAX_TEST_NUMBER_WIDTH + 1];
+		snprintf(test_arg, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
 		int exit_ok, exit_status;
-		int rc = pcut_respawn(command_line_buffer, &exit_ok, &exit_status);
+		int rc = pcut_respawn(prog_path, test_arg, &exit_ok, &exit_status);
 		printf("    Test `%s': ", test->test.name);
 		if (rc != 0) {
 			printf("failed to respawn: %s\n", strerror(rc));

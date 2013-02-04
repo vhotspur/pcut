@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Vojtech Horky
+ * Copyright (c) 2013 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,31 +27,80 @@
  */
 
 #include <stdlib.h>
+#include <errno.h>
 #include <assert.h>
 #include "helper.h"
 
+#ifdef PCUT_OS_UNIX
+#	include <sys/wait.h>
+#endif
 
-pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
-	if (item == NULL) {
-		return NULL;
+#define MAX_COMMAND_LINE_LENGTH 1024
+
+#if defined(PCUT_OS_STDC)
+
+static char command_line_buffer[MAX_COMMAND_LINE_LENGTH];
+
+static int os_respawn(const char *app_path, const char *argument,
+		int *normal_exit, int *exit_code) {
+
+	snprintf(command_line_buffer, MAX_COMMAND_LINE_LENGTH, "%s %s", app_path,
+		argument);
+
+	int status = system(command_line_buffer);
+
+	if (status == -1) {
+		return errno;
 	}
 
-	do {
-		item = item->next;
-	} while ((item != NULL) && (item->kind == PCUT_KIND_SKIP));
+#ifdef PCUT_OS_UNIX
 
+	if (WIFEXITED(status)) {
+		/* Normal termination (though a test might failed). */
+		*normal_exit = 1;
+		*exit_code = WEXITSTATUS(status);
+		return 0;
+	}
 
-	return item;
+	if (WIFSIGNALED(status)) {
+		/* Process was killed. */
+		*normal_exit = 0;
+		*exit_code = WTERMSIG(status);
+		return 0;
+	}
+
+	/* We shall not get here. */
+	assert(0 && "unreachable code");
+
+#endif
+
+	return ENOSYS;
 }
 
-pcut_item_t *pcut_get_real(pcut_item_t *item) {
-	if (item == NULL) {
-		return NULL;
-	}
 
-	if (item->kind == PCUT_KIND_SKIP) {
-		return pcut_get_real_next(item);
-	} else {
-		return item;
-	}
+
+
+#elif defined(PCUT_OS_HELENOS)
+
+static int os_respawn(const char *app_path, const char *argument,
+		int *normal_exit, int *exit_code) {
+	return ENOTSUP;
 }
+
+#else
+
+#error Unsupported operation.
+
+#endif
+
+
+
+int pcut_respawn(const char *app_path, const char *argument,
+		int *normal_exit, int *exit_code) {
+	return os_respawn(app_path, argument, normal_exit, exit_code);
+}
+
+/*
+ * Add `or' condition for other OSes that do support the `system()'
+ * function.
+ */

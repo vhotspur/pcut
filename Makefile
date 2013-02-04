@@ -39,7 +39,8 @@ SOURCES = \
 	src/list.c \
 	src/main.c \
 	src/print.c \
-	src/run.c
+	src/run.c \
+	src/spawn.c
 	
 OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))
 
