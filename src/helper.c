@@ -31,8 +31,8 @@
 #include <assert.h>
 #include "helper.h"
 
-#ifdef PCUT_USE_POSIX
-#include <sys/wait.h>
+#ifdef PCUT_OS_UNIX
+#	include <sys/wait.h>
 #endif
 
 
@@ -63,15 +63,19 @@ pcut_item_t *pcut_get_real(pcut_item_t *item) {
 
 int pcut_respawn(const char *cmdline, int *normal_exit, int *exit_code) {
 
-#ifndef __HELENOS__
+/*
+ * Add `or' condition for other OSes that do support the `system()'
+ * function.
+ */
+#if defined(PCUT_OS_STDC)
+
 	int status = system(cmdline);
 
 	if (status == -1) {
 		return errno;
 	}
 
-#ifdef PCUT_USE_POSIX
-	/* POSIX specific handling. */
+#ifdef PCUT_OS_UNIX
 
 	if (WIFEXITED(status)) {
 		/* Normal termination (though a test might failed). */
@@ -89,13 +93,18 @@ int pcut_respawn(const char *cmdline, int *normal_exit, int *exit_code) {
 
 	/* We shall not get here. */
 	assert(0 && "unreachable code");
+
 #endif
 
 	return ENOSYS;
 
-#else
-	/* HelenOS specifics. */
+#elif defined(PCUT_OS_HELENOS)
+
 	return ENOTSUP;
+
+#else
+
+#error Unsupported operation.
 
 #endif
 }

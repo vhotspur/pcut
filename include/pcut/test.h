@@ -29,6 +29,22 @@
 #ifndef PCUT_TEST_H_GUARD
 #define PCUT_TEST_H_GUARD
 
+/*
+ * First of all, try to guess on which OS we are running.
+ * Just the basic, more complex stuff might be added later.
+ *
+ * Check for HelenOS explicitly as the first one because even
+ * the cross-compiler may define the __unix__ macro.
+ */
+#if defined(__HELENOS__)
+#define PCUT_OS_HELENOS
+#elif defined(__unix__)
+#define PCUT_OS_UNIX
+#define PCUT_OS_STDC
+#else
+#error Ooops, I do not know this system.
+#endif
+
 #include <stdio.h>
 #include <setjmp.h>
 #include <pcut/private.h>

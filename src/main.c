@@ -30,15 +30,17 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#ifndef __HELENOS__
-#include <string.h>
+#if defined(PCUT_OS_STDC)
+#	include <string.h>
+#elif defined(PCUT_OS_HELENOS)
+#	include <str.h>
+#	include <str_error.h>
+#	define strerror str_error
+#	define strcmp str_cmp
+#	define strncmp str_lcmp
+#	define sscanf(string, fmt, storage) ((void)0)
 #else
-#include <str.h>
-#include <str_error.h>
-#define strerror str_error
-#define strcmp str_cmp
-#define strncmp str_lcmp
-#define sscanf(string, fmt, storage) ((void)0)
+#	error No idea which headers to include.
 #endif
 
 int pcut_error_count;
