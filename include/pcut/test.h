@@ -105,6 +105,7 @@ void pcut_print_items(pcut_item_t *first);
 #define PCUT_INIT \
 	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
 			.previous = NULL, \
+			.next = NULL, \
 			.id = -1, \
 			.kind = PCUT_KIND_SKIP \
 	}; \
