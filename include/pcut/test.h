@@ -42,6 +42,7 @@ enum {
 
 void pcut_failed_assertion(const char *message);
 void pcut_failed_assertion_fmt(const char *fmt, ...);
+int pcut_str_equals(const char *a, const char *b);
 
 typedef struct pcut_item pcut_item_t;
 typedef void (*pcut_test_func_t)(void);
@@ -79,12 +80,19 @@ struct pcut_item {
 	do {\
 		long pcut_expected_eval = (expected); \
 		long pcut_actual_eval = (actual); \
-		if (!((pcut_expected_eval) == (pcut_actual_eval))) { \
+		if (pcut_expected_eval != pcut_actual_eval) { \
 			pcut_failed_assertion_fmt("Expected <%ld> but got <%ld>", pcut_expected_eval, pcut_actual_eval); \
 		} \
 	} while (0)
 
-
+#define PCUT_ASSERT_STR_EQUALS(expected, actual) \
+	do {\
+		const char *pcut_expected_eval = (expected); \
+		const char *pcut_actual_eval = (actual); \
+		if (!pcut_str_equals(pcut_expected_eval, pcut_actual_eval)) { \
+			pcut_failed_assertion_fmt("Expected <%s> but got <%s>", pcut_expected_eval, pcut_actual_eval); \
+		} \
+	} while (0)
 
 
 #define PCUT_TEST(name) PCUT_TEST_IMPL(name, __COUNTER__)

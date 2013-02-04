@@ -47,3 +47,11 @@ void pcut_failed_assertion_fmt(const char *fmt, ...) {
 
 	pcut_failed_assertion(message_buffer);
 }
+
+int pcut_str_equals(const char *a, const char *b) {
+#ifndef __HELENOS__
+	return strcmp(a, b) == 0;
+#else
+	return str_cmp(a, b) == 0;
+#endif
+}
