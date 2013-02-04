@@ -69,7 +69,11 @@
 		)
 
 #define PCUT_EXPORT_IMPL(identifier, number) \
-	pcut_item_t *pcut_exported_##identifier = &PCUT_ITEM_NAME_PREV(number);
+	pcut_item_t pcut_exported_##identifier = { \
+		.previous = &PCUT_ITEM_NAME_PREV(number), \
+		.next = NULL, \
+		.kind = PCUT_KIND_SKIP \
+	}
 
 /*
  * Trick with [] and & copied from
@@ -79,9 +83,9 @@
  * int *b = a;
  */
 #define PCUT_IMPORT_IMPL(identifier, number) \
-	extern pcut_item_t pcut_exported_##identifier[]; \
+	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
-		.nested.last = &pcut_exported_##identifier[0] \
+		.nested.last = &pcut_exported_##identifier \
 	)
 
 #endif
