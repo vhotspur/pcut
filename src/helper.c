@@ -28,9 +28,13 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/wait.h>
 #include <assert.h>
 #include "helper.h"
+
+#ifdef PCUT_USE_POSIX
+#include <sys/wait.h>
+#endif
+
 
 pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
 	if (item == NULL) {
@@ -40,6 +44,7 @@ pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
 	do {
 		item = item->next;
 	} while ((item != NULL) && (item->kind == PCUT_KIND_SKIP));
+
 
 	return item;
 }
@@ -57,11 +62,15 @@ pcut_item_t *pcut_get_real(pcut_item_t *item) {
 }
 
 int pcut_respawn(const char *cmdline, int *normal_exit, int *exit_code) {
+
+#ifndef __HELENOS__
 	int status = system(cmdline);
+
 	if (status == -1) {
 		return errno;
 	}
 
+#ifdef PCUT_USE_POSIX
 	/* POSIX specific handling. */
 
 	if (WIFEXITED(status)) {
@@ -80,5 +89,13 @@ int pcut_respawn(const char *cmdline, int *normal_exit, int *exit_code) {
 
 	/* We shall not get here. */
 	assert(0 && "unreachable code");
+#endif
+
 	return ENOSYS;
+
+#else
+	/* HelenOS specifics. */
+	return ENOTSUP;
+
+#endif
 }

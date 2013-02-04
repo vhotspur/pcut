@@ -28,8 +28,18 @@
 
 #include "helper.h"
 #include <assert.h>
-#include <string.h>
 #include <stdlib.h>
+
+#ifndef __HELENOS__
+#include <string.h>
+#else
+#include <str.h>
+#include <str_error.h>
+#define strerror str_error
+#define strcmp str_cmp
+#define strncmp str_lcmp
+#define sscanf(string, fmt, storage) ((void)0)
+#endif
 
 int pcut_error_count;
 #define MAX_COMMAND_LINE_LENGTH 1024
