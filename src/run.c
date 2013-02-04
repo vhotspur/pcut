@@ -28,6 +28,7 @@
 
 #include "helper.h"
 #include <setjmp.h>
+#include <stdlib.h>
 
 jmp_buf pcut_bad_test_jmp;
 const char *pcut_bad_test_message;
