@@ -35,6 +35,10 @@
 #	include <sys/wait.h>
 #endif
 
+#ifdef PCUT_OS_HELENOS
+#	include <task.h>
+#endif
+
 #define MAX_COMMAND_LINE_LENGTH 1024
 
 #if defined(PCUT_OS_STDC)
@@ -84,7 +88,30 @@ static int os_respawn(const char *app_path, const char *argument,
 
 static int os_respawn(const char *app_path, const char *argument,
 		int *normal_exit, int *exit_code) {
-	return ENOTSUP;
+	task_id_t task_id;
+	int rc = task_spawnl(&task_id, app_path, app_path, argument, NULL);
+	if (rc != EOK) {
+		return rc;
+	}
+
+	task_exit_t task_exit;
+	int task_retval = 0;
+	rc = task_wait(task_id, &task_exit, &task_retval);
+	if (rc != EOK) {
+		return rc;
+	}
+
+	*exit_code = task_retval;
+
+	if (task_exit == TASK_EXIT_NORMAL) {
+		*normal_exit = 1;
+		return EOK;
+	} else if (task_exit == TASK_EXIT_UNEXPECTED) {
+		*normal_exit = 0;
+		return EOK;
+	} else {
+		assert(0 && "Unknown value for task_exit_t.");
+	}
 }
 
 #else

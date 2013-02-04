@@ -147,6 +147,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 		}
 	}
 
+	printf("run_only_suite = %d   run_only_test = %d\n", run_only_suite, run_only_test);
+
 	if ((run_only_suite >= 0) && (run_only_test >= 0)) {
 		printf("Specify either -s or -t!\n");
 		return 1;

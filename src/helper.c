@@ -57,11 +57,11 @@ pcut_item_t *pcut_get_real(pcut_item_t *item) {
 }
 
 int pcut_is_arg_with_number(const char *arg, const char *opt, int *value) {
-	int opt_len = strlen(opt);
-	if (strncmp(arg, opt, opt_len) != 0) {
+	int opt_len = pcut_str_size(opt);
+	if (! pcut_str_start_equals(arg, opt, opt_len)) {
 		return 0;
 	}
-	int val = atoi(arg + opt_len);
+	int val = pcut_str_to_int(arg + opt_len);
 	*value = val;
 	return 1;
 }
