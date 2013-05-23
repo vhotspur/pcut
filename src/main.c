@@ -58,6 +58,9 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	return NULL;
 }
 
+#define PRINT_TEST_FAILURE(testitem, fmt, ...) \
+	printf("Failure in %s: " fmt "\n", testitem->test.name, ##__VA_ARGS__)
+
 static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	assert(test->kind == PCUT_KIND_TEST);
 
@@ -66,32 +69,29 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 		snprintf(test_arg, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
 		int exit_ok, exit_status;
 		int rc = pcut_respawn(prog_path, test_arg, &exit_ok, &exit_status);
-		printf("    Test `%s': ", test->test.name);
 		if (rc != 0) {
-			printf("failed to respawn: %s\n", strerror(rc));
+			PRINT_TEST_FAILURE(test, "unable to respawn (%s)", strerror(rc));
 			return 2;
 		}
 		if (exit_ok) {
 			if (exit_status == 0) {
-				printf("OK\n");
+				printf(".");
 				return 0;
 			} else {
-				printf("FAILED (%d)\n", exit_status);
 				return 1;
 			}
 		} else {
-			printf("ABORTED (%d)\n", exit_status);
+			PRINT_TEST_FAILURE(test, "task was killed (reason: %d)", exit_status);
 			return 3;
 		}
 	}
-
 
 	const char *error_message = pcut_run_test(test->test.func);
 
 	if (error_message == NULL) {
 		return 0;
 	} else {
-		printf("    FAILED `%s': %s\n", test->test.name, error_message);
+		PRINT_TEST_FAILURE(test, "%s", error_message);
 		return 1;
 	}
 }
@@ -99,10 +99,12 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
 	pcut_item_t *it = pcut_get_real_next(suite);
 	if (it->kind == PCUT_KIND_TESTSUITE) {
-		goto leave_ok;
+		goto leave_no_print;
 	}
 
-	printf("  Suite `%s'\n", suite->suite.name);
+	int is_first_test = 1;
+	int total_count = 0;
+	int failed_count = 0;
 
 	for (; it != NULL; it = pcut_get_real_next(it)) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
@@ -112,23 +114,32 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 			continue;
 		}
 
+		if (is_first_test) {
+			printf("  Running suite `%s'...\n", suite->suite.name);
+			is_first_test = 0;
+		}
+
 		int test_failed = run_test(it, 1, prog_path);
+		total_count++;
 		if (test_failed) {
-			goto leave_fail;
+			failed_count++;
 		}
 	}
 
-leave_ok:
-	if (last != NULL) {
-		*last = it;
-	}
-	return 0;
+	int ret_val = 0;
 
-leave_fail:
+leave_ok:
+	if (total_count > 0) {
+		printf("  Suite `%s' finished. Tests total: %d. Failed: %d.\n",
+			suite->suite.name, total_count, failed_count);
+	}
+
+leave_no_print:
 	if (last != NULL) {
 		*last = it;
 	}
-	return 5;
+
+	return ret_val;
 }
 
 
@@ -146,6 +157,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			return 0;
 		}
 	}
+
+	setvbuf(stdout, NULL, _IONBF, 0);
 
 	PCUT_DEBUG("run_only_suite = %d   run_only_test = %d", run_only_suite, run_only_test);
 
