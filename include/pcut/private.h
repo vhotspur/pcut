@@ -35,6 +35,9 @@
 
 #include <pcut/prevs.h>
 
+#define PCUT_ASSERTION_FAILED(fmt, ...) \
+	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt, __LINE__, ##__VA_ARGS__)
+
 #define PCUT_JOIN_IMPL(a, b) a##b
 #define PCUT_JOIN(a, b) PCUT_JOIN_IMPL(a, b)
 

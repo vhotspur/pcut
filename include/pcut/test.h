@@ -88,7 +88,7 @@ struct pcut_item {
 #define PCUT_ASSERT_EQUALS(expected, actual) \
 		do {\
 			if (!((expected) == (actual))) { \
-				pcut_failed_assertion("Expected <"#expected "> but got <" #actual ">"); \
+				PCUT_ASSERTION_FAILED("Expected <"#expected "> but got <" #actual ">"); \
 			} \
 		} while (0)
 
@@ -97,7 +97,9 @@ struct pcut_item {
 		long pcut_expected_eval = (expected); \
 		long pcut_actual_eval = (actual); \
 		if (pcut_expected_eval != pcut_actual_eval) { \
-			pcut_failed_assertion_fmt("Expected <%ld> but got <%ld>", pcut_expected_eval, pcut_actual_eval); \
+			PCUT_ASSERTION_FAILED("Expected <%ld> but got <%ld> (%s != %s)", \
+				pcut_expected_eval, pcut_actual_eval, \
+				#expected, #actual); \
 		} \
 	} while (0)
 
@@ -106,7 +108,9 @@ struct pcut_item {
 		const char *pcut_expected_eval = (expected); \
 		const char *pcut_actual_eval = (actual); \
 		if (!pcut_str_equals(pcut_expected_eval, pcut_actual_eval)) { \
-			pcut_failed_assertion_fmt("Expected <%s> but got <%s>", pcut_expected_eval, pcut_actual_eval); \
+			PCUT_ASSERTION_FAILED("Expected <%s> but got <%s> (%s != %s)", \
+				pcut_expected_eval, pcut_actual_eval, \
+				#expected, #actual); \
 		} \
 	} while (0)
 
