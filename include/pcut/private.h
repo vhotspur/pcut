@@ -88,4 +88,11 @@
 		.nested.last = &pcut_exported_##identifier \
 	)
 
+#ifdef PCUT_DEBUG_BUILD
+#define PCUT_DEBUG(msg, ...) \
+	printf("[PCUT]: Debug: " msg "\n", ##__VA_ARGS__)
+#else
+#define PCUT_DEBUG(msg, ...) (void)0
+#endif
+
 #endif
