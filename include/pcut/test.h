@@ -92,6 +92,25 @@ struct pcut_item {
 			} \
 		} while (0)
 
+
+#define PCUT_ASSERT_NULL(pointer) \
+	do { \
+		void *pcut_ptr_eval = (pointer); \
+		if (pcut_ptr_eval != (NULL)) { \
+			PCUT_ASSERTION_FAILED("Expected <" #pointer "> to be NULL, " \
+				"instead it points to %p", pcut_ptr_eval); \
+		} \
+	} while (0)
+
+#define PCUT_ASSERT_NOT_NULL(pointer) \
+	do { \
+		void *pcut_ptr_eval = (pointer); \
+		if (pcut_ptr_eval == (NULL)) { \
+			PCUT_ASSERTION_FAILED("Pointer <" #pointer "> ought not to be NULL"); \
+		} \
+	} while (0)
+
+
 #define PCUT_ASSERT_INT_EQUALS(expected, actual) \
 	do {\
 		long pcut_expected_eval = (expected); \
