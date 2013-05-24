@@ -36,7 +36,7 @@ DEPEND = Makefile.depend
 APP_DEPS = $(APP_OBJECTS)
 APP_OBJECTS = tested.o
 
-TEST_APPS = simple.out suites.out multisuite.out null.out
+TEST_APPS = simple.out suites.out multisuite.out null.out manytests.out
 
 .PHONY: all run clean
 
@@ -58,6 +58,9 @@ multisuite.out: $(APP_DEPS) suite_all.o suite1.o suite2.o
 	
 null.out: $(APP_DEPS) null.o
 	$(LD) -o $@ $(APP_OBJECTS) null.o $(LDFLAGS)
+
+manytests.out: $(APP_DEPS) manytests.o
+	$(LD) -o $@ $(APP_OBJECTS) manytests.o $(LDFLAGS)
 
 %.o: %.c $(DEPEND)
 	$(CC) -c -o $@ $(CFLAGS) $<
