@@ -68,8 +68,26 @@
 
 #define PCUT_TEST_SUITE_IMPL(suitename, number) \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
-				.suite.name = suitename \
+				.suite = { \
+					.name = suitename, \
+					.setup = NULL, \
+					.teardown = NULL \
+				} \
 		)
+
+#define PCUT_TEST_BEFORE_IMPL(number) \
+		static void PCUT_JOIN(setup_, number)(void); \
+		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
+				.setup.func = PCUT_JOIN(setup_, number) \
+		) \
+		void PCUT_JOIN(setup_, number)(void)
+
+#define PCUT_TEST_AFTER_IMPL(number) \
+		static void PCUT_JOIN(teardown_, number)(void); \
+		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
+				.setup.func = PCUT_JOIN(teardown_, number) \
+		) \
+		void PCUT_JOIN(teardown_, number)(void)
 
 #define PCUT_EXPORT_IMPL(identifier, number) \
 	pcut_item_t pcut_exported_##identifier = { \

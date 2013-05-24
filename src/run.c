@@ -43,3 +43,15 @@ const char *pcut_run_test(pcut_test_func_t function) {
 
 	return pcut_bad_test_message;
 }
+
+const char *pcut_run_setup_teardown(pcut_setup_func_t function) {
+	int returned_from_test = setjmp(pcut_bad_test_jmp);
+
+	if (!returned_from_test) {
+		function();
+		return NULL;
+	}
+
+	return pcut_bad_test_message;
+}
+

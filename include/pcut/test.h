@@ -52,6 +52,8 @@
 enum {
 	PCUT_KIND_SKIP,
 	PCUT_KIND_NESTED,
+	PCUT_KIND_SETUP,
+	PCUT_KIND_TEARDOWN,
 	PCUT_KIND_TESTSUITE,
 	PCUT_KIND_TEST
 };
@@ -62,6 +64,7 @@ int pcut_str_equals(const char *a, const char *b);
 
 typedef struct pcut_item pcut_item_t;
 typedef void (*pcut_test_func_t)(void);
+typedef void (*pcut_setup_func_t)(void);
 
 struct pcut_item {
 	pcut_item_t *previous;
@@ -71,11 +74,17 @@ struct pcut_item {
 	union {
 		struct {
 			const char *name;
+			pcut_setup_func_t setup;
+			pcut_setup_func_t teardown;
 		} suite;
 		struct {
 			const char *name;
 			pcut_test_func_t func;
 		} test;
+		/* setup is used for both set-up and tear-down */
+		struct {
+			pcut_setup_func_t func;
+		} setup;
 		struct {
 			pcut_item_t *last;
 		} nested;
@@ -137,6 +146,9 @@ struct pcut_item {
 #define PCUT_TEST(name) PCUT_TEST_IMPL(name, __COUNTER__)
 
 #define PCUT_TEST_SUITE(name) PCUT_TEST_SUITE_IMPL(name, __COUNTER__)
+
+#define PCUT_TEST_BEFORE PCUT_TEST_BEFORE_IMPL(__COUNTER__)
+#define PCUT_TEST_AFTER PCUT_TEST_AFTER_IMPL(__COUNTER__)
 
 #define PCUT_EXPORT(identifier) \
 	PCUT_EXPORT_IMPL(identifier, __COUNTER__)

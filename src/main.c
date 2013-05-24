@@ -58,6 +58,28 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	return NULL;
 }
 
+static pcut_item_t default_suite = {
+	.kind = PCUT_KIND_TESTSUITE,
+	.id = -1,
+	.previous = NULL,
+	.next = NULL,
+	.suite = {
+		.name = "Default",
+		.setup = NULL,
+		.teardown = NULL
+	}
+};
+
+static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
+	while (it != NULL) {
+		if (it->kind == PCUT_KIND_TESTSUITE) {
+			return it;
+		}
+		it = it->previous;
+	}
+	return &default_suite;
+}
+
 #define PRINT_TEST_FAILURE(testitem, fmt, ...) \
 	printf("Failure in %s: " fmt "\n", testitem->test.name, ##__VA_ARGS__)
 
@@ -86,14 +108,42 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 		}
 	}
 
-	const char *error_message = pcut_run_test(test->test.func);
+	pcut_item_t *suite = pcut_find_parent_suite(test);
+	const char *error_message = NULL;
+	int count_as_failure = 0;
 
-	if (error_message == NULL) {
-		return 0;
-	} else {
-		PRINT_TEST_FAILURE(test, "%s", error_message);
-		return 1;
+	/* Run the set-up function if it was set. */
+	if (suite->suite.setup != NULL) {
+		error_message = pcut_run_setup_teardown(suite->suite.setup);
+		if (error_message != NULL) {
+			count_as_failure = 1;
+			PRINT_TEST_FAILURE(test, "%s", error_message);
+			goto run_teardown;
+		}
 	}
+
+	/*
+	 * Run the test, hopefully we would get some meaningful
+	 * error message. Worst case scenario is that this task would
+	 * be killed. We cannot do much about that, though.
+	 */
+	error_message = pcut_run_test(test->test.func);
+	if (error_message != NULL) {
+		count_as_failure = 1;
+		PRINT_TEST_FAILURE(test, "%s", error_message);
+	}
+
+	/* Run the tear-down function no matter of the test outcome. */
+run_teardown:
+	if (suite->suite.teardown != NULL) {
+		error_message = pcut_run_setup_teardown(suite->suite.teardown);
+		if (error_message != NULL) {
+			count_as_failure = 1;
+			PRINT_TEST_FAILURE(test, "%s", error_message);
+		}
+	}
+
+	return count_as_failure;
 }
 
 static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
@@ -142,6 +192,26 @@ leave_no_print:
 	return ret_val;
 }
 
+static void set_setup_teardown_callbacks(pcut_item_t *first) {
+	pcut_item_t *active_suite = NULL;
+	for (pcut_item_t *it = first; it != NULL; it = pcut_get_real_next(it)) {
+		if (it->kind == PCUT_KIND_TESTSUITE) {
+			active_suite = it;
+		} else if (it->kind == PCUT_KIND_SETUP) {
+			if (active_suite != NULL) {
+				active_suite->suite.setup = it->setup.func;
+			}
+			it->kind = PCUT_KIND_SKIP;
+		} else if (it->kind == PCUT_KIND_TEARDOWN) {
+			if (active_suite != NULL) {
+				active_suite->suite.teardown = it->setup.func;
+			}
+			it->kind = PCUT_KIND_SKIP;
+		} else {
+			/* Not interesting right now. */
+		}
+	}
+}
 
 int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	pcut_item_t *items = pcut_fix_list_get_real_head(last);
@@ -159,6 +229,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	}
 
 	setvbuf(stdout, NULL, _IONBF, 0);
+	set_setup_teardown_callbacks(items);
 
 	PCUT_DEBUG("run_only_suite = %d   run_only_test = %d", run_only_suite, run_only_test);
 
