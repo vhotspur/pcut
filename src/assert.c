@@ -49,18 +49,5 @@ void pcut_failed_assertion_fmt(const char *fmt, ...) {
 }
 
 int pcut_str_equals(const char *a, const char *b) {
-
-#if defined(PCUT_OS_UNIX)
-
 	return strcmp(a, b) == 0;
-
-#elif defined(PCUT_OS_HELENOS)
-
-	return str_cmp(a, b) == 0;
-
-#else
-
-#error Unsupported operation.
-
-#endif
 }

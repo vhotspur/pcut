@@ -49,8 +49,6 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 		char **error_message, char **extra_output);
 void pcut_run_test_safe_clean(char *error_message, char *extra_output);
 
-#if defined(PCUT_OS_STDC)
-
 #include <string.h>
 
 static inline int pcut_str_start_equals(const char *a, const char *b, int len) {
@@ -64,28 +62,6 @@ static inline int pcut_str_size(const char *s) {
 static inline int pcut_str_to_int(const char *s) {
 	return atoi(s);
 }
-
-#elif defined(PCUT_OS_HELENOS)
-
-static inline int pcut_str_start_equals(const char *a, const char *b, int len) {
-	return str_lcmp(a, b, len) == 0;
-}
-
-static inline int pcut_str_size(const char *s) {
-	return str_size(s);
-}
-
-static inline int pcut_str_to_int(const char *s) {
-	int result = strtol(s, NULL, 10);
-	printf("pcut_str_to_int('%s') = %d\n", s, result);
-	return result;
-}
-
-#else
-
-#	error Unsupported operation.
-
-#endif
 
 
 #endif

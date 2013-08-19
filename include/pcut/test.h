@@ -36,15 +36,6 @@
  * Check for HelenOS explicitly as the first one because even
  * the cross-compiler may define the __unix__ macro.
  */
-#if defined(__HELENOS__)
-#define PCUT_OS_HELENOS
-#elif defined(__unix__)
-#define PCUT_OS_UNIX
-#define PCUT_OS_STDC
-#else
-#error Ooops, I do not know this system.
-#endif
-
 #include <stdio.h>
 #include <setjmp.h>
 #include <pcut/private.h>

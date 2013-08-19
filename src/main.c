@@ -31,18 +31,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#if defined(PCUT_OS_STDC)
-#	include <string.h>
-#elif defined(PCUT_OS_HELENOS)
-#	include <str.h>
-#	include <str_error.h>
-#	define strerror str_error
-#	define strcmp str_cmp
-#	define strncmp str_lcmp
-#	define sscanf(string, fmt, storage) ((void)0)
-#else
-#	error No idea which headers to include.
-#endif
+#include <string.h>
 
 int pcut_error_count;
 
