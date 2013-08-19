@@ -45,6 +45,7 @@ void pcut_print_tests(pcut_item_t *first);
 int pcut_respawn(const char *app_path, const char *arg, int *normal_exit, int *exit_code);
 int pcut_is_arg_with_number(const char *arg, const char *opt, int *value);
 
+int pcut_run_test_unsafe(pcut_item_t *test);
 int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 		char **error_message, char **extra_output);
 void pcut_run_test_safe_clean(char *error_message, char *extra_output);

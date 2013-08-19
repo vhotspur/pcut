@@ -27,6 +27,8 @@
  */
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
 #include "helper.h"
@@ -75,6 +77,26 @@ int pcut_respawn(const char *app_path, const char *argument,
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+static void read_all(int fd, char *buffer, size_t buffer_size) {
+	ssize_t actually_read;
+	char *buffer_start = buffer;
+	do {
+		actually_read = read(fd, buffer, buffer_size);
+		if (actually_read > 0) {
+			buffer += actually_read;
+			buffer_size -= actually_read;
+			if (buffer_size == 0) {
+				break;
+			}
+		}
+	} while (actually_read > 0);
+	if (buffer_start != buffer) {
+		if (*(buffer - 1) == 10) {
+			*(buffer - 1) = 0;
+		}
+	}
+}
+
 int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 		char **error_message, char **extra_output) {
 	assert(test->kind == PCUT_KIND_TEST);
@@ -85,26 +107,61 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 	*error_message = error_message_buffer;
 	*extra_output = extra_output_buffer;
 
-	char test_arg[MAX_TEST_NUMBER_WIDTH + 1];
-	snprintf(test_arg, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
-	int exit_ok, exit_status;
-	int rc = pcut_respawn(self_path, test_arg, &exit_ok, &exit_status);
-	if (rc != 0) {
+	int link[2];
+	pid_t pid;
+
+	int rc = pipe(link);
+	if (rc == -1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
-				"unable to respawn (%s)", strerror(rc));
+				"pipe() failed: %s.", strerror(rc));
 		return 2;
 	}
-	if (exit_ok) {
-		if (exit_status == 0) {
-			return 0;
-		} else {
-			return 1;
-		}
-	} else {
+
+	pid = fork();
+	if (pid == (pid_t)-1) {
+		rc = 2;
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
-				"task was killed (reason: %d)", exit_status);
-		return 3;
+			"pipe() failed: %s.", strerror(rc));
+		goto leave_close_pipes;
 	}
+
+	if (pid == 0) {
+		/* We are the child. */
+		dup2(link[1], STDOUT_FILENO);
+		close(link[0]);
+
+		rc = pcut_run_test_unsafe(test);
+
+		exit(rc);
+	}
+
+	close(link[1]);
+
+	read_all(link[0], error_message_buffer, OUTPUT_BUFFER_SIZE - 1);
+
+	int status;
+	wait(&status);
+
+	if (WIFEXITED(status)) {
+		if (WEXITSTATUS(status) != 0) {
+			rc = 1;
+		} else {
+			rc = 0;
+		}
+	}
+
+	if (WIFSIGNALED(status)) {
+		rc = 1;
+	}
+
+	goto leave_close_parent_pipe;
+
+leave_close_pipes:
+	close(link[1]);
+leave_close_parent_pipe:
+	close(link[0]);
+
+	return rc;
 }
 
 void pcut_run_test_safe_clean(char *error_message, char *extra_output) {

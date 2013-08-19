@@ -71,19 +71,7 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 #define PRINT_TEST_FAILURE(testitem, fmt, ...) \
 	printf("%d: Failure in %s: " fmt "\n", (int)getpid(), testitem->test.name, ##__VA_ARGS__)
 
-static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
-	assert(test->kind == PCUT_KIND_TEST);
-
-	if (respawn) {
-		char *error_message, *extra_output;
-		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
-		if (rc != 0) {
-			printf("Failure in %s: %s.\n", test->test.name, error_message);
-		}
-		pcut_run_test_safe_clean(error_message, extra_output);
-		return rc;
-	}
-
+int pcut_run_test_unsafe(pcut_item_t *test) {
 	pcut_item_t *suite = pcut_find_parent_suite(test);
 	const char *error_message = NULL;
 	int count_as_failure = 0;
@@ -93,7 +81,7 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 		error_message = pcut_run_setup_teardown(suite->suite.setup);
 		if (error_message != NULL) {
 			count_as_failure = 1;
-			PRINT_TEST_FAILURE(test, "%s", error_message);
+			printf("%s\n", error_message);
 			goto run_teardown;
 		}
 	}
@@ -106,7 +94,7 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	error_message = pcut_run_test(test->test.func);
 	if (error_message != NULL) {
 		count_as_failure = 1;
-		PRINT_TEST_FAILURE(test, "%s", error_message);
+		printf("%s\n", error_message);
 	}
 
 	/* Run the tear-down function no matter of the test outcome. */
@@ -115,11 +103,27 @@ run_teardown:
 		error_message = pcut_run_setup_teardown(suite->suite.teardown);
 		if (error_message != NULL) {
 			count_as_failure = 1;
-			PRINT_TEST_FAILURE(test, "%s", error_message);
+			printf("%s\n", error_message);
 		}
 	}
 
 	return count_as_failure;
+}
+
+static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
+	assert(test->kind == PCUT_KIND_TEST);
+
+	if (respawn) {
+		char *error_message, *extra_output;
+		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
+		if (rc != 0) {
+			printf("Failure in %s: %s.\n", test->test.name, error_message);
+		}
+		pcut_run_test_safe_clean(error_message, extra_output);
+		return rc;
+	} else {
+		return pcut_run_test_unsafe(test);
+	}
 }
 
 static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
