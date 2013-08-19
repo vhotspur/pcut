@@ -29,8 +29,7 @@
 #include "helper.h"
 #include <assert.h>
 #include <stdlib.h>
-
-#define MAX_TEST_NUMBER_WIDTH 24
+#include <unistd.h>
 
 #if defined(PCUT_OS_STDC)
 #	include <string.h>
@@ -81,31 +80,19 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 }
 
 #define PRINT_TEST_FAILURE(testitem, fmt, ...) \
-	printf("Failure in %s: " fmt "\n", testitem->test.name, ##__VA_ARGS__)
+	printf("%d: Failure in %s: " fmt "\n", (int)getpid(), testitem->test.name, ##__VA_ARGS__)
 
 static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	assert(test->kind == PCUT_KIND_TEST);
 
 	if (respawn) {
-		char test_arg[MAX_TEST_NUMBER_WIDTH + 1];
-		snprintf(test_arg, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
-		int exit_ok, exit_status;
-		int rc = pcut_respawn(prog_path, test_arg, &exit_ok, &exit_status);
+		char *error_message, *extra_output;
+		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
 		if (rc != 0) {
-			PRINT_TEST_FAILURE(test, "unable to respawn (%s)", strerror(rc));
-			return 2;
+			printf("Failure in %s: %s.\n", test->test.name, error_message);
 		}
-		if (exit_ok) {
-			if (exit_status == 0) {
-				printf(".");
-				return 0;
-			} else {
-				return 1;
-			}
-		} else {
-			PRINT_TEST_FAILURE(test, "task was killed (reason: %d)", exit_status);
-			return 3;
-		}
+		pcut_run_test_safe_clean(error_message, extra_output);
+		return rc;
 	}
 
 	pcut_item_t *suite = pcut_find_parent_suite(test);

@@ -39,7 +39,9 @@
 #	include <task.h>
 #endif
 
+#define MAX_TEST_NUMBER_WIDTH 24
 #define MAX_COMMAND_LINE_LENGTH 1024
+#define OUTPUT_BUFFER_SIZE 8192
 
 #if defined(PCUT_OS_STDC)
 
@@ -120,11 +122,63 @@ static int os_respawn(const char *app_path, const char *argument,
 
 #endif
 
+#ifdef __unix__
 
+int os_run_test_safe(const char *self_path, pcut_item_t *test,
+		char **error_message, char **extra_output) {
+	assert(test->kind == PCUT_KIND_TEST);
+	(void) self_path;
+	*error_message = NULL;
+	*extra_output = NULL;
+	return 0;
+}
+
+#endif
 
 int pcut_respawn(const char *app_path, const char *argument,
 		int *normal_exit, int *exit_code) {
 	return os_respawn(app_path, argument, normal_exit, exit_code);
+}
+
+static char error_message_buffer[OUTPUT_BUFFER_SIZE];
+static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
+
+int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
+		char **error_message, char **extra_output) {
+	assert(test->kind == PCUT_KIND_TEST);
+
+	/* Clean the buffer first, enable access from outside. */
+	strcpy(error_message_buffer, "");
+	strcpy(extra_output_buffer, "");
+	*error_message = error_message_buffer;
+	*extra_output = extra_output_buffer;
+
+	char test_arg[MAX_TEST_NUMBER_WIDTH + 1];
+	snprintf(test_arg, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
+	int exit_ok, exit_status;
+	int rc = pcut_respawn(self_path, test_arg, &exit_ok, &exit_status);
+	if (rc != 0) {
+		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+				"unable to respawn (%s)", strerror(rc));
+		return 2;
+	}
+	if (exit_ok) {
+		if (exit_status == 0) {
+			return 0;
+		} else {
+			return 1;
+		}
+	} else {
+		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+				"task was killed (reason: %d)", exit_status);
+		return 3;
+	}
+}
+
+void pcut_run_test_safe_clean(char *error_message, char *extra_output) {
+	/* Do nothing. */
+	(void) error_message;
+	(void) extra_output;
 }
 
 /*
