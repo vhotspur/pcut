@@ -107,10 +107,16 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 	*error_message = error_message_buffer;
 	*extra_output = extra_output_buffer;
 
-	int link[2];
+	int link_stdout[2], link_stderr[2];
 	pid_t pid;
 
-	int rc = pipe(link);
+	int rc = pipe(link_stdout);
+	if (rc == -1) {
+		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+				"pipe() failed: %s.", strerror(rc));
+		return 2;
+	}
+	rc = pipe(link_stderr);
 	if (rc == -1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
@@ -127,17 +133,21 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 
 	if (pid == 0) {
 		/* We are the child. */
-		dup2(link[1], STDOUT_FILENO);
-		close(link[0]);
+		dup2(link_stdout[1], STDOUT_FILENO);
+		close(link_stdout[0]);
+		dup2(link_stderr[1], STDERR_FILENO);
+		close(link_stderr[0]);
 
 		rc = pcut_run_test_unsafe(test);
 
 		exit(rc);
 	}
 
-	close(link[1]);
+	close(link_stdout[1]);
+	close(link_stderr[1]);
 
-	read_all(link[0], error_message_buffer, OUTPUT_BUFFER_SIZE - 1);
+	read_all(link_stdout[0], error_message_buffer, OUTPUT_BUFFER_SIZE - 1);
+	read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
 
 	int status;
 	wait(&status);
@@ -157,9 +167,11 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 	goto leave_close_parent_pipe;
 
 leave_close_pipes:
-	close(link[1]);
+	close(link_stdout[1]);
+	close(link_stderr[1]);
 leave_close_parent_pipe:
-	close(link[0]);
+	close(link_stdout[0]);
+	close(link_stderr[0]);
 
 	return rc;
 }
