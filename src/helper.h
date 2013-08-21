@@ -32,7 +32,7 @@
 #include <pcut/test.h>
 #include <stdlib.h>
 
-#define PCUT_UNUSED(x)
+#define PCUT_UNUSED(x) ((void)x)
 
 jmp_buf pcut_bad_test_jmp;
 extern const char *pcut_bad_test_message;

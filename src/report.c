@@ -52,6 +52,8 @@ void pcut_report_suite_done(pcut_item_t *suite) {
 }
 
 void pcut_report_test_start(pcut_item_t *test) {
+	PCUT_UNUSED(test);
+
 	tests_in_suite++;
 	test_counter++;
 }
