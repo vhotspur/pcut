@@ -55,3 +55,82 @@ const char *pcut_run_setup_teardown(pcut_setup_func_t function) {
 	return pcut_bad_test_message;
 }
 
+
+static pcut_item_t default_suite = {
+	.kind = PCUT_KIND_TESTSUITE,
+	.id = -1,
+	.previous = NULL,
+	.next = NULL,
+	.suite = {
+		.name = "Default",
+		.setup = NULL,
+		.teardown = NULL
+	}
+};
+
+static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
+	while (it != NULL) {
+		if (it->kind == PCUT_KIND_TESTSUITE) {
+			return it;
+		}
+		it = it->previous;
+	}
+	return &default_suite;
+}
+
+static int run_test(pcut_item_t *test, int print_result, int report_result) {
+	pcut_item_t *suite = pcut_find_parent_suite(test);
+	const char *error_message = NULL;
+	const char *teardown_error_message = NULL;
+
+	if (report_result) {
+		pcut_report_test_start(test);
+	}
+
+	/* Run the set-up function if it was set. */
+	if (suite->suite.setup != NULL) {
+		error_message = pcut_run_setup_teardown(suite->suite.setup);
+		if (error_message != NULL) {
+			goto run_teardown;
+		}
+	}
+
+	/*
+	 * Run the test, hopefully we would get some meaningful
+	 * error message. Worst case scenario is that this task would
+	 * be killed. We cannot do much about that, though.
+	 */
+	error_message = pcut_run_test(test->test.func);
+
+	/* Run the tear-down function no matter of the test outcome. */
+run_teardown:
+	if (suite->suite.teardown != NULL) {
+		teardown_error_message = pcut_run_setup_teardown(suite->suite.teardown);
+	}
+
+	int test_failed = (error_message != NULL) || (teardown_error_message != NULL);
+
+	if (print_result) {
+		if (error_message != NULL) {
+			printf("%s\n", error_message);
+		}
+		if (teardown_error_message != NULL) {
+			printf("%s\n", teardown_error_message);
+		}
+	}
+
+	if (report_result) {
+		pcut_report_test_done(test, test_failed, error_message, teardown_error_message, NULL);
+	}
+
+	return test_failed;
+}
+
+int pcut_run_test_forked(pcut_item_t *test) {
+	return run_test(test, 1, 0);
+}
+
+int pcut_run_test_single(pcut_item_t *test) {
+	return run_test(test, 0, 1);
+}
+

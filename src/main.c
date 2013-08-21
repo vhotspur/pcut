@@ -46,92 +46,6 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	return NULL;
 }
 
-static pcut_item_t default_suite = {
-	.kind = PCUT_KIND_TESTSUITE,
-	.id = -1,
-	.previous = NULL,
-	.next = NULL,
-	.suite = {
-		.name = "Default",
-		.setup = NULL,
-		.teardown = NULL
-	}
-};
-
-static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
-	while (it != NULL) {
-		if (it->kind == PCUT_KIND_TESTSUITE) {
-			return it;
-		}
-		it = it->previous;
-	}
-	return &default_suite;
-}
-
-#define PRINT_TEST_FAILURE(testitem, fmt, ...) \
-	printf("%d: Failure in %s: " fmt "\n", (int)getpid(), testitem->test.name, ##__VA_ARGS__)
-
-int pcut_run_test_unsafe(pcut_item_t *test) {
-	pcut_item_t *suite = pcut_find_parent_suite(test);
-	const char *error_message = NULL;
-	const char *teardown_error_message = NULL;
-	int count_as_failure = 0;
-
-	/* Run the set-up function if it was set. */
-	if (suite->suite.setup != NULL) {
-		error_message = pcut_run_setup_teardown(suite->suite.setup);
-		if (error_message != NULL) {
-			count_as_failure = 1;
-			goto run_teardown;
-		}
-	}
-
-	/*
-	 * Run the test, hopefully we would get some meaningful
-	 * error message. Worst case scenario is that this task would
-	 * be killed. We cannot do much about that, though.
-	 */
-	error_message = pcut_run_test(test->test.func);
-	if (error_message != NULL) {
-		count_as_failure = 1;
-	}
-
-	/* Run the tear-down function no matter of the test outcome. */
-run_teardown:
-	if (suite->suite.teardown != NULL) {
-		teardown_error_message = pcut_run_setup_teardown(suite->suite.teardown);
-		if (teardown_error_message != NULL) {
-			count_as_failure = 1;
-		}
-	}
-
-	if (error_message != NULL) {
-		printf("%s\n", error_message);
-	}
-	if (teardown_error_message != NULL) {
-		printf("%s\n", teardown_error_message);
-	}
-
-	return count_as_failure;
-}
-
-static void run_test(pcut_item_t *test, int respawn, const char *prog_path) {
-	assert(test->kind == PCUT_KIND_TEST);
-
-	if (respawn) {
-		char *error_message, *extra_output;
-
-		pcut_report_test_start(test);
-
-		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
-
-		pcut_report_test_done(test, rc, error_message, NULL, extra_output);
-
-		pcut_run_test_safe_clean(error_message, extra_output);
-	} else {
-		pcut_run_test_unsafe(test);
-	}
-}
 
 static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
 	pcut_item_t *it = pcut_get_real_next(suite);
@@ -155,7 +69,11 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 			is_first_test = 0;
 		}
 
-		run_test(it, 1, prog_path);
+		if (pcut_run_mode == PCUT_RUN_MODE_FORKING) {
+			pcut_run_test_forking(prog_path, it);
+		} else {
+			pcut_run_test_single(it);
+		}
 		total_count++;
 	}
 
@@ -202,11 +120,17 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	int run_only_test = -1;
 
 	if (argc > 1) {
-		pcut_is_arg_with_number(argv[1], "-s", &run_only_suite);
-		pcut_is_arg_with_number(argv[1], "-t", &run_only_test);
-		if (strcmp(argv[1], "-l") == 0) {
-			pcut_print_tests(items);
-			return 0;
+		int i;
+		for (i = 1; i < argc; i++) {
+			pcut_is_arg_with_number(argv[i], "-s", &run_only_suite);
+			pcut_is_arg_with_number(argv[i], "-t", &run_only_test);
+			if (pcut_str_equals(argv[i], "-l")) {
+				pcut_print_tests(items);
+				return 0;
+			}
+			if (pcut_str_equals(argv[i], "-u")) {
+				pcut_run_mode = PCUT_RUN_MODE_SINGLE;
+			}
 		}
 	}
 
@@ -245,7 +169,14 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			return 3;
 		}
 
-		run_test(test, 0, argv[0]);
+		int rc;
+		if (pcut_run_mode == PCUT_RUN_MODE_SINGLE) {
+			rc = pcut_run_test_single(test);
+		} else {
+			rc = pcut_run_test_forked(test);
+		}
+
+		exit(rc);
 	}
 
 	/* Otherwise, run the whole thing. */

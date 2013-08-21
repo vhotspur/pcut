@@ -34,6 +34,11 @@
 
 #define PCUT_UNUSED(x) ((void)x)
 
+#define PCUT_RUN_MODE_FORKING 1
+#define PCUT_RUN_MODE_SINGLE 2
+
+extern int pcut_run_mode;
+
 jmp_buf pcut_bad_test_jmp;
 extern const char *pcut_bad_test_message;
 
@@ -42,13 +47,12 @@ pcut_item_t *pcut_get_real(pcut_item_t *item);
 const char* pcut_run_test(pcut_test_func_t function);
 const char* pcut_run_setup_teardown(pcut_setup_func_t function);
 void pcut_print_tests(pcut_item_t *first);
-int pcut_respawn(const char *app_path, const char *arg, int *normal_exit, int *exit_code);
 int pcut_is_arg_with_number(const char *arg, const char *opt, int *value);
 
-int pcut_run_test_unsafe(pcut_item_t *test);
-int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
-		char **error_message, char **extra_output);
-void pcut_run_test_safe_clean(char *error_message, char *extra_output);
+void pcut_run_test_forking(const char *self_path, pcut_item_t *test);
+int pcut_run_test_forked(pcut_item_t *test);
+int pcut_run_test_single(pcut_item_t *test);
+
 
 void pcut_report_init(pcut_item_t *all_items);
 void pcut_report_suite_start(pcut_item_t *suite);

@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
@@ -35,44 +36,11 @@
 
 #include <sys/wait.h>
 
+int pcut_run_mode = PCUT_RUN_MODE_FORKING;
+
 #define MAX_TEST_NUMBER_WIDTH 24
 #define MAX_COMMAND_LINE_LENGTH 1024
 #define OUTPUT_BUFFER_SIZE 8192
-
-static char command_line_buffer[MAX_COMMAND_LINE_LENGTH];
-
-int pcut_respawn(const char *app_path, const char *argument,
-		int *normal_exit, int *exit_code) {
-
-	snprintf(command_line_buffer, MAX_COMMAND_LINE_LENGTH, "%s %s", app_path,
-		argument);
-
-	int status = system(command_line_buffer);
-
-	if (status == -1) {
-		return errno;
-	}
-
-	if (WIFEXITED(status)) {
-		/* Normal termination (though a test might failed). */
-		*normal_exit = 1;
-		*exit_code = WEXITSTATUS(status);
-		return 0;
-	}
-
-	if (WIFSIGNALED(status)) {
-		/* Process was killed. */
-		*normal_exit = 0;
-		*exit_code = WTERMSIG(status);
-		return 0;
-	}
-
-	/* We shall not get here. */
-	assert(0 && "unreachable code");
-
-	return ENOSYS;
-}
-
 
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
@@ -97,15 +65,14 @@ static void read_all(int fd, char *buffer, size_t buffer_size) {
 	}
 }
 
-int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
-		char **error_message, char **extra_output) {
-	assert(test->kind == PCUT_KIND_TEST);
+void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
+	PCUT_UNUSED(self_path);
 
-	/* Clean the buffer first, enable access from outside. */
-	strcpy(error_message_buffer, "");
-	strcpy(extra_output_buffer, "");
-	*error_message = error_message_buffer;
-	*extra_output = extra_output_buffer;
+	pcut_report_test_start(test);
+
+	/* Clean the buffer first. */
+	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
+	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
 
 	int link_stdout[2], link_stderr[2];
 	pid_t pid;
@@ -114,20 +81,22 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 	if (rc == -1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
-		return 2;
+		pcut_report_test_done(test, 1, error_message_buffer, NULL, NULL);
+		return;
 	}
 	rc = pipe(link_stderr);
 	if (rc == -1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
-		return 2;
+		pcut_report_test_done(test, 1, error_message_buffer, NULL, NULL);
+		return;
 	}
 
 	pid = fork();
 	if (pid == (pid_t)-1) {
-		rc = 2;
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
-			"pipe() failed: %s.", strerror(rc));
+			"fork() failed: %s.", strerror(rc));
+		pcut_report_test_done(test, 1, error_message_buffer, NULL, NULL);
 		goto leave_close_pipes;
 	}
 
@@ -138,7 +107,7 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 		dup2(link_stderr[1], STDERR_FILENO);
 		close(link_stderr[0]);
 
-		rc = pcut_run_test_unsafe(test);
+		rc = pcut_run_test_forked(test);
 
 		exit(rc);
 	}
@@ -173,8 +142,9 @@ leave_close_parent_pipe:
 	close(link_stdout[0]);
 	close(link_stderr[0]);
 
-	return rc;
+	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
 }
+
 
 void pcut_run_test_safe_clean(char *error_message, char *extra_output) {
 	/* Do nothing. */
