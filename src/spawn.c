@@ -45,7 +45,7 @@ int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
-static void read_all(int fd, char *buffer, size_t buffer_size) {
+static size_t read_all(int fd, char *buffer, size_t buffer_size) {
 	ssize_t actually_read;
 	char *buffer_start = buffer;
 	do {
@@ -61,8 +61,10 @@ static void read_all(int fd, char *buffer, size_t buffer_size) {
 	if (buffer_start != buffer) {
 		if (*(buffer - 1) == 10) {
 			*(buffer - 1) = 0;
+			buffer--;
 		}
 	}
+	return buffer - buffer_start;
 }
 
 void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
@@ -115,8 +117,18 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	close(link_stdout[1]);
 	close(link_stderr[1]);
 
-	read_all(link_stdout[0], error_message_buffer, OUTPUT_BUFFER_SIZE - 1);
-	read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
+	size_t stderr_size = read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
+	read_all(link_stdout[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1 - stderr_size);
+
+	/* Try to find the error message in the buffer ('\0' delimeted). */
+	int extra_output_size = pcut_str_size(extra_output_buffer);
+	if (extra_output_size + 1 < OUTPUT_BUFFER_SIZE) {
+		const char *error_message_start = extra_output_buffer + extra_output_size + 1;
+		if (error_message_start[0] != 0) {
+			int error_message_size = OUTPUT_BUFFER_SIZE - 1 - extra_output_size - 1;
+			memcpy(error_message_buffer, error_message_start, error_message_size);
+		}
+	}
 
 	int status;
 	wait(&status);

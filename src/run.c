@@ -110,17 +110,26 @@ run_teardown:
 
 	int test_failed = (error_message != NULL) || (teardown_error_message != NULL);
 
+	if (report_result) {
+		pcut_report_test_done(test, test_failed, error_message, teardown_error_message, NULL);
+	}
+
 	if (print_result) {
+		int print_delimeter = 1;
+
 		if (error_message != NULL) {
+			if (print_delimeter) {
+				printf("%c", 0);
+				print_delimeter = 0;
+			}
 			printf("%s\n", error_message);
 		}
 		if (teardown_error_message != NULL) {
+			if (print_delimeter) {
+				printf("%c", 0);
+			}
 			printf("%s\n", teardown_error_message);
 		}
-	}
-
-	if (report_result) {
-		pcut_report_test_done(test, test_failed, error_message, teardown_error_message, NULL);
 	}
 
 	return test_failed;
