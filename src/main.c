@@ -115,9 +115,14 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 
 	if (respawn) {
 		char *error_message, *extra_output;
+		const char *test_name = test->test.name;
 		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
 		if (rc != 0) {
-			printf("Failure in %s: %s.\n", test->test.name, error_message);
+			printf("Failure in %s: %s.\n", test_name, error_message);
+		}
+		if (extra_output[0] != 0) {
+			printf("Extra output:\n---[ %s ]---\n%s\n---[ %s ]--- (eof)\n",
+				test_name, extra_output, test_name);
 		}
 		pcut_run_test_safe_clean(error_message, extra_output);
 		return rc;
