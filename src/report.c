@@ -58,18 +58,20 @@ void pcut_report_test_start(pcut_item_t *test) {
 	test_counter++;
 }
 
-static void print_as_comment(const char *message) {
+static void print_by_lines(const char *message, const char *prefix) {
 	if ((message == NULL) || (message[0] == 0)) {
 		return;
 	}
 	char *next_line_start = strstr(message, "\n");
 	while (next_line_start != NULL) {
 		next_line_start[0] = 0;
-		printf("# %s\n", message);
+		printf("%s%s\n", prefix, message);
 		message = next_line_start + 1;
 		next_line_start = strstr(message, "\n");
 	}
-	printf("# %s\n", message);
+	if (message[0] != 0) {
+		printf("%s%s\n", prefix, message);
+	}
 }
 
 void pcut_report_test_done(pcut_item_t *test, int outcome,
@@ -83,10 +85,10 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 
 	printf("%s %d %s\n", outcome == 0 ? "ok" : "not ok", test_counter, test_name);
 
-	print_as_comment(error_message);
-	print_as_comment(teardown_error_message);
+	print_by_lines(error_message, "# error: ");
+	print_by_lines(teardown_error_message, "# error: ");
 
-	print_as_comment(extra_output);
+	print_by_lines(extra_output, "# stdio: ");
 }
 
 void pcut_report_done() {
