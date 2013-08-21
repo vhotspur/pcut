@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Vojtech Horky
+ * Copyright (c) 2013 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,23 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "helper.h"
-#include <setjmp.h>
-#include <stdarg.h>
+#include <pcut/test.h>
+#include "tested.h"
+#include <stdio.h>
 
-#define MAX_MESSAGE_LENGTH 256
-static char message_buffer[MAX_MESSAGE_LENGTH + 1];
+PCUT_INIT
 
-void pcut_failed_assertion(const char *message) {
-	pcut_bad_test_message = message;
-	longjmp(pcut_bad_test_jmp, 1);
+PCUT_TEST(print_to_stdout) {
+	printf("Printed from a test to stdout!\n");
 }
 
-
-void pcut_failed_assertion_fmt(const char *fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(message_buffer, MAX_MESSAGE_LENGTH, fmt, args);
-	va_end(args);
-
-	pcut_failed_assertion(message_buffer);
+PCUT_TEST(print_to_stderr) {
+	fprintf(stderr, "Printed from a test to stderr!\n");
 }
 
-int pcut_str_equals(const char *a, const char *b) {
-	return strcmp(a, b) == 0;
+PCUT_TEST(print_to_stdout_and_fail) {
+	printf("Printed from a test to stdout!\n");
+	PCUT_ASSERT_NOT_NULL(0);
 }
+
+PCUT_MAIN

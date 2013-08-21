@@ -29,21 +29,9 @@
 #include "helper.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-#define MAX_TEST_NUMBER_WIDTH 24
-
-#if defined(PCUT_OS_STDC)
-#	include <string.h>
-#elif defined(PCUT_OS_HELENOS)
-#	include <str.h>
-#	include <str_error.h>
-#	define strerror str_error
-#	define strcmp str_cmp
-#	define strncmp str_lcmp
-#	define sscanf(string, fmt, storage) ((void)0)
-#else
-#	error No idea which headers to include.
-#endif
+#include <string.h>
 
 int pcut_error_count;
 
@@ -81,33 +69,9 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 }
 
 #define PRINT_TEST_FAILURE(testitem, fmt, ...) \
-	printf("Failure in %s: " fmt "\n", testitem->test.name, ##__VA_ARGS__)
+	printf("%d: Failure in %s: " fmt "\n", (int)getpid(), testitem->test.name, ##__VA_ARGS__)
 
-static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
-	assert(test->kind == PCUT_KIND_TEST);
-
-	if (respawn) {
-		char test_arg[MAX_TEST_NUMBER_WIDTH + 1];
-		snprintf(test_arg, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
-		int exit_ok, exit_status;
-		int rc = pcut_respawn(prog_path, test_arg, &exit_ok, &exit_status);
-		if (rc != 0) {
-			PRINT_TEST_FAILURE(test, "unable to respawn (%s)", strerror(rc));
-			return 2;
-		}
-		if (exit_ok) {
-			if (exit_status == 0) {
-				printf(".");
-				return 0;
-			} else {
-				return 1;
-			}
-		} else {
-			PRINT_TEST_FAILURE(test, "task was killed (reason: %d)", exit_status);
-			return 3;
-		}
-	}
-
+int pcut_run_test_unsafe(pcut_item_t *test) {
 	pcut_item_t *suite = pcut_find_parent_suite(test);
 	const char *error_message = NULL;
 	int count_as_failure = 0;
@@ -117,7 +81,7 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 		error_message = pcut_run_setup_teardown(suite->suite.setup);
 		if (error_message != NULL) {
 			count_as_failure = 1;
-			PRINT_TEST_FAILURE(test, "%s", error_message);
+			printf("%s\n", error_message);
 			goto run_teardown;
 		}
 	}
@@ -130,7 +94,7 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	error_message = pcut_run_test(test->test.func);
 	if (error_message != NULL) {
 		count_as_failure = 1;
-		PRINT_TEST_FAILURE(test, "%s", error_message);
+		printf("%s\n", error_message);
 	}
 
 	/* Run the tear-down function no matter of the test outcome. */
@@ -139,11 +103,32 @@ run_teardown:
 		error_message = pcut_run_setup_teardown(suite->suite.teardown);
 		if (error_message != NULL) {
 			count_as_failure = 1;
-			PRINT_TEST_FAILURE(test, "%s", error_message);
+			printf("%s\n", error_message);
 		}
 	}
 
 	return count_as_failure;
+}
+
+static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
+	assert(test->kind == PCUT_KIND_TEST);
+
+	if (respawn) {
+		char *error_message, *extra_output;
+		const char *test_name = test->test.name;
+		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
+		if (rc != 0) {
+			printf("Failure in %s: %s.\n", test_name, error_message);
+		}
+		if (extra_output[0] != 0) {
+			printf("Extra output:\n---[ %s ]---\n%s\n---[ %s ]--- (eof)\n",
+				test_name, extra_output, test_name);
+		}
+		pcut_run_test_safe_clean(error_message, extra_output);
+		return rc;
+	} else {
+		return pcut_run_test_unsafe(test);
+	}
 }
 
 static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {

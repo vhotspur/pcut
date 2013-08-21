@@ -32,6 +32,8 @@
 #include <pcut/test.h>
 #include <stdlib.h>
 
+#define PCUT_UNUSED(x)
+
 jmp_buf pcut_bad_test_jmp;
 extern const char *pcut_bad_test_message;
 
@@ -43,7 +45,10 @@ void pcut_print_tests(pcut_item_t *first);
 int pcut_respawn(const char *app_path, const char *arg, int *normal_exit, int *exit_code);
 int pcut_is_arg_with_number(const char *arg, const char *opt, int *value);
 
-#if defined(PCUT_OS_STDC)
+int pcut_run_test_unsafe(pcut_item_t *test);
+int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
+		char **error_message, char **extra_output);
+void pcut_run_test_safe_clean(char *error_message, char *extra_output);
 
 #include <string.h>
 
@@ -58,28 +63,6 @@ static inline int pcut_str_size(const char *s) {
 static inline int pcut_str_to_int(const char *s) {
 	return atoi(s);
 }
-
-#elif defined(PCUT_OS_HELENOS)
-
-static inline int pcut_str_start_equals(const char *a, const char *b, int len) {
-	return str_lcmp(a, b, len) == 0;
-}
-
-static inline int pcut_str_size(const char *s) {
-	return str_size(s);
-}
-
-static inline int pcut_str_to_int(const char *s) {
-	int result = strtol(s, NULL, 10);
-	printf("pcut_str_to_int('%s') = %d\n", s, result);
-	return result;
-}
-
-#else
-
-#	error Unsupported operation.
-
-#endif
 
 
 #endif

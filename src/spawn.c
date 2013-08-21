@@ -27,25 +27,21 @@
  */
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
 #include "helper.h"
 
-#ifdef PCUT_OS_UNIX
-#	include <sys/wait.h>
-#endif
+#include <sys/wait.h>
 
-#ifdef PCUT_OS_HELENOS
-#	include <task.h>
-#endif
-
+#define MAX_TEST_NUMBER_WIDTH 24
 #define MAX_COMMAND_LINE_LENGTH 1024
-
-#if defined(PCUT_OS_STDC)
+#define OUTPUT_BUFFER_SIZE 8192
 
 static char command_line_buffer[MAX_COMMAND_LINE_LENGTH];
 
-static int os_respawn(const char *app_path, const char *argument,
+int pcut_respawn(const char *app_path, const char *argument,
 		int *normal_exit, int *exit_code) {
 
 	snprintf(command_line_buffer, MAX_COMMAND_LINE_LENGTH, "%s %s", app_path,
@@ -56,8 +52,6 @@ static int os_respawn(const char *app_path, const char *argument,
 	if (status == -1) {
 		return errno;
 	}
-
-#ifdef PCUT_OS_UNIX
 
 	if (WIFEXITED(status)) {
 		/* Normal termination (though a test might failed). */
@@ -76,55 +70,116 @@ static int os_respawn(const char *app_path, const char *argument,
 	/* We shall not get here. */
 	assert(0 && "unreachable code");
 
-#endif
-
 	return ENOSYS;
 }
 
 
+static char error_message_buffer[OUTPUT_BUFFER_SIZE];
+static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
-
-#elif defined(PCUT_OS_HELENOS)
-
-static int os_respawn(const char *app_path, const char *argument,
-		int *normal_exit, int *exit_code) {
-	task_id_t task_id;
-	int rc = task_spawnl(&task_id, app_path, app_path, argument, NULL);
-	if (rc != EOK) {
-		return rc;
-	}
-
-	task_exit_t task_exit;
-	int task_retval = 0;
-	rc = task_wait(task_id, &task_exit, &task_retval);
-	if (rc != EOK) {
-		return rc;
-	}
-
-	*exit_code = task_retval;
-
-	if (task_exit == TASK_EXIT_NORMAL) {
-		*normal_exit = 1;
-		return EOK;
-	} else if (task_exit == TASK_EXIT_UNEXPECTED) {
-		*normal_exit = 0;
-		return EOK;
-	} else {
-		assert(0 && "Unknown value for task_exit_t.");
+static void read_all(int fd, char *buffer, size_t buffer_size) {
+	ssize_t actually_read;
+	char *buffer_start = buffer;
+	do {
+		actually_read = read(fd, buffer, buffer_size);
+		if (actually_read > 0) {
+			buffer += actually_read;
+			buffer_size -= actually_read;
+			if (buffer_size == 0) {
+				break;
+			}
+		}
+	} while (actually_read > 0);
+	if (buffer_start != buffer) {
+		if (*(buffer - 1) == 10) {
+			*(buffer - 1) = 0;
+		}
 	}
 }
 
-#else
+int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
+		char **error_message, char **extra_output) {
+	assert(test->kind == PCUT_KIND_TEST);
 
-#error Unsupported operation.
+	/* Clean the buffer first, enable access from outside. */
+	strcpy(error_message_buffer, "");
+	strcpy(extra_output_buffer, "");
+	*error_message = error_message_buffer;
+	*extra_output = extra_output_buffer;
 
-#endif
+	int link_stdout[2], link_stderr[2];
+	pid_t pid;
 
+	int rc = pipe(link_stdout);
+	if (rc == -1) {
+		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+				"pipe() failed: %s.", strerror(rc));
+		return 2;
+	}
+	rc = pipe(link_stderr);
+	if (rc == -1) {
+		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+				"pipe() failed: %s.", strerror(rc));
+		return 2;
+	}
 
+	pid = fork();
+	if (pid == (pid_t)-1) {
+		rc = 2;
+		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+			"pipe() failed: %s.", strerror(rc));
+		goto leave_close_pipes;
+	}
 
-int pcut_respawn(const char *app_path, const char *argument,
-		int *normal_exit, int *exit_code) {
-	return os_respawn(app_path, argument, normal_exit, exit_code);
+	if (pid == 0) {
+		/* We are the child. */
+		dup2(link_stdout[1], STDOUT_FILENO);
+		close(link_stdout[0]);
+		dup2(link_stderr[1], STDERR_FILENO);
+		close(link_stderr[0]);
+
+		rc = pcut_run_test_unsafe(test);
+
+		exit(rc);
+	}
+
+	close(link_stdout[1]);
+	close(link_stderr[1]);
+
+	read_all(link_stdout[0], error_message_buffer, OUTPUT_BUFFER_SIZE - 1);
+	read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
+
+	int status;
+	wait(&status);
+
+	if (WIFEXITED(status)) {
+		if (WEXITSTATUS(status) != 0) {
+			rc = 1;
+		} else {
+			rc = 0;
+		}
+	}
+
+	if (WIFSIGNALED(status)) {
+		rc = 1;
+	}
+
+	goto leave_close_parent_pipe;
+
+leave_close_pipes:
+	close(link_stdout[1]);
+	close(link_stderr[1]);
+leave_close_parent_pipe:
+	close(link_stdout[0]);
+	close(link_stderr[0]);
+
+	return rc;
+}
+
+void pcut_run_test_safe_clean(char *error_message, char *extra_output) {
+	/* Do nothing. */
+	(void) error_message;
+	(void) extra_output;
 }
 
 /*
