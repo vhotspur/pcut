@@ -84,3 +84,14 @@ pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last) {
 
 	return next;
 }
+
+int pcut_count_tests(pcut_item_t *it) {
+	int count = 0;
+	while (it != NULL) {
+		if (it->kind == PCUT_KIND_TEST) {
+			count++;
+		}
+		it = pcut_get_real_next(it);
+	}
+	return count;
+}

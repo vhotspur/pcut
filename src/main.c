@@ -267,6 +267,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	}
 
 	/* Otherwise, run the whole thing. */
+	printf("Will run %d tests.\n", pcut_count_tests(items));
 	pcut_item_t *it = items;
 	while (it != NULL) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {

@@ -157,6 +157,7 @@ struct pcut_item {
 	PCUT_IMPORT_IMPL(identifier, __COUNTER__)
 
 pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last);
+int pcut_count_tests(pcut_item_t *it);
 int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 void pcut_print_items(pcut_item_t *first);
 
