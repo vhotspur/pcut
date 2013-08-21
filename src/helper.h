@@ -50,6 +50,15 @@ int pcut_run_test_safe(const char *self_path, pcut_item_t *test,
 		char **error_message, char **extra_output);
 void pcut_run_test_safe_clean(char *error_message, char *extra_output);
 
+void pcut_report_init(pcut_item_t *all_items);
+void pcut_report_suite_start(pcut_item_t *suite);
+void pcut_report_suite_done(pcut_item_t *suite);
+void pcut_report_test_start(pcut_item_t *test);
+void pcut_report_test_done(pcut_item_t *test, int outcome,
+		const char *error_message, const char *teardown_error_message,
+		const char *extra_output);
+void pcut_report_done();
+
 #include <string.h>
 
 static inline int pcut_str_start_equals(const char *a, const char *b, int len) {

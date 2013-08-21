@@ -39,6 +39,7 @@ SOURCES = \
 	src/list.c \
 	src/main.c \
 	src/print.c \
+	src/report.c \
 	src/run.c \
 	src/spawn.c
 	

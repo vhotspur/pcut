@@ -74,14 +74,16 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 int pcut_run_test_unsafe(pcut_item_t *test) {
 	pcut_item_t *suite = pcut_find_parent_suite(test);
 	const char *error_message = NULL;
+	const char *teardown_error_message = NULL;
 	int count_as_failure = 0;
+
+	pcut_report_test_start(test);
 
 	/* Run the set-up function if it was set. */
 	if (suite->suite.setup != NULL) {
 		error_message = pcut_run_setup_teardown(suite->suite.setup);
 		if (error_message != NULL) {
 			count_as_failure = 1;
-			printf("%s\n", error_message);
 			goto run_teardown;
 		}
 	}
@@ -94,18 +96,18 @@ int pcut_run_test_unsafe(pcut_item_t *test) {
 	error_message = pcut_run_test(test->test.func);
 	if (error_message != NULL) {
 		count_as_failure = 1;
-		printf("%s\n", error_message);
 	}
 
 	/* Run the tear-down function no matter of the test outcome. */
 run_teardown:
 	if (suite->suite.teardown != NULL) {
-		error_message = pcut_run_setup_teardown(suite->suite.teardown);
-		if (error_message != NULL) {
+		teardown_error_message = pcut_run_setup_teardown(suite->suite.teardown);
+		if (teardown_error_message != NULL) {
 			count_as_failure = 1;
-			printf("%s\n", error_message);
 		}
 	}
+
+	pcut_report_test_done(test, count_as_failure, error_message, teardown_error_message, NULL);
 
 	return count_as_failure;
 }
@@ -115,16 +117,15 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 
 	if (respawn) {
 		char *error_message, *extra_output;
-		const char *test_name = test->test.name;
+
+		pcut_report_test_start(test);
+
 		int rc = pcut_run_test_safe(prog_path, test, &error_message, &extra_output);
-		if (rc != 0) {
-			printf("Failure in %s: %s.\n", test_name, error_message);
-		}
-		if (extra_output[0] != 0) {
-			printf("Extra output:\n---[ %s ]---\n%s\n---[ %s ]--- (eof)\n",
-				test_name, extra_output, test_name);
-		}
+
+		pcut_report_test_done(test, rc, error_message, NULL, extra_output);
+
 		pcut_run_test_safe_clean(error_message, extra_output);
+
 		return rc;
 	} else {
 		return pcut_run_test_unsafe(test);
@@ -150,7 +151,7 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 		}
 
 		if (is_first_test) {
-			printf("  Running suite `%s'...\n", suite->suite.name);
+			pcut_report_suite_start(suite);
 			is_first_test = 0;
 		}
 
@@ -165,8 +166,7 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 
 leave_ok:
 	if (total_count > 0) {
-		printf("  Suite `%s' finished. Tests total: %d. Failed: %d.\n",
-			suite->suite.name, total_count, failed_count);
+		pcut_report_suite_done(suite);
 	}
 
 leave_no_print:
@@ -252,7 +252,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	}
 
 	/* Otherwise, run the whole thing. */
-	printf("Will run %d tests.\n", pcut_count_tests(items));
+	pcut_report_init(items);
+
 	pcut_item_t *it = items;
 	while (it != NULL) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
@@ -266,6 +267,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			it = pcut_get_real_next(it);
 		}
 	}
+
+	pcut_report_done();
 
 	return 0;
 }
