@@ -28,26 +28,32 @@
 
 #include "helper.h"
 
+static int test_counter;
 static int tests_in_suite;
 static int failed_tests_in_suite;
 
 void pcut_report_init(pcut_item_t *all_items) {
-	printf("Will run %d tests.\n", pcut_count_tests(all_items));
+	int tests_total = pcut_count_tests(all_items);
+	test_counter = 0;
+
+	printf("1..%d\n", tests_total);
 }
 
 void pcut_report_suite_start(pcut_item_t *suite) {
-	printf("  Running suite `%s'...\n", suite->suite.name);
 	tests_in_suite = 0;
 	failed_tests_in_suite = 0;
+
+	printf("#> Starting suite %s.\n", suite->suite.name);
 }
 
 void pcut_report_suite_done(pcut_item_t *suite) {
-	printf("  Suite `%s' finished. Tests total: %d. Failed: %d.\n",
-				suite->suite.name, tests_in_suite, failed_tests_in_suite);
+	printf("#> Finished suite %s (failed %d of %d).\n",
+			suite->suite.name, failed_tests_in_suite, tests_in_suite);
 }
 
 void pcut_report_test_start(pcut_item_t *test) {
 	tests_in_suite++;
+	test_counter++;
 }
 
 void pcut_report_test_done(pcut_item_t *test, int outcome,
@@ -59,13 +65,17 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 		failed_tests_in_suite++;
 	}
 
+	printf("%s %d %s\n", outcome == 0 ? "ok" : "not ok", test_counter, test_name);
+
 	if (outcome != 0) {
-		printf("Failure in %s: %s.\n", test_name, error_message);
+		printf("# %s\n", error_message);
+		if (teardown_error_message != NULL) {
+			printf("# %s\n", teardown_error_message);
+		}
 	}
 
 	if ((extra_output != NULL) && (extra_output[0] != 0)) {
-		printf("Extra output:\n---[ %s ]---\n%s\n---[ %s ]--- (eof)\n",
-			test_name, extra_output, test_name);
+		printf("# %s\n", extra_output);
 	}
 
 }

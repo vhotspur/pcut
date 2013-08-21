@@ -77,8 +77,6 @@ int pcut_run_test_unsafe(pcut_item_t *test) {
 	const char *teardown_error_message = NULL;
 	int count_as_failure = 0;
 
-	pcut_report_test_start(test);
-
 	/* Run the set-up function if it was set. */
 	if (suite->suite.setup != NULL) {
 		error_message = pcut_run_setup_teardown(suite->suite.setup);
@@ -107,7 +105,12 @@ run_teardown:
 		}
 	}
 
-	pcut_report_test_done(test, count_as_failure, error_message, teardown_error_message, NULL);
+	if (error_message != NULL) {
+		printf("%s\n", error_message);
+	}
+	if (teardown_error_message != NULL) {
+		printf("%s\n", teardown_error_message);
+	}
 
 	return count_as_failure;
 }
