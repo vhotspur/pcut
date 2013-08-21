@@ -115,7 +115,7 @@ run_teardown:
 	return count_as_failure;
 }
 
-static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
+static void run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 	assert(test->kind == PCUT_KIND_TEST);
 
 	if (respawn) {
@@ -128,10 +128,8 @@ static int run_test(pcut_item_t *test, int respawn, const char *prog_path) {
 		pcut_report_test_done(test, rc, error_message, NULL, extra_output);
 
 		pcut_run_test_safe_clean(error_message, extra_output);
-
-		return rc;
 	} else {
-		return pcut_run_test_unsafe(test);
+		pcut_run_test_unsafe(test);
 	}
 }
 
@@ -143,7 +141,6 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 
 	int is_first_test = 1;
 	int total_count = 0;
-	int failed_count = 0;
 
 	for (; it != NULL; it = pcut_get_real_next(it)) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
@@ -158,11 +155,8 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 			is_first_test = 0;
 		}
 
-		int test_failed = run_test(it, 1, prog_path);
+		run_test(it, 1, prog_path);
 		total_count++;
-		if (test_failed) {
-			failed_count++;
-		}
 	}
 
 	int ret_val = 0;
@@ -251,7 +245,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			return 3;
 		}
 
-		return run_test(test, 0, argv[0]);
+		run_test(test, 0, argv[0]);
 	}
 
 	/* Otherwise, run the whole thing. */
