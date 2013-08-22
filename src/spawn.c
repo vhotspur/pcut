@@ -156,15 +156,3 @@ leave_close_parent_pipe:
 
 	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
 }
-
-
-void pcut_run_test_safe_clean(char *error_message, char *extra_output) {
-	/* Do nothing. */
-	(void) error_message;
-	(void) extra_output;
-}
-
-/*
- * Add `or' condition for other OSes that do support the `system()'
- * function.
- */
