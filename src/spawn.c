@@ -33,7 +33,7 @@
 #include <errno.h>
 #include <assert.h>
 #include "helper.h"
-
+#include "implconf.h"
 #include <sys/wait.h>
 
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
@@ -45,6 +45,8 @@ int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+
+#ifdef PCUT_FORKING_METHOD_UNIX_FORK
 static size_t read_all(int fd, char *buffer, size_t buffer_size) {
 	ssize_t actually_read;
 	char *buffer_start = buffer;
@@ -156,3 +158,47 @@ leave_close_parent_pipe:
 
 	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
 }
+#endif
+
+
+#ifdef PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE
+
+void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
+	pcut_report_test_start(test);
+
+	/* Clean the buffer first. */
+	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
+	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
+
+	char tempfile_name[PCUT_TEMP_FILENAME_BUFFER_SIZE];
+	PCUT_TEMP_FILENAME_CREATE(tempfile_name);
+	FILE *tempfile = fopen(tempfile_name, "w+b");
+	if (tempfile == NULL) {
+		pcut_report_test_done(test, 1, "Failed to create temporary file.", NULL, NULL);
+		return;
+	}
+
+	char command[PCUT_COMMAND_LINE_BUFFER_SIZE];
+	PCUT_COMMAND_LINE_CREATE_TEST_RUN(command, test, self_path, tempfile_name);
+
+	int rc = system(command);
+
+	fread(extra_output_buffer, 1, OUTPUT_BUFFER_SIZE, tempfile);
+	fclose(tempfile);
+	remove(tempfile_name);
+
+	/* Try to find the error message in the buffer ('\0' delimeted). */
+	int extra_output_size = pcut_str_size(extra_output_buffer);
+	if (extra_output_size + 1 < OUTPUT_BUFFER_SIZE) {
+		const char *error_message_start = extra_output_buffer + extra_output_size + 1;
+		if (error_message_start[0] != 0) {
+			int error_message_size = OUTPUT_BUFFER_SIZE - 1 - extra_output_size - 1;
+			memcpy(error_message_buffer, error_message_start, error_message_size);
+		}
+	}
+
+	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
+}
+
+#endif
+
