@@ -31,18 +31,10 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
-#include "helper.h"
-#include "implconf.h"
-
-#ifdef PCUT_FORKING_METHOD_UNIX_FORK
 #include <sys/wait.h>
-#endif
-
-#ifdef PCUT_FORKING_METHOD_HELENOS_AND_TEMPFILE
 #include <unistd.h>
-#include <task.h>
-#include <fcntl.h>
-#endif
+
+#include "../helper.h"
 
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 
@@ -74,11 +66,6 @@ static void before_test_start(pcut_item_t *test) {
 	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
 }
 
-#if defined(PCUT_FORKING_METHOD_UNIX_FORK) || defined(PCUT_FORKING_METHOD_HELENOS_AND_TEMPFILE)
-
-#endif
-
-#ifdef PCUT_FORKING_METHOD_UNIX_FORK
 static size_t read_all(int fd, char *buffer, size_t buffer_size) {
 	ssize_t actually_read;
 	char *buffer_start = buffer;
@@ -184,108 +171,3 @@ leave_close_parent_pipe:
 
 	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
 }
-#endif
-
-
-#ifdef PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE
-static int convert_wait_status_to_outcome(int status) {
-	if (status < 0) {
-		return TEST_OUTCOME_ERROR;
-	} else if (status == 0) {
-		return TEST_OUTCOME_PASS;
-	} else {
-		return TEST_OUTCOME_FAIL;
-	}
-}
-
-void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
-	before_test_start(test);
-
-	char tempfile_name[PCUT_TEMP_FILENAME_BUFFER_SIZE];
-	PCUT_TEMP_FILENAME_CREATE(tempfile_name);
-	FILE *tempfile = fopen(tempfile_name, "w+b");
-	if (tempfile == NULL) {
-		pcut_report_test_done(test, TEST_OUTCOME_ERROR, "Failed to create temporary file.", NULL, NULL);
-		return;
-	}
-
-	char command[PCUT_COMMAND_LINE_BUFFER_SIZE];
-	PCUT_COMMAND_LINE_CREATE_TEST_RUN(command, test, self_path, tempfile_name);
-
-	int rc = system(command);
-	rc = convert_wait_status_to_outcome(rc);
-
-	fread(extra_output_buffer, 1, OUTPUT_BUFFER_SIZE, tempfile);
-	fclose(tempfile);
-	remove(tempfile_name);
-
-	parse_extra_output_buffer();
-
-	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
-}
-
-#endif
-
-
-#ifdef PCUT_FORKING_METHOD_HELENOS_AND_TEMPFILE
-void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
-	before_test_start(test);
-
-	char tempfile_name[PCUT_TEMP_FILENAME_BUFFER_SIZE];
-	PCUT_TEMP_FILENAME_CREATE(tempfile_name);
-	int tempfile = open(tempfile_name, O_CREAT | O_RDWR);
-	if (tempfile < 0) {
-		pcut_report_test_done(test, TEST_OUTCOME_ERROR, "Failed to create temporary file.", NULL, NULL);
-		return;
-	}
-
-	char test_number_argument[MAX_TEST_NUMBER_WIDTH];
-	snprintf(test_number_argument, MAX_TEST_NUMBER_WIDTH, "-t%d", test->id);
-
-	int *files[4];
-	int fd_stdin = fileno(stdin);
-	files[0] = &fd_stdin;
-	files[1] = &tempfile;
-	files[2] = &tempfile;
-	files[3] = NULL;
-
-	const char *const arguments[3] = {
-		self_path,
-		test_number_argument,
-		NULL
-	};
-
-	int status = TEST_OUTCOME_PASS;
-
-	task_id_t task_id;
-	int rc = task_spawnvf(&task_id, self_path, arguments, files);
-	if (rc != EOK) {
-		status = TEST_OUTCOME_ERROR;
-		goto leave_close_tempfile;
-	}
-
-	task_exit_t task_exit;
-	int task_retval;
-	rc = task_wait(task_id, &task_exit, &task_retval);
-	if (rc != EOK) {
-		status = TEST_OUTCOME_ERROR;
-		goto leave_close_tempfile;
-	}
-	if (task_exit == TASK_EXIT_UNEXPECTED) {
-		status = TEST_OUTCOME_ERROR;
-	} else {
-		status = task_retval == 0 ? TEST_OUTCOME_PASS : TEST_OUTCOME_ERROR;
-	}
-
-	read_all(tempfile, extra_output_buffer, OUTPUT_BUFFER_SIZE);
-
-leave_close_tempfile:
-	close(tempfile);
-	unlink(tempfile_name);
-
-	parse_extra_output_buffer();
-
-	pcut_report_test_done(test, status, error_message_buffer, NULL, extra_output_buffer);
-}
-
-#endif

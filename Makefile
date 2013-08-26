@@ -26,11 +26,25 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+PCUT_TARGET = unix
+
+
+ifeq ($(PCUT_TARGET),unix)
+	TARGET_SOURCES = src/os/unix.c
+endif
+ifeq ($(PCUT_TARGET),helenos)
+	TARGET_SOURCES = src/os/helenos.c
+endif
+ifeq ($(PCUT_TARGET),other)
+	TARGET_SOURCES = src/os/generic.c
+endif
+
+
 CC = gcc
 LD = gcc
 AR = ar
 INCLUDES = -Iinclude
-CFLAGS = $(INCLUDES) -Wall -Wextra -std=c99 $(EXTRA_CFLAGS)
+CFLAGS = $(INCLUDES) -Wall -Wextra -DPCUT_TARGET=$(PCUT_TARGET) -std=c99 $(EXTRA_CFLAGS)
 DEPEND = Makefile.depend
 
 SOURCES = \
@@ -41,7 +55,7 @@ SOURCES = \
 	src/print.c \
 	src/report.c \
 	src/run.c \
-	src/spawn.c
+	$(TARGET_SOURCES)
 	
 OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))
 
