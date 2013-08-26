@@ -69,44 +69,11 @@ void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 		const char *unparsed_output, size_t unparsed_output_size);
 void pcut_report_done(void);
 
-#ifndef __helenos__
-#include <string.h>
 
-static inline int pcut_str_start_equals(const char *a, const char *b, int len) {
-	return strncmp(a, b, len) == 0;
-}
+int pcut_str_start_equals(const char *a, const char *b, int len);
+int pcut_str_size(const char *s);
+int pcut_str_to_int(const char *s);
+char *pcut_str_find_char(const char *haystack, const char needle);
 
-static inline int pcut_str_size(const char *s) {
-	return strlen(s);
-}
-
-static inline int pcut_str_to_int(const char *s) {
-	return atoi(s);
-}
-
-static inline char *pcut_str_find_char(const char *haystack, const char needle) {
-	return strchr(haystack, needle);
-}
-
-#else
-
-static inline int pcut_str_start_equals(const char *a, const char *b, int len) {
-	return str_lcmp(a, b, len) == 0;
-}
-
-static inline int pcut_str_size(const char *s) {
-	return str_size(s);
-}
-
-static inline int pcut_str_to_int(const char *s) {
-	int result = strtol(s, NULL, 10);
-	return result;
-}
-
-static inline char *pcut_str_find_char(const char *haystack, const char needle) {
-	return str_chr(haystack, needle);
-}
-
-#endif
 
 #endif

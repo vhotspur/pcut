@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Vojtech Horky
+ * Copyright (c) 2013 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,25 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "helper.h"
-#include <setjmp.h>
-#include <stdarg.h>
+#include <string.h>
+#include "../helper.h"
 
-#define MAX_MESSAGE_LENGTH 256
-static char message_buffer[MAX_MESSAGE_LENGTH + 1];
-
-void pcut_failed_assertion(const char *message) {
-	pcut_bad_test_message = message;
-	longjmp(pcut_bad_test_jmp, 1);
+int pcut_str_equals(const char *a, const char *b) {
+	return strcmp(a, b) == 0;
 }
 
-
-void pcut_failed_assertion_fmt(const char *fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(message_buffer, MAX_MESSAGE_LENGTH, fmt, args);
-	va_end(args);
-
-	pcut_failed_assertion(message_buffer);
+int pcut_str_start_equals(const char *a, const char *b, int len) {
+	return strncmp(a, b, len) == 0;
 }
 
+int pcut_str_size(const char *s) {
+	return strlen(s);
+}
+
+int pcut_str_to_int(const char *s) {
+	return atoi(s);
+}
+
+char *pcut_str_find_char(const char *haystack, const char needle) {
+	return strchr(haystack, needle);
+}

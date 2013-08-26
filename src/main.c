@@ -29,7 +29,6 @@
 #include "helper.h"
 #include <assert.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 

@@ -30,13 +30,13 @@ PCUT_TARGET = unix
 
 
 ifeq ($(PCUT_TARGET),unix)
-	TARGET_SOURCES = src/os/unix.c
+	TARGET_SOURCES = src/os/stdc.c src/os/unix.c
 endif
 ifeq ($(PCUT_TARGET),helenos)
 	TARGET_SOURCES = src/os/helenos.c
 endif
 ifeq ($(PCUT_TARGET),other)
-	TARGET_SOURCES = src/os/generic.c
+	TARGET_SOURCES = src/os/stdc.c src/os/generic.c
 endif
 
 

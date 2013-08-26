@@ -36,6 +36,34 @@
 #include <fcntl.h>
 #include "../helper.h"
 
+
+/* String functions. */
+/* String functions. */
+int pcut_str_equals(const char *a, const char *b) {
+	return str_cmp(a, b) == 0;
+}
+
+
+int pcut_str_start_equals(const char *a, const char *b, int len) {
+	return str_lcmp(a, b, len) == 0;
+}
+
+int pcut_str_size(const char *s) {
+	return str_size(s);
+}
+
+int pcut_str_to_int(const char *s) {
+	int result = strtol(s, NULL, 10);
+	return result;
+}
+
+char *pcut_str_find_char(const char *haystack, const char needle) {
+	return str_chr(haystack, needle);
+}
+
+
+/* Forking-mode related functions. */
+
 #define MAX_TEST_NUMBER_WIDTH 24
 #define PCUT_TEMP_FILENAME_BUFFER_SIZE 128
 #define MAX_COMMAND_LINE_LENGTH 1024
@@ -106,5 +134,5 @@ leave_close_tempfile:
 	close(tempfile);
 	unlink(tempfile_name);
 
-	pcut_report_test_done_unparsed(test, rc, extra_output_buffer, OUTPUT_BUFFER_SIZE);
+	pcut_report_test_done_unparsed(test, status, extra_output_buffer, OUTPUT_BUFFER_SIZE);
 }

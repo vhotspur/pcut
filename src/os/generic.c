@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
+#include <string.h>
 #include "../helper.h"
 
 #define MAX_TEST_NUMBER_WIDTH 24
