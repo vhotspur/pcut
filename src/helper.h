@@ -37,6 +37,10 @@
 #define PCUT_RUN_MODE_FORKING 1
 #define PCUT_RUN_MODE_SINGLE 2
 
+#define TEST_OUTCOME_PASS 1
+#define TEST_OUTCOME_FAIL 2
+#define TEST_OUTCOME_ERROR 3
+
 extern int pcut_run_mode;
 
 jmp_buf pcut_bad_test_jmp;

@@ -84,7 +84,7 @@ clean:
 run: $(TEST_APPS)
 	@for i in $(TEST_APPS_BASENAMES); do \
 		echo -n ./$$i.out; \
-		./$$i.out &>$$i.got; \
+		./$$i.out >$$i.got; \
 		if cmp -s $$i.got $$i.expected; then \
 			echo " ok."; \
 		else \

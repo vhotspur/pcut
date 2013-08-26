@@ -79,11 +79,30 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 		const char *extra_output) {
 	const char *test_name = test->test.name;
 
-	if (outcome != 0) {
+	if (outcome != TEST_OUTCOME_PASS) {
 		failed_tests_in_suite++;
 	}
 
-	printf("%s %d %s\n", outcome == 0 ? "ok" : "not ok", test_counter, test_name);
+	const char *status_str = NULL;
+	const char *fail_error_str = NULL;
+	switch (outcome) {
+	case TEST_OUTCOME_PASS:
+		status_str = "ok";
+		fail_error_str = "";
+		break;
+	case TEST_OUTCOME_FAIL:
+		status_str = "not ok";
+		fail_error_str = " failed";
+		break;
+	case TEST_OUTCOME_ERROR:
+		status_str = "not ok";
+		fail_error_str = " aborted";
+		break;
+	default:
+		/* Shall not get here. */
+		break;
+	}
+	printf("%s %d %s%s\n", status_str, test_counter, test_name, fail_error_str);
 
 	print_by_lines(error_message, "# error: ");
 	print_by_lines(teardown_error_message, "# error: ");

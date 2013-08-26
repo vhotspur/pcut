@@ -45,6 +45,52 @@ int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+/* Expects that the whole output is in extra_output_buffer. */
+static void parse_extra_output_buffer(void) {
+	/* Try to find the error message in the buffer ('\0' delimeted). */
+	int extra_output_size = pcut_str_size(extra_output_buffer);
+
+	if (extra_output_size + 1 < OUTPUT_BUFFER_SIZE) {
+		const char *error_message_start = extra_output_buffer + extra_output_size + 1;
+		if (error_message_start[0] != 0) {
+			int error_message_size = OUTPUT_BUFFER_SIZE - 1 - extra_output_size - 1;
+			memcpy(error_message_buffer, error_message_start, error_message_size);
+		}
+	}
+}
+
+static void before_test_start(pcut_item_t *test) {
+	pcut_report_test_start(test);
+
+	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
+	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
+}
+
+static int convert_wait_status_to_outcome(int status) {
+#ifdef __unix__
+	if (WIFEXITED(status)) {
+		if (WEXITSTATUS(status) != 0) {
+			return TEST_OUTCOME_FAIL;
+		} else {
+			return TEST_OUTCOME_PASS;
+		}
+	}
+
+	if (WIFSIGNALED(status)) {
+		return TEST_OUTCOME_ERROR;
+	}
+
+	return status;
+#else
+	if (status < 0) {
+		return TEST_OUTCOME_ERROR;
+	} else if (status == 0) {
+		return TEST_OUTCOME_PASS;
+	} else {
+		return TEST_OUTCOME_FAIL;
+	}
+#endif
+}
 
 #ifdef PCUT_FORKING_METHOD_UNIX_FORK
 static size_t read_all(int fd, char *buffer, size_t buffer_size) {
@@ -72,11 +118,7 @@ static size_t read_all(int fd, char *buffer, size_t buffer_size) {
 void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	PCUT_UNUSED(self_path);
 
-	pcut_report_test_start(test);
-
-	/* Clean the buffer first. */
-	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
-	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
+	before_test_start(test);
 
 	int link_stdout[2], link_stderr[2];
 	pid_t pid;
@@ -85,14 +127,14 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	if (rc == -1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
-		pcut_report_test_done(test, 1, error_message_buffer, NULL, NULL);
+		pcut_report_test_done(test, TEST_OUTCOME_ERROR, error_message_buffer, NULL, NULL);
 		return;
 	}
 	rc = pipe(link_stderr);
 	if (rc == -1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
-		pcut_report_test_done(test, 1, error_message_buffer, NULL, NULL);
+		pcut_report_test_done(test, TEST_OUTCOME_ERROR, error_message_buffer, NULL, NULL);
 		return;
 	}
 
@@ -100,7 +142,7 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	if (pid == (pid_t)-1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 			"fork() failed: %s.", strerror(rc));
-		pcut_report_test_done(test, 1, error_message_buffer, NULL, NULL);
+		rc = TEST_OUTCOME_ERROR;
 		goto leave_close_pipes;
 	}
 
@@ -122,30 +164,12 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	size_t stderr_size = read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
 	read_all(link_stdout[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1 - stderr_size);
 
-	/* Try to find the error message in the buffer ('\0' delimeted). */
-	int extra_output_size = pcut_str_size(extra_output_buffer);
-	if (extra_output_size + 1 < OUTPUT_BUFFER_SIZE) {
-		const char *error_message_start = extra_output_buffer + extra_output_size + 1;
-		if (error_message_start[0] != 0) {
-			int error_message_size = OUTPUT_BUFFER_SIZE - 1 - extra_output_size - 1;
-			memcpy(error_message_buffer, error_message_start, error_message_size);
-		}
-	}
+	parse_extra_output_buffer();
 
 	int status;
 	wait(&status);
 
-	if (WIFEXITED(status)) {
-		if (WEXITSTATUS(status) != 0) {
-			rc = 1;
-		} else {
-			rc = 0;
-		}
-	}
-
-	if (WIFSIGNALED(status)) {
-		rc = 1;
-	}
+	rc = convert_wait_status_to_outcome(status);
 
 	goto leave_close_parent_pipe;
 
@@ -162,19 +186,14 @@ leave_close_parent_pipe:
 
 
 #ifdef PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE
-
 void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
-	pcut_report_test_start(test);
-
-	/* Clean the buffer first. */
-	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
-	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
+	before_test_start(test);
 
 	char tempfile_name[PCUT_TEMP_FILENAME_BUFFER_SIZE];
 	PCUT_TEMP_FILENAME_CREATE(tempfile_name);
 	FILE *tempfile = fopen(tempfile_name, "w+b");
 	if (tempfile == NULL) {
-		pcut_report_test_done(test, 1, "Failed to create temporary file.", NULL, NULL);
+		pcut_report_test_done(test, TEST_OUTCOME_ERROR, "Failed to create temporary file.", NULL, NULL);
 		return;
 	}
 
@@ -182,20 +201,13 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	PCUT_COMMAND_LINE_CREATE_TEST_RUN(command, test, self_path, tempfile_name);
 
 	int rc = system(command);
+	rc = convert_wait_status_to_outcome(rc);
 
 	fread(extra_output_buffer, 1, OUTPUT_BUFFER_SIZE, tempfile);
 	fclose(tempfile);
 	remove(tempfile_name);
 
-	/* Try to find the error message in the buffer ('\0' delimeted). */
-	int extra_output_size = pcut_str_size(extra_output_buffer);
-	if (extra_output_size + 1 < OUTPUT_BUFFER_SIZE) {
-		const char *error_message_start = extra_output_buffer + extra_output_size + 1;
-		if (error_message_start[0] != 0) {
-			int error_message_size = OUTPUT_BUFFER_SIZE - 1 - extra_output_size - 1;
-			memcpy(error_message_buffer, error_message_start, error_message_size);
-		}
-	}
+	parse_extra_output_buffer();
 
 	pcut_report_test_done(test, rc, error_message_buffer, NULL, extra_output_buffer);
 }
