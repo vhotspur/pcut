@@ -37,6 +37,7 @@
  * the cross-compiler may define the __unix__ macro.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <setjmp.h>
 #include <pcut/private.h>
 

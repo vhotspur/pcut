@@ -62,12 +62,12 @@ static void print_by_lines(const char *message, const char *prefix) {
 	if ((message == NULL) || (message[0] == 0)) {
 		return;
 	}
-	char *next_line_start = strstr(message, "\n");
+	char *next_line_start = pcut_str_find_char(message, '\n');
 	while (next_line_start != NULL) {
 		next_line_start[0] = 0;
 		printf("%s%s\n", prefix, message);
 		message = next_line_start + 1;
-		next_line_start = strstr(message, "\n");
+		next_line_start = pcut_str_find_char(message, '\n');
 	}
 	if (message[0] != 0) {
 		printf("%s%s\n", prefix, message);

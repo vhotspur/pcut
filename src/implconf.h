@@ -31,11 +31,12 @@
 
 #include <pcut/test.h>
 
-#define PCUT_FORKING_METHOD_UNIX_FORK
-#undef PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE
+#undef PCUT_FORKING_METHOD_UNIX_FORK
+#define PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE
+#undef PCUT_FORKING_METHOD_HELENOS_AND_TEMPFILE
 
 
-#if defined(PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE)
+#ifdef PCUT_FORKING_METHOD_SYSTEM_WITH_TEMPFILE
 #define PCUT_TEMP_FILENAME_BUFFER_SIZE 128
 #define PCUT_TEMP_FILENAME_CREATE(buffer) \
 	snprintf(buffer, PCUT_TEMP_FILENAME_BUFFER_SIZE - 1, "pcut_%d.tmp", getpid())
@@ -45,5 +46,13 @@
 	snprintf(buffer, PCUT_COMMAND_LINE_BUFFER_SIZE - 1, "%s -t%d &> %s", \
 			prog_path, (test)->id, temp_filename)
 #endif
+
+
+#ifdef PCUT_FORKING_METHOD_HELENOS_AND_TEMPFILE
+#define PCUT_TEMP_FILENAME_BUFFER_SIZE 128
+#define PCUT_TEMP_FILENAME_CREATE(buffer) \
+	snprintf(buffer, PCUT_TEMP_FILENAME_BUFFER_SIZE - 1, "pcut_%lld.tmp", (unsigned long long) task_get_id())
+#endif
+
 
 #endif

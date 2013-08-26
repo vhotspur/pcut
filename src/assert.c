@@ -49,5 +49,9 @@ void pcut_failed_assertion_fmt(const char *fmt, ...) {
 }
 
 int pcut_str_equals(const char *a, const char *b) {
+#ifndef __helenos__
 	return strcmp(a, b) == 0;
+#else
+	return str_cmp(a, b) == 0;
+#endif
 }

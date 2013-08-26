@@ -31,8 +31,8 @@ LD = gcc
 DIFF = diff
 DIFFFLAGS = -ud
 INCLUDES = -I../include
-CFLAGS = $(INCLUDES) -Wall -Wextra
-LDFLAGS = -L../ -lpcut
+CFLAGS = $(INCLUDES) -Wall -Wextra $(EXTRA_CFLAGS)
+LDFLAGS = -L../ -lpcut $(EXTRA_LDFLAGS)
 DEPEND = Makefile.depend
 
 APP_DEPS = $(APP_OBJECTS)

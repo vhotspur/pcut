@@ -30,7 +30,7 @@ CC = gcc
 LD = gcc
 AR = ar
 INCLUDES = -Iinclude
-CFLAGS = $(INCLUDES) -Wall -Wextra -std=c99
+CFLAGS = $(INCLUDES) -Wall -Wextra -std=c99 $(EXTRA_CFLAGS)
 DEPEND = Makefile.depend
 
 SOURCES = \
