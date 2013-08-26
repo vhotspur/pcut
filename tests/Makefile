@@ -28,6 +28,8 @@
 
 CC = gcc
 LD = gcc
+DIFF = diff
+DIFFFLAGS = -ud
 INCLUDES = -I../include
 CFLAGS = $(INCLUDES) -Wall -Wextra
 LDFLAGS = -L../ -lpcut
@@ -36,7 +38,9 @@ DEPEND = Makefile.depend
 APP_DEPS = $(APP_OBJECTS)
 APP_OBJECTS = tested.o
 
-TEST_APPS = simple.out suites.out multisuite.out null.out manytests.out alloc.out printing.out
+TEST_APPS_BASENAMES = simple suites multisuite null manytests alloc printing
+TEST_APPS = $(addsuffix .out,$(TEST_APPS_BASENAMES))
+
 
 .PHONY: all run clean
 
@@ -72,11 +76,20 @@ printing.out: $(APP_DEPS) printing.o
 %.o: %.c $(DEPEND)
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-
 clean:
 	rm -f *.out *.o
+	rm -f *.got
 	rm -f $(DEPEND)
 
 run: $(TEST_APPS)
-	@for i in $(TEST_APPS); do echo ./$$i; ./$$i; done
+	@for i in $(TEST_APPS_BASENAMES); do \
+		echo -n ./$$i.out; \
+		./$$i.out &>$$i.got; \
+		if cmp -s $$i.got $$i.expected; then \
+			echo " ok."; \
+		else \
+			echo " failed:"; \
+			$(DIFF) $(DIFFFLAGS) $$i.expected $$i.got; \
+		fi; \
+	done
 	
