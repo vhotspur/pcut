@@ -110,6 +110,19 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 	print_by_lines(extra_output, "# stdio: ");
 }
 
+void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
+		const char *unparsed_output, size_t unparsed_output_size) {
+	size_t first_part_size = pcut_str_size(unparsed_output);
+
+	const char *error_message_start = NULL;
+
+	if (first_part_size + 1 < unparsed_output_size) {
+		error_message_start = unparsed_output + first_part_size + 1;
+	}
+
+	pcut_report_test_done(test, outcome, error_message_start, NULL, unparsed_output);
+}
+
 void pcut_report_done() {
 }
 

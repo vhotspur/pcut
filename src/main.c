@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+int pcut_run_mode = PCUT_RUN_MODE_FORKING;
+
 int pcut_error_count;
 
 static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {

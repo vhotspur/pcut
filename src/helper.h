@@ -65,6 +65,8 @@ void pcut_report_test_start(pcut_item_t *test);
 void pcut_report_test_done(pcut_item_t *test, int outcome,
 		const char *error_message, const char *teardown_error_message,
 		const char *extra_output);
+void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
+		const char *unparsed_output, size_t unparsed_output_size);
 void pcut_report_done(void);
 
 #ifndef __helenos__
