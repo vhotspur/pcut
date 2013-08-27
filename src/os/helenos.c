@@ -125,7 +125,7 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	if (task_exit == TASK_EXIT_UNEXPECTED) {
 		status = TEST_OUTCOME_ERROR;
 	} else {
-		status = task_retval == 0 ? TEST_OUTCOME_PASS : TEST_OUTCOME_ERROR;
+		status = task_retval == 0 ? TEST_OUTCOME_PASS : TEST_OUTCOME_FAIL;
 	}
 
 	read_all(tempfile, extra_output_buffer, OUTPUT_BUFFER_SIZE);
