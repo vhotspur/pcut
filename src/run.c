@@ -30,10 +30,13 @@
 #include <setjmp.h>
 #include <stdlib.h>
 
+#ifndef PCUT_NO_LONG_JUMP
 jmp_buf pcut_bad_test_jmp;
+#endif
 const char *pcut_bad_test_message;
 
 const char *pcut_run_test(pcut_test_func_t function) {
+#ifndef PCUT_NO_LONG_JUMP
 	int returned_from_test = setjmp(pcut_bad_test_jmp);
 
 	if (!returned_from_test) {
@@ -42,9 +45,14 @@ const char *pcut_run_test(pcut_test_func_t function) {
 	}
 
 	return pcut_bad_test_message;
+#else
+	function();
+	return NULL;
+#endif
 }
 
 const char *pcut_run_setup_teardown(pcut_setup_func_t function) {
+#ifndef PCUT_NO_LONG_JUMP
 	int returned_from_test = setjmp(pcut_bad_test_jmp);
 
 	if (!returned_from_test) {
@@ -53,6 +61,10 @@ const char *pcut_run_setup_teardown(pcut_setup_func_t function) {
 	}
 
 	return pcut_bad_test_message;
+#else
+	function();
+	return NULL;
+#endif
 }
 
 

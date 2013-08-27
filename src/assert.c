@@ -34,8 +34,13 @@
 static char message_buffer[MAX_MESSAGE_LENGTH + 1];
 
 void pcut_failed_assertion(const char *message) {
+#ifndef PCUT_NO_LONG_JUMP
 	pcut_bad_test_message = message;
 	longjmp(pcut_bad_test_jmp, 1);
+#else
+	printf("%c%s", 0, message);
+	exit(1);
+#endif
 }
 
 
