@@ -31,7 +31,9 @@
 #include <stdarg.h>
 
 #define MAX_MESSAGE_LENGTH 256
-static char message_buffer[MAX_MESSAGE_LENGTH + 1];
+#define MESSAGE_BUFFER_COUNT 2
+static char message_buffer[MESSAGE_BUFFER_COUNT][MAX_MESSAGE_LENGTH + 1];
+static int message_buffer_index = 0;
 
 void pcut_failed_assertion(const char *message) {
 #ifndef PCUT_NO_LONG_JUMP
@@ -77,11 +79,14 @@ void pcut_failed_assertion(const char *message) {
 
 
 void pcut_failed_assertion_fmt(const char *fmt, ...) {
+	char *current_buffer = message_buffer[message_buffer_index];
+	message_buffer_index = (message_buffer_index + 1) % MESSAGE_BUFFER_COUNT;
+
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf(message_buffer, MAX_MESSAGE_LENGTH, fmt, args);
+	vsnprintf(current_buffer, MAX_MESSAGE_LENGTH, fmt, args);
 	va_end(args);
 
-	pcut_failed_assertion(message_buffer);
+	pcut_failed_assertion(current_buffer);
 }
 
