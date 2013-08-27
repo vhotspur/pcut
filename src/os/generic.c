@@ -32,7 +32,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <string.h>
-#include "../helper.h"
+#include "../internal.h"
 
 #define MAX_TEST_NUMBER_WIDTH 24
 #define PCUT_COMMAND_LINE_BUFFER_SIZE 256

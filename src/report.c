@@ -26,7 +26,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "helper.h"
+#include "internal.h"
 
 static int test_counter;
 static int tests_in_suite;

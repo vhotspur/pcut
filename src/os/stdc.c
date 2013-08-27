@@ -27,7 +27,7 @@
  */
 
 #include <string.h>
-#include "../helper.h"
+#include "../internal.h"
 
 int pcut_str_equals(const char *a, const char *b) {
 	return strcmp(a, b) == 0;

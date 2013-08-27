@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../helper.h"
+#include "../internal.h"
 
 #define MAX_TEST_NUMBER_WIDTH 24
 #define MAX_COMMAND_LINE_LENGTH 1024

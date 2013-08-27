@@ -26,7 +26,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "helper.h"
+#include "internal.h"
 #include <assert.h>
 #include <stdlib.h>
 

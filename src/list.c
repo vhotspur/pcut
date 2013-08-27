@@ -28,7 +28,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include "helper.h"
+#include "internal.h"
 #include <pcut/test.h>
 
 

@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <task.h>
 #include <fcntl.h>
-#include "../helper.h"
+#include "../internal.h"
 
 
 /* String functions. */

@@ -26,8 +26,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PCUT_HELPER_H_GUARD
-#define PCUT_HELPER_H_GUARD
+#ifndef PCUT_INTERNAL_H_GUARD
+#define PCUT_INTERNAL_H_GUARD
 
 #include <pcut/test.h>
 #include <stdlib.h>

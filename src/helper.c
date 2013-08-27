@@ -28,7 +28,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "helper.h"
+#include "internal.h"
 
 
 pcut_item_t *pcut_get_real_next(pcut_item_t *item) {

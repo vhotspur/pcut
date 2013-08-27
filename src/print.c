@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "helper.h"
+#include "internal.h"
 
 void pcut_print_items(pcut_item_t *first) {
 	pcut_item_t *it = first;
