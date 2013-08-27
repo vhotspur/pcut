@@ -29,7 +29,7 @@
 CC = gcc
 LD = gcc
 DIFF = diff
-DIFFFLAGS = -ud
+DIFFFLAGS = -du1
 INCLUDES = -I../include
 CFLAGS = $(INCLUDES) -Wall -Wextra $(EXTRA_CFLAGS)
 LDFLAGS = -L../ -lpcut $(EXTRA_LDFLAGS)
