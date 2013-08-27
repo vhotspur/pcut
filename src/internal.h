@@ -64,6 +64,7 @@ extern pcut_item_t *pcut_current_suite;
 extern int pcut_running_test_now;
 extern int pcut_running_setup_now;
 
+void pcut_print_fail_message(const char *msg);
 
 void pcut_report_init(pcut_item_t *all_items);
 void pcut_report_suite_start(pcut_item_t *suite);

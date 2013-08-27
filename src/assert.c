@@ -40,8 +40,6 @@ void pcut_failed_assertion(const char *message) {
 	pcut_bad_test_message = message;
 	longjmp(pcut_bad_test_jmp, 1);
 #else
-	static int teardown_after_failure = 0;
-
 	/*
 	 * Check in which phase of a test (setup, test, teardown) we are
 	 * currently in.
@@ -49,17 +47,14 @@ void pcut_failed_assertion(const char *message) {
 	 * teardown as well.
 	 */
 	if (pcut_running_setup_now) {
-		printf("%c%s\n", 0, message);
+		pcut_print_fail_message(message);
 		pcut_running_setup_now = 0;
 	} else if (pcut_running_test_now) {
-		printf("%c%s\n", 0, message);
+		pcut_print_fail_message(message);
 		pcut_running_test_now = 0;
 	} else {
 		/* We are already in a tear-down function. */
-		if (!teardown_after_failure) {
-			printf("%c", 0);
-		}
-		printf("%s\n", message);
+		pcut_print_fail_message(message);
 		exit(1);
 	}
 
@@ -69,7 +64,6 @@ void pcut_failed_assertion(const char *message) {
 	 * If the teardown fails as well, we would exit the program in the
 	 * else-branch above.
 	 */
-	teardown_after_failure = 1;
 	if (pcut_current_suite->suite.teardown != NULL) {
 		pcut_current_suite->suite.teardown();
 	}

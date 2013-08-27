@@ -27,10 +27,80 @@
  */
 
 #include "internal.h"
+#ifndef __helenos__
+#include <string.h>
+#endif
 
 static int test_counter;
 static int tests_in_suite;
 static int failed_tests_in_suite;
+
+void pcut_print_fail_message(const char *msg) {
+	if (msg == NULL) {
+		return;
+	}
+	if (pcut_str_size(msg) == 0) {
+		return;
+	}
+
+	printf("%c%c%c%s\n%c", 0, 0, 0, msg, 0);
+}
+
+#define BUFFER_SIZE 4096
+static char buffer_for_extra_output[BUFFER_SIZE];
+static char buffer_for_error_messages[BUFFER_SIZE];
+
+static void parse_command_output(const char *full_output, size_t full_output_size,
+		char *stdio_buffer, size_t stdio_buffer_size,
+		char *error_buffer, size_t error_buffer_size) {
+	memset(stdio_buffer, 0, stdio_buffer_size);
+	memset(error_buffer, 0, error_buffer_size);
+
+	/* Ensure that we do not read past the full_output. */
+	if (full_output[full_output_size - 1] != 0) {
+		// FIXME: can this happen?
+		return;
+	}
+
+	while (1) {
+		/* First of all, count number of zero bytes before the text. */
+		size_t cont_zeros_count = 0;
+		while (full_output[0] == 0) {
+			cont_zeros_count++;
+			full_output++;
+			full_output_size--;
+			if (full_output_size == 0) {
+				return;
+			}
+		}
+
+		/* Determine the length of the text after the zeros. */
+		size_t message_length = pcut_str_size(full_output);
+
+		if (cont_zeros_count < 2) {
+			/* Okay, standard I/O. */
+			if (message_length > stdio_buffer_size) {
+				// TODO: handle gracefully
+				return;
+			}
+			memcpy(stdio_buffer, full_output, message_length);
+			stdio_buffer += message_length;
+			stdio_buffer_size -= message_length;
+		} else {
+			/* Error message. */
+			if (message_length > error_buffer_size) {
+				// TODO: handle gracefully
+				return;
+			}
+			memcpy(error_buffer, full_output, message_length);
+			error_buffer += message_length;
+			error_buffer_size -= message_length;
+		}
+
+		full_output += message_length + 1;
+		full_output_size -= message_length + 1;
+	}
+}
 
 void pcut_report_init(pcut_item_t *all_items) {
 	int tests_total = pcut_count_tests(all_items);
@@ -112,15 +182,12 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 
 void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 		const char *unparsed_output, size_t unparsed_output_size) {
-	size_t first_part_size = pcut_str_size(unparsed_output);
 
-	const char *error_message_start = NULL;
+	parse_command_output(unparsed_output, unparsed_output_size,
+			buffer_for_extra_output, BUFFER_SIZE,
+			buffer_for_error_messages, BUFFER_SIZE);
 
-	if (first_part_size + 1 < unparsed_output_size) {
-		error_message_start = unparsed_output + first_part_size + 1;
-	}
-
-	pcut_report_test_done(test, outcome, error_message_start, NULL, unparsed_output);
+	pcut_report_test_done(test, outcome, buffer_for_error_messages, NULL, buffer_for_extra_output);
 }
 
 void pcut_report_done() {

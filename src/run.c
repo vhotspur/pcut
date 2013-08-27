@@ -142,21 +142,8 @@ run_teardown:
 	}
 
 	if (print_result) {
-		int print_delimeter = 1;
-
-		if (error_message != NULL) {
-			if (print_delimeter) {
-				printf("%c", 0);
-				print_delimeter = 0;
-			}
-			printf("%s\n", error_message);
-		}
-		if (teardown_error_message != NULL) {
-			if (print_delimeter) {
-				printf("%c", 0);
-			}
-			printf("%s\n", teardown_error_message);
-		}
+		pcut_print_fail_message(error_message);
+		pcut_print_fail_message(teardown_error_message);
 	}
 
 	pcut_current_suite = NULL;
