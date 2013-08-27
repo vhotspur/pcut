@@ -35,7 +35,7 @@ CFLAGS = $(INCLUDES) -Wall -Wextra $(EXTRA_CFLAGS)
 LDFLAGS = -L../ -lpcut $(EXTRA_LDFLAGS)
 DEPEND = Makefile.depend
 
-APP_DEPS = $(APP_OBJECTS)
+APP_DEPS = $(APP_OBJECTS) ../libpcut.a
 APP_OBJECTS = tested.o
 
 TEST_APPS_BASENAMES = simple suites multisuite null manytests alloc printing teardown nullteardown
