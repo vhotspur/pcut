@@ -36,6 +36,10 @@ ifeq ($(PCUT_TARGET),helenos)
 	TARGET_SOURCES = src/os/helenos.c
 	TARGET_FLAGS = -DPCUT_NO_LONG_JUMP
 endif
+ifeq ($(PCUT_TARGET),unix-no-jump)
+	TARGET_SOURCES = src/os/stdc.c src/os/unix.c
+	TARGET_FLAGS = -DPCUT_NO_LONG_JUMP
+endif
 ifeq ($(PCUT_TARGET),other)
 	TARGET_SOURCES = src/os/stdc.c src/os/generic.c
 endif
