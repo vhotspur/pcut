@@ -1,4 +1,4 @@
-1..4
+1..5
 #> Starting suite with_teardown.
 ok 1 empty
 # stdio: This is teardown-function.
@@ -10,8 +10,13 @@ not ok 2 failing failed
 not ok 3 empty2 failed
 # error: teardown.c:55: Expected <42> but got <10> (42 != intmin(10, 20))
 # stdio: This is failing teardown-function.
-not ok 4 failing2 failed
-# error: teardown.c:62: Expected <12> but got <3> (12 != intmin(3, 5))
+not ok 4 printing2 failed
+# error: teardown.c:63: Expected <0> but got <-17> (0 != intmin(-17, -19))
+# error: teardown.c:55: Expected <42> but got <10> (42 != intmin(10, 20))
+# stdio: Printed before test failure.
+# stdio: This is failing teardown-function.
+not ok 5 failing2 failed
+# error: teardown.c:67: Expected <12> but got <3> (12 != intmin(3, 5))
 # error: teardown.c:55: Expected <42> but got <10> (42 != intmin(10, 20))
 # stdio: This is failing teardown-function.
-#> Finished suite with_failing_teardown (failed 2 of 2).
+#> Finished suite with_failing_teardown (failed 3 of 3).

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Vojtech Horky
+ * Copyright (c) 2012-2013 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,17 @@
 
 PCUT_INIT
 
-
-
-PCUT_TEST_SUITE("with_teardown");
-
 PCUT_TEST_AFTER {
-	printf("This is teardown-function.\n");
+	int a = 5;
+	int *p = &a;
+	PCUT_ASSERT_INT_EQUALS(5, *p);
+	p = NULL;
+	PCUT_ASSERT_INT_EQUALS(5, *p);
 }
 
-PCUT_TEST(empty) {
+PCUT_TEST(print_and_fail) {
+	printf("Tear-down will cause null pointer access...\n");
+	PCUT_ASSERT_NOT_NULL(NULL);
 }
-
-PCUT_TEST(failing) {
-	PCUT_ASSERT_INT_EQUALS(10, intmin(1, 2));
-}
-
-
-
-PCUT_TEST_SUITE("with_failing_teardown")
-
-PCUT_TEST_AFTER {
-	printf("This is failing teardown-function.\n");
-	PCUT_ASSERT_INT_EQUALS(42, intmin(10, 20));
-}
-
-PCUT_TEST(empty2) {
-}
-
-PCUT_TEST(printing2) {
-	printf("Printed before test failure.\n");
-	PCUT_ASSERT_INT_EQUALS(0, intmin(-17, -19));
-}
-
-PCUT_TEST(failing2) {
-	PCUT_ASSERT_INT_EQUALS(12, intmin(3, 5));
-}
-
 
 PCUT_MAIN
