@@ -38,7 +38,7 @@ DEPEND = Makefile.depend
 APP_DEPS = $(APP_OBJECTS)
 APP_OBJECTS = tested.o
 
-TEST_APPS_BASENAMES = simple suites multisuite null manytests alloc printing
+TEST_APPS_BASENAMES = simple suites multisuite null manytests alloc printing teardown
 TEST_APPS = $(addsuffix .out,$(TEST_APPS_BASENAMES))
 
 
@@ -72,6 +72,8 @@ alloc.out: $(APP_DEPS) alloc.o
 printing.out: $(APP_DEPS) printing.o
 	$(LD) -o $@ $(APP_OBJECTS) printing.o $(LDFLAGS)
 
+teardown.out: $(APP_DEPS) teardown.o
+	$(LD) -o $@ $(APP_OBJECTS) teardown.o $(LDFLAGS)
 
 %.o: %.c $(DEPEND)
 	$(CC) -c -o $@ $(CFLAGS) $<
