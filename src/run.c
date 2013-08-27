@@ -35,18 +35,28 @@ jmp_buf pcut_bad_test_jmp;
 #endif
 const char *pcut_bad_test_message;
 
+pcut_item_t *pcut_current_test = NULL;
+pcut_item_t *pcut_current_suite = NULL;
+int pcut_running_test_now = 0;
+int pcut_running_setup_now = 0;
+
 const char *pcut_run_test(pcut_test_func_t function) {
+	pcut_running_test_now = 1;
 #ifndef PCUT_NO_LONG_JUMP
 	int returned_from_test = setjmp(pcut_bad_test_jmp);
 
 	if (!returned_from_test) {
 		function();
+		pcut_running_test_now = 0;
 		return NULL;
 	}
+
+	pcut_running_test_now = 0;
 
 	return pcut_bad_test_message;
 #else
 	function();
+	pcut_running_test_now = 0;
 	return NULL;
 #endif
 }
@@ -99,9 +109,14 @@ static int run_test(pcut_item_t *test, int print_result, int report_result) {
 		pcut_report_test_start(test);
 	}
 
+	pcut_current_suite = suite;
+	pcut_current_test = test;
+
 	/* Run the set-up function if it was set. */
 	if (suite->suite.setup != NULL) {
+		pcut_running_setup_now = 1;
 		error_message = pcut_run_setup_teardown(suite->suite.setup);
+		pcut_running_setup_now = 0;
 		if (error_message != NULL) {
 			goto run_teardown;
 		}
@@ -143,6 +158,9 @@ run_teardown:
 			printf("%s\n", teardown_error_message);
 		}
 	}
+
+	pcut_current_suite = NULL;
+	pcut_current_test = NULL;
 
 	return test_failed;
 }

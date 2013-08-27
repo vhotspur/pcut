@@ -59,6 +59,11 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test);
 int pcut_run_test_forked(pcut_item_t *test);
 int pcut_run_test_single(pcut_item_t *test);
 
+extern pcut_item_t *pcut_current_test;
+extern pcut_item_t *pcut_current_suite;
+extern int pcut_running_test_now;
+extern int pcut_running_setup_now;
+
 
 void pcut_report_init(pcut_item_t *all_items);
 void pcut_report_suite_start(pcut_item_t *suite);
