@@ -27,7 +27,6 @@
  */
 
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
@@ -39,6 +38,26 @@
 #define PCUT_TEMP_FILENAME_BUFFER_SIZE 128
 #define MAX_COMMAND_LINE_LENGTH 1024
 #define OUTPUT_BUFFER_SIZE 8192
+
+#if defined(__WIN64) || defined(__WIN32)
+#include <process.h>
+
+#define FORMAT_COMMAND(buffer, buffer_size, self_path, test_id, temp_file) \
+	snprintf(buffer, buffer_size, "%s -t%d >%s", self_path, test_id, temp_file)
+#define FORMAT_TEMP_FILENAME(buffer, buffer_size) \
+	snprintf(buffer, buffer_size, "pcut_%d.tmp", _getpid())
+
+#elif defined(__unix)
+#include <unistd.h>
+
+#define FORMAT_COMMAND(buffer, buffer_size, self_path, test_id, temp_file) \
+	snprintf(buffer, buffer_size, "%s -t%d &>%s", self_path, test_id, temp_file)
+#define FORMAT_TEMP_FILENAME(buffer, buffer_size) \
+	snprintf(buffer, buffer_size, "pcut_%d.tmp", getpid())
+
+#else
+#error "Unknown operating system."
+#endif
 
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
@@ -65,19 +84,20 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	before_test_start(test);
 
 	char tempfile_name[PCUT_TEMP_FILENAME_BUFFER_SIZE];
-	snprintf(tempfile_name, PCUT_TEMP_FILENAME_BUFFER_SIZE - 1, "pcut_%d.tmp", getpid());
-	FILE *tempfile = fopen(tempfile_name, "w+b");
-	if (tempfile == NULL) {
-		pcut_report_test_done(test, TEST_OUTCOME_ERROR, "Failed to create temporary file.", NULL, NULL);
-		return;
-	}
+	FORMAT_TEMP_FILENAME(tempfile_name, PCUT_TEMP_FILENAME_BUFFER_SIZE - 1);
 
 	char command[PCUT_COMMAND_LINE_BUFFER_SIZE];
-	snprintf(command, PCUT_COMMAND_LINE_BUFFER_SIZE - 1, "%s -t%d &> %s", \
-				self_path, (test)->id, tempfile_name);
+	FORMAT_COMMAND(command, PCUT_COMMAND_LINE_BUFFER_SIZE - 1,
+		self_path, (test)->id, tempfile_name);
 
 	int rc = system(command);
 	rc = convert_wait_status_to_outcome(rc);
+
+	FILE *tempfile = fopen(tempfile_name, "rb");
+	if (tempfile == NULL) {
+		pcut_report_test_done(test, TEST_OUTCOME_ERROR, "Failed to open temporary file.", NULL, NULL);
+		return;
+	}
 
 	fread(extra_output_buffer, 1, OUTPUT_BUFFER_SIZE, tempfile);
 	fclose(tempfile);
