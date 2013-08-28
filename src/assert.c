@@ -35,43 +35,6 @@
 static char message_buffer[MESSAGE_BUFFER_COUNT][MAX_MESSAGE_LENGTH + 1];
 static int message_buffer_index = 0;
 
-void pcut_failed_assertion(const char *message) {
-#ifndef PCUT_NO_LONG_JUMP
-	pcut_bad_test_message = message;
-	longjmp(pcut_bad_test_jmp, 1);
-#else
-	/*
-	 * Check in which phase of a test (setup, test, teardown) we are
-	 * currently in.
-	 * If the failed assertion was part of setup/test, we need to run the
-	 * teardown as well.
-	 */
-	if (pcut_running_setup_now) {
-		pcut_print_fail_message(message);
-		pcut_running_setup_now = 0;
-	} else if (pcut_running_test_now) {
-		pcut_print_fail_message(message);
-		pcut_running_test_now = 0;
-	} else {
-		/* We are already in a tear-down function. */
-		pcut_print_fail_message(message);
-		exit(1);
-	}
-
-	/*
-	 * We printed the error message. It is time to run the teardown
-	 * function. If we return here, teardown was okay and we terminate.
-	 * If the teardown fails as well, we would exit the program in the
-	 * else-branch above.
-	 */
-	if (pcut_current_suite->suite.teardown != NULL) {
-		pcut_current_suite->suite.teardown();
-	}
-	exit(1);
-#endif
-}
-
-
 void pcut_failed_assertion_fmt(const char *fmt, ...) {
 	char *current_buffer = message_buffer[message_buffer_index];
 	message_buffer_index = (message_buffer_index + 1) % MESSAGE_BUFFER_COUNT;

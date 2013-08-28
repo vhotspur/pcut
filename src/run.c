@@ -27,56 +27,20 @@
  */
 
 #include "internal.h"
+#ifndef PCUT_NO_LONG_JUMP
 #include <setjmp.h>
-#include <stdlib.h>
+#endif
 
 #ifndef PCUT_NO_LONG_JUMP
-jmp_buf pcut_bad_test_jmp;
+static jmp_buf start_test_jump;
 #endif
-const char *pcut_bad_test_message;
 
-pcut_item_t *pcut_current_test = NULL;
-pcut_item_t *pcut_current_suite = NULL;
-int pcut_running_test_now = 0;
-int pcut_running_setup_now = 0;
-
-const char *pcut_run_test(pcut_test_func_t function) {
-	pcut_running_test_now = 1;
-#ifndef PCUT_NO_LONG_JUMP
-	int returned_from_test = setjmp(pcut_bad_test_jmp);
-
-	if (!returned_from_test) {
-		function();
-		pcut_running_test_now = 0;
-		return NULL;
-	}
-
-	pcut_running_test_now = 0;
-
-	return pcut_bad_test_message;
-#else
-	function();
-	pcut_running_test_now = 0;
-	return NULL;
-#endif
-}
-
-const char *pcut_run_setup_teardown(pcut_setup_func_t function) {
-#ifndef PCUT_NO_LONG_JUMP
-	int returned_from_test = setjmp(pcut_bad_test_jmp);
-
-	if (!returned_from_test) {
-		function();
-		return NULL;
-	}
-
-	return pcut_bad_test_message;
-#else
-	function();
-	return NULL;
-#endif
-}
-
+static int execute_teardown_on_failure;
+static int report_test_result;
+static int print_test_error;
+static int leave_means_exit;
+static pcut_item_t *current_test = NULL;
+static pcut_item_t *current_suite = NULL;
 
 static pcut_item_t default_suite = {
 	.kind = PCUT_KIND_TESTSUITE,
@@ -100,63 +64,135 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 	return &default_suite;
 }
 
-static int run_test(pcut_item_t *test, int print_result, int report_result) {
-	pcut_item_t *suite = pcut_find_parent_suite(test);
-	const char *error_message = NULL;
-	const char *teardown_error_message = NULL;
+static void run_setup_teardown(pcut_setup_func_t func) {
+	if (func != NULL) {
+		func();
+	}
+}
 
-	if (report_result) {
-		pcut_report_test_start(test);
+static void leave_test(int outcome) {
+	if (leave_means_exit) {
+		exit(outcome);
 	}
 
-	pcut_current_suite = suite;
-	pcut_current_test = test;
+#ifndef PCUT_NO_LONG_JUMP
+	longjmp(start_test_jump, 1);
+#endif
+}
 
-	/* Run the set-up function if it was set. */
-	if (suite->suite.setup != NULL) {
-		pcut_running_setup_now = 1;
-		error_message = pcut_run_setup_teardown(suite->suite.setup);
-		pcut_running_setup_now = 0;
-		if (error_message != NULL) {
-			goto run_teardown;
+void pcut_failed_assertion(const char *message) {
+	static const char *prev_message = NULL;
+	/*
+	 * The assertion failed. We need to abort the current test,
+	 * inform the user and perform some clean-up. That could
+	 * include running the tear-down routine.
+	 */
+	if (print_test_error) {
+		pcut_print_fail_message(message);
+	}
+
+	if (execute_teardown_on_failure) {
+		execute_teardown_on_failure = 0;
+		prev_message = message;
+		run_setup_teardown(current_suite->suite.teardown);
+
+		/* Tear-down was okay. */
+		if (report_test_result) {
+			pcut_report_test_done(current_test, TEST_OUTCOME_FAIL,
+				message, NULL, NULL);
+		}
+	} else {
+		if (report_test_result) {
+			pcut_report_test_done(current_test, TEST_OUTCOME_FAIL,
+				prev_message, message, NULL);
 		}
 	}
 
+	prev_message = NULL;
+
+	leave_test(TEST_OUTCOME_FAIL); /* No return. */
+}
+
+
+static int run_test(pcut_item_t *test) {
 	/*
-	 * Run the test, hopefully we would get some meaningful
-	 * error message. Worst case scenario is that this task would
-	 * be killed. We cannot do much about that, though.
+	 * Set here as the returning point in case of test failure.
+	 * If we get here, it means something failed during the
+	 * test execution.
 	 */
-	error_message = pcut_run_test(test->test.func);
+#ifndef PCUT_NO_LONG_JUMP
+	int test_finished = setjmp(start_test_jump);
+	if (test_finished) {
+		return 1;
+	}
+#endif
 
-	/* Run the tear-down function no matter of the test outcome. */
-run_teardown:
-	if (suite->suite.teardown != NULL) {
-		teardown_error_message = pcut_run_setup_teardown(suite->suite.teardown);
+	if (report_test_result) {
+		pcut_report_test_start(test);
 	}
 
-	int test_failed = (error_message != NULL) || (teardown_error_message != NULL);
+	current_suite = pcut_find_parent_suite(test);
+	current_test = test;
 
-	if (report_result) {
-		pcut_report_test_done(test, test_failed, error_message, teardown_error_message, NULL);
+	/*
+	 * If anything goes wrong, execute the tear-down function
+	 * as well.
+	 */
+	execute_teardown_on_failure = 1;
+
+	/*
+	 * Run the set-up function.
+	 */
+	run_setup_teardown(current_suite->suite.setup);
+
+	/*
+	 * The setup function was performed, it is time to run
+	 * the actual test.
+	 */
+	test->test.func();
+
+	/*
+	 * Finally, run the tear-down function. We need to clear
+	 * the flag to prevent endless loop.
+	 */
+	execute_teardown_on_failure = 0;
+	run_setup_teardown(current_suite->suite.teardown);
+
+	/*
+	 * If we got here, it means everything went well with
+	 * this test.
+	 */
+	if (report_test_result) {
+		pcut_report_test_done(current_test, TEST_OUTCOME_PASS,
+			NULL, NULL, NULL);
 	}
 
-	if (print_result) {
-		pcut_print_fail_message(error_message);
-		pcut_print_fail_message(teardown_error_message);
-	}
-
-	pcut_current_suite = NULL;
-	pcut_current_test = NULL;
-
-	return test_failed;
+	return 0;
 }
 
 int pcut_run_test_forked(pcut_item_t *test) {
-	return run_test(test, 1, 0);
+	report_test_result = 0;
+	print_test_error = 1;
+	leave_means_exit = 1;
+
+	int rc = run_test(test);
+
+	current_test = NULL;
+	current_suite = NULL;
+
+	return rc;
 }
 
 int pcut_run_test_single(pcut_item_t *test) {
-	return run_test(test, 0, 1);
+	report_test_result = 1;
+	print_test_error = 0;
+	leave_means_exit = 0;
+
+	int rc = run_test(test);
+
+	current_test = NULL;
+	current_suite = NULL;
+
+	return rc;
 }
 

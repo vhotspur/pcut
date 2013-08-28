@@ -43,11 +43,6 @@
 
 extern int pcut_run_mode;
 
-#ifndef PCUT_NO_LONG_JUMP
-jmp_buf pcut_bad_test_jmp;
-#endif
-extern const char *pcut_bad_test_message;
-
 pcut_item_t *pcut_get_real_next(pcut_item_t *item);
 pcut_item_t *pcut_get_real(pcut_item_t *item);
 const char* pcut_run_test(pcut_test_func_t function);
