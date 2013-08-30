@@ -48,7 +48,7 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 
 static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
 	pcut_item_t *it = pcut_get_real_next(suite);
-	if (it->kind == PCUT_KIND_TESTSUITE) {
+	if ((it == NULL) || (it->kind == PCUT_KIND_TESTSUITE)) {
 		goto leave_no_print;
 	}
 
