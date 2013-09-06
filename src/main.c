@@ -119,6 +119,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	int run_only_suite = -1;
 	int run_only_test = -1;
 
+	pcut_report_register_handler(&pcut_report_tap);
+
 	if (argc > 1) {
 		int i;
 		for (i = 1; i < argc; i++) {
@@ -128,6 +130,9 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 				pcut_print_tests(items);
 				return 0;
 			}
+			if (pcut_str_equals(argv[i], "-x")) {
+				pcut_report_register_handler(&pcut_report_xml);
+			}
 #ifndef PCUT_NO_LONG_JUMP
 			if (pcut_str_equals(argv[i], "-u")) {
 				pcut_run_mode = PCUT_RUN_MODE_SINGLE;
@@ -135,8 +140,6 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 #endif
 		}
 	}
-
-	pcut_report_register_handler(&pcut_report_tap);
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	set_setup_teardown_callbacks(items);

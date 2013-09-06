@@ -61,6 +61,7 @@ SOURCES = \
 	src/print.c \
 	src/report/report.c \
 	src/report/tap.c \
+	src/report/xml.c \
 	src/run.c \
 	$(TARGET_SOURCES)
 	

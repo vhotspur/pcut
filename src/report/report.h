@@ -32,5 +32,6 @@
 #include "../internal.h"
 
 extern pcut_report_ops_t pcut_report_tap;
+extern pcut_report_ops_t pcut_report_xml;
 
 #endif
