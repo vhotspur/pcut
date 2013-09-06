@@ -26,14 +26,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "internal.h"
+#include "../internal.h"
 #ifndef __helenos__
 #include <string.h>
 #endif
 
-static int test_counter;
-static int tests_in_suite;
-static int failed_tests_in_suite;
+static pcut_report_ops_t *report_ops = NULL;
+
+#define REPORT_CALL(op, ...) \
+	if ((report_ops != NULL) && (report_ops->op != NULL)) report_ops->op(__VA_ARGS__)
 
 void pcut_print_fail_message(const char *msg) {
 	if (msg == NULL) {
@@ -102,82 +103,31 @@ static void parse_command_output(const char *full_output, size_t full_output_siz
 	}
 }
 
-void pcut_report_init(pcut_item_t *all_items) {
-	int tests_total = pcut_count_tests(all_items);
-	test_counter = 0;
+void pcut_report_register_handler(pcut_report_ops_t *ops) {
+	report_ops = ops;
+}
 
-	printf("1..%d\n", tests_total);
+void pcut_report_init(pcut_item_t *all_items) {
+	REPORT_CALL(init, all_items);
 }
 
 void pcut_report_suite_start(pcut_item_t *suite) {
-	tests_in_suite = 0;
-	failed_tests_in_suite = 0;
-
-	printf("#> Starting suite %s.\n", suite->suite.name);
+	REPORT_CALL(suite_start, suite);
 }
 
 void pcut_report_suite_done(pcut_item_t *suite) {
-	printf("#> Finished suite %s (failed %d of %d).\n",
-			suite->suite.name, failed_tests_in_suite, tests_in_suite);
+	REPORT_CALL(suite_done, suite);
 }
 
 void pcut_report_test_start(pcut_item_t *test) {
-	PCUT_UNUSED(test);
-
-	tests_in_suite++;
-	test_counter++;
-}
-
-static void print_by_lines(const char *message, const char *prefix) {
-	if ((message == NULL) || (message[0] == 0)) {
-		return;
-	}
-	char *next_line_start = pcut_str_find_char(message, '\n');
-	while (next_line_start != NULL) {
-		next_line_start[0] = 0;
-		printf("%s%s\n", prefix, message);
-		message = next_line_start + 1;
-		next_line_start = pcut_str_find_char(message, '\n');
-	}
-	if (message[0] != 0) {
-		printf("%s%s\n", prefix, message);
-	}
+	REPORT_CALL(test_start, test);
 }
 
 void pcut_report_test_done(pcut_item_t *test, int outcome,
 		const char *error_message, const char *teardown_error_message,
 		const char *extra_output) {
-	const char *test_name = test->test.name;
-
-	if (outcome != TEST_OUTCOME_PASS) {
-		failed_tests_in_suite++;
-	}
-
-	const char *status_str = NULL;
-	const char *fail_error_str = NULL;
-	switch (outcome) {
-	case TEST_OUTCOME_PASS:
-		status_str = "ok";
-		fail_error_str = "";
-		break;
-	case TEST_OUTCOME_FAIL:
-		status_str = "not ok";
-		fail_error_str = " failed";
-		break;
-	case TEST_OUTCOME_ERROR:
-		status_str = "not ok";
-		fail_error_str = " aborted";
-		break;
-	default:
-		/* Shall not get here. */
-		break;
-	}
-	printf("%s %d %s%s\n", status_str, test_counter, test_name, fail_error_str);
-
-	print_by_lines(error_message, "# error: ");
-	print_by_lines(teardown_error_message, "# error: ");
-
-	print_by_lines(extra_output, "# stdio: ");
+	REPORT_CALL(test_done, test, outcome, error_message, teardown_error_message,
+			extra_output);
 }
 
 void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
@@ -191,5 +141,6 @@ void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 }
 
 void pcut_report_done() {
+	REPORT_CALL(done);
 }
 

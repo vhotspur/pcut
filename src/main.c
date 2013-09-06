@@ -27,6 +27,7 @@
  */
 
 #include "internal.h"
+#include "report/report.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -134,6 +135,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 #endif
 		}
 	}
+
+	pcut_report_register_handler(&pcut_report_tap);
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	set_setup_teardown_callbacks(items);

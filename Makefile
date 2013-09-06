@@ -59,7 +59,8 @@ SOURCES = \
 	src/list.c \
 	src/main.c \
 	src/print.c \
-	src/report.c \
+	src/report/report.c \
+	src/report/tap.c \
 	src/run.c \
 	$(TARGET_SOURCES)
 	

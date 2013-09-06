@@ -61,6 +61,18 @@ extern int pcut_running_setup_now;
 
 void pcut_print_fail_message(const char *msg);
 
+typedef struct pcut_report_ops pcut_report_ops_t;
+struct pcut_report_ops {
+	void (*init)(pcut_item_t *);
+	void (*suite_start)(pcut_item_t *);
+	void (*suite_done)(pcut_item_t *);
+	void (*test_start)(pcut_item_t *);
+	void (*test_done)(pcut_item_t *, int, const char *, const char *,
+		const char *);
+	void (*done)(void);
+};
+
+void pcut_report_register_handler(pcut_report_ops_t *ops);
 void pcut_report_init(pcut_item_t *all_items);
 void pcut_report_suite_start(pcut_item_t *suite);
 void pcut_report_suite_done(pcut_item_t *suite);
