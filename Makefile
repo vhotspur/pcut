@@ -76,14 +76,32 @@ all: libpcut.a
 $(DEPEND):
 	makedepend -f - $(INCLUDES) -- $(SOURCES) >$@ 2>/dev/null
 
-samples: libpcut.a
-	$(MAKE) -C tests clean run
 
-clean:
+TEST_BASE = tests/
+EXE_EXT = out
+TEST_CFLAGS = $(CFLAGS)
+TEST_LDFLAGS = -L. -lpcut
+-include tests/tests.mak
+TEST_APPS_BASENAMES := $(basename $(TEST_APPS))
+DIFF = diff
+DIFFFLAGS = -du1
+
+check: libpcut.a check-build
+	@for i in $(TEST_APPS_BASENAMES); do \
+		echo -n ./$$i; \
+		./$$i.$(EXE_EXT) | sed 's:$(TEST_BASE)::g' >$$i.got; \
+		if cmp -s $$i.got $$i.expected; then \
+			echo " ok."; \
+		else \
+			echo " failed:"; \
+			$(DIFF) $(DIFFFLAGS) $$i.expected $$i.got; \
+		fi; \
+	done
+
+clean: check-clean
 	find -name '*.o' -delete
 	rm -f libpcut.a
 	rm -f $(DEPEND)
-	$(MAKE) -C tests clean
 
 libpcut.a: $(OBJECTS)
 	$(AR) rc $@ $(OBJECTS)
