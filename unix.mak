@@ -32,6 +32,8 @@ PCUT_LIB = libpcut.a
 
 -include pcut.mak
 
+PCUT_OBJECTS := $(addsuffix .o,$(basename $(PCUT_SOURCES)))
+
 # Take care of dependencies
 DEPEND = Makefile.depend
 -include $(DEPEND)
