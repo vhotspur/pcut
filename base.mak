@@ -26,12 +26,19 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
--include base.mak
 
-all: $(PCUT_LIB)
+PCUT_INCLUDE = include
+PCUT_CFLAGS = -Wall -Wextra -std=c99 -Werror -I$(PCUT_INCLUDE)
 
-pcut-clean: check-clean platform-clean
-	$(RM) *.$(OBJ_EXT) src/*.$(OBJ_EXT) src/*/*.$(OBJ_EXT)
+PCUT_SOURCES = \
+	src/assert.c \
+	src/helper.c \
+	src/list.c \
+	src/main.c \
+	src/print.c \
+	src/report/report.c \
+	src/report/tap.c \
+	src/report/xml.c \
+	src/run.c \
+	$(PCUT_TARGET_SOURCES)
 
-%.o: %.c
-	$(CC) -c -o $@ $(PCUT_CFLAGS) $<
