@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Vojtech Horky
+# Copyright (c) 2013 Vojtech Horky
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,28 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#
-# This is ready to use Makefile for Unix based operating systems.
-#
 
-CC = gcc
-LD = gcc
-AR = ar
-RANLIB = ranlib
-RM = rm -f
+PCUT_INCLUDE = include
+PCUT_CFLAGS = -Wall -Wextra -std=c99 -Werror -I$(PCUT_INCLUDE)
 
--include unix.mak
+PCUT_SOURCES = \
+	src/assert.c \
+	src/helper.c \
+	src/list.c \
+	src/main.c \
+	src/print.c \
+	src/report/report.c \
+	src/report/tap.c \
+	src/report/xml.c \
+	src/run.c \
+	$(PCUT_TARGET_SOURCES)
 
-clean: pcut-clean
+PCUT_OBJECTS := $(addsuffix .o,$(basename $(PCUT_SOURCES)))
+
+all: $(PCUT_LIB)
+
+pcut-clean: check-clean platform-clean
+	$(RM) *.$(OBJ_EXT) src/*.$(OBJ_EXT) src/*/*.$(OBJ_EXT)
+
+%.o: %.c
+	$(CC) -c -o $@ $(PCUT_CFLAGS) $<

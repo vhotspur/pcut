@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Vojtech Horky
+# Copyright (c) 2013 Vojtech Horky
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,54 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+PCUT_TARGET_SOURCES = src/os/stdc.c src/os/unix.c
+OBJ_EXT = o
+PCUT_LIB = libpcut.a
+
+-include pcut.mak
+
+# Take care of dependencies
+DEPEND = Makefile.depend
+-include $(DEPEND)
+$(DEPEND):
+	makedepend -f - -Iinclude -- $(PCUT_SOURCES) >$@ 2>/dev/null
+
+
 #
-# This is ready to use Makefile for Unix based operating systems.
+# Add the check target for running all the tests
 #
+TEST_BASE = tests/
+EXE_EXT = run
+TEST_CFLAGS = $(PCUT_CFLAGS)
+TEST_LDFLAGS = -L. -lpcut
+-include tests/tests.mak
+TEST_APPS_BASENAMES := $(basename $(TEST_APPS))
+DIFF = diff
+DIFFFLAGS = -du1
 
-CC = gcc
-LD = gcc
-AR = ar
-RANLIB = ranlib
-RM = rm -f
+check: libpcut.a check-build
+	@for i in $(TEST_APPS_BASENAMES); do \
+		echo -n ./$$i; \
+		./$$i.$(EXE_EXT) | sed 's:$(TEST_BASE)::g' >$$i.got; \
+		if cmp -s $$i.got $$i.expected; then \
+			echo " ok."; \
+		else \
+			echo " failed:"; \
+			$(DIFF) $(DIFFFLAGS) $$i.expected $$i.got; \
+		fi; \
+	done
 
--include unix.mak
+#
+# Clean-up
+#
+platform-clean:
+	rm -f libpcut.a $(DEPEND)
 
-clean: pcut-clean
+#
+# Actual build rules
+#
+$(PCUT_LIB): $(PCUT_OBJECTS)
+	$(AR) rc $@ $(PCUT_OBJECTS)
+	$(RANLIB) $@
+
+%.o: $(DEPEND)

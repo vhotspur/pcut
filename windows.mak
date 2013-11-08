@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Vojtech Horky
+# Copyright (c) 2013 Vojtech Horky
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,28 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+PCUT_TARGET_SOURCES = src/os/stdc.c src/os/generic.c
+OBJ_EXT = obj
+PCUT_LIB = pcut.lib
+
+-include pcut.mak
+
 #
-# This is ready to use Makefile for Unix based operating systems.
+# Add the check target for running all the tests
 #
+TEST_BASE = tests/
+EXE_EXT = exe
+TEST_CFLAGS = $(PCUT_CFLAGS)
+TEST_LDFLAGS = -L. -lpcut
+-include tests/tests.mak
 
-CC = gcc
-LD = gcc
-AR = ar
-RANLIB = ranlib
-RM = rm -f
+#
+# Clean-up
+#
+platform-clean:
 
--include unix.mak
+#
+# Actual build rules
+#
+$(PCUT_LIB): $(PCUT_OBJECTS)
 
-clean: pcut-clean
