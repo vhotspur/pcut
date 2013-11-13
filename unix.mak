@@ -30,6 +30,11 @@ PCUT_TARGET_SOURCES = src/os/stdc.c src/os/unix.c
 OBJ_EXT = o
 PCUT_LIB = libpcut.a
 
+# Installation paths
+PREFIX = /usr/local
+LIBDIR = $(PREFIX)/lib
+INCLUDEDIR = $(PREFIX)/include
+
 -include pcut.mak
 
 PCUT_OBJECTS := $(addsuffix .o,$(basename $(PCUT_SOURCES)))
@@ -79,3 +84,12 @@ $(PCUT_LIB): $(PCUT_OBJECTS)
 	$(RANLIB) $@
 
 %.o: $(DEPEND)
+
+#
+# Installation
+#
+install: $(PCUT_LIB)
+	install -d -m 755 $(DESTDIR)$(LIBDIR)
+	install -d -m 755 $(DESTDIR)$(INCLUDEDIR)/pcut
+	install -m 644 $(PCUT_LIB) $(DESTDIR)$(LIBDIR)/$(PCUT_LIB)
+	install -m 644 include/pcut/*.h $(DESTDIR)$(INCLUDEDIR)/pcut/
