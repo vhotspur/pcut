@@ -31,6 +31,7 @@
 #ifndef __helenos__
 #include <string.h>
 #endif
+#include <stdio.h>
 
 static int test_counter;
 static int tests_in_suite;

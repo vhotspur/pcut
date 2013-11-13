@@ -29,17 +29,8 @@
 #ifndef PCUT_TEST_H_GUARD
 #define PCUT_TEST_H_GUARD
 
-/*
- * First of all, try to guess on which OS we are running.
- * Just the basic, more complex stuff might be added later.
- *
- * Check for HelenOS explicitly as the first one because even
- * the cross-compiler may define the __unix__ macro.
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <setjmp.h>
 #include <pcut/private.h>
+#include <stdlib.h>
 
 enum {
 	PCUT_KIND_SKIP,
@@ -148,10 +139,7 @@ struct pcut_item {
 #define PCUT_IMPORT(identifier) \
 	PCUT_IMPORT_IMPL(identifier, __COUNTER__)
 
-pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last);
-int pcut_count_tests(pcut_item_t *it);
 int pcut_main(pcut_item_t *last, int argc, char *argv[]);
-void pcut_print_items(pcut_item_t *first);
 
 
 #define PCUT_INIT \

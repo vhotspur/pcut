@@ -30,6 +30,7 @@
 #ifndef __helenos__
 #include <string.h>
 #endif
+#include <stdio.h>
 
 static pcut_report_ops_t *report_ops = NULL;
 

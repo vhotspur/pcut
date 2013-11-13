@@ -32,7 +32,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <sys/wait.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "../internal.h"

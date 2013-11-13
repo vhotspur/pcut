@@ -28,6 +28,7 @@
 
 #include <pcut/test.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 PCUT_INIT
 

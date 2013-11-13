@@ -29,6 +29,7 @@
 #include "internal.h"
 #include <setjmp.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 #define MAX_MESSAGE_LENGTH 256
 #define MESSAGE_BUFFER_COUNT 2

@@ -43,6 +43,11 @@
 
 extern int pcut_run_mode;
 
+
+pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last);
+int pcut_count_tests(pcut_item_t *it);
+void pcut_print_items(pcut_item_t *first);
+
 pcut_item_t *pcut_get_real_next(pcut_item_t *item);
 pcut_item_t *pcut_get_real(pcut_item_t *item);
 const char* pcut_run_test(pcut_test_func_t function);

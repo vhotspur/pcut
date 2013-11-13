@@ -30,6 +30,7 @@
 #include "report/report.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 
