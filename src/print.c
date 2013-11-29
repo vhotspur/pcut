@@ -26,12 +26,21 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Helper functions for debugging prints.
+ */
+
 #include <pcut/test.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "internal.h"
 
+/** Print all items in the given list.
+ *
+ * @param first First item to be printed.
+ */
 void pcut_print_items(pcut_item_t *first) {
 	pcut_item_t *it = first;
 	printf("====>\n");
@@ -57,6 +66,10 @@ void pcut_print_items(pcut_item_t *first) {
 	printf("----\n");
 }
 
+/** Print valid items in the list.
+ *
+ * @param first First item to be printed.
+ */
 void pcut_print_tests(pcut_item_t *first) {
 	for (pcut_item_t *it = pcut_get_real(first); it != NULL; it = pcut_get_real_next(it)) {
 		switch (it->kind) {

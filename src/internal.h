@@ -32,13 +32,31 @@
 #include <pcut/test.h>
 #include <stdlib.h>
 
+/** Mark a variable as unused. */
 #define PCUT_UNUSED(x) ((void)x)
 
+/** Forking mode for test execution.
+ *
+ * In this mode, each test is run in a separate process.
+ * This ensures that even SIGSEGV does not stop the framework itself.
+ */
 #define PCUT_RUN_MODE_FORKING 1
+
+/** Single-process mode for test execution.
+ *
+ * This mode is used when new process is launched when in forking-mode or
+ * this mode can be used if we are sure that no test would fail
+ * fatally (that is causing an unexpected program exit).
+ */
 #define PCUT_RUN_MODE_SINGLE 2
 
+/** Test outcome: test passed. */
 #define TEST_OUTCOME_PASS 1
+
+/** Test outcome: test failed. */
 #define TEST_OUTCOME_FAIL 2
+
+/** Test outcome: test failed unexpectedly. */
 #define TEST_OUTCOME_ERROR 3
 
 extern int pcut_run_mode;
@@ -67,17 +85,25 @@ extern int pcut_running_setup_now;
 void pcut_print_fail_message(const char *msg);
 
 typedef struct pcut_report_ops pcut_report_ops_t;
+/** Reporting callbacks structure. */
 struct pcut_report_ops {
+	/** Initialize the reporting, given all tests. */
 	void (*init)(pcut_item_t *);
+	/** Test suite just started. */
 	void (*suite_start)(pcut_item_t *);
+	/** Test suite completed. */
 	void (*suite_done)(pcut_item_t *);
+	/** Test is about to start. */
 	void (*test_start)(pcut_item_t *);
+	/** Test completed. */
 	void (*test_done)(pcut_item_t *, int, const char *, const char *,
 		const char *);
+	/** Finalize the reporting. */
 	void (*done)(void);
 };
 
 void pcut_report_register_handler(pcut_report_ops_t *ops);
+
 void pcut_report_init(pcut_item_t *all_items);
 void pcut_report_suite_start(pcut_item_t *suite);
 void pcut_report_suite_done(pcut_item_t *suite);

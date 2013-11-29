@@ -26,22 +26,49 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Test execution routines.
+ */
+
 #include "internal.h"
 #ifndef PCUT_NO_LONG_JUMP
 #include <setjmp.h>
 #endif
 
 #ifndef PCUT_NO_LONG_JUMP
+/** Long-jump buffer. */
 static jmp_buf start_test_jump;
 #endif
 
+/** Whether to run a tear-down function on a failure.
+ *
+ * Used to determine whether we are already in a tear-down context.
+ */
 static int execute_teardown_on_failure;
+
+/** Whether to report test result at all.
+ *
+ * Used to determine whether we are the forked or the parent process.
+ */
 static int report_test_result;
+
+/** Whether to print test error.
+ *
+ * Used to determine whether we are the forked or the parent process.
+ */
 static int print_test_error;
+
+/** Whether leaving a test means a process exit. */
 static int leave_means_exit;
+
+/** Pointer to currently running test. */
 static pcut_item_t *current_test = NULL;
+
+/** Pointer to current test suite. */
 static pcut_item_t *current_suite = NULL;
 
+/** A NULL-like suite. */
 static pcut_item_t default_suite = {
 	.kind = PCUT_KIND_TESTSUITE,
 	.id = -1,
@@ -54,6 +81,11 @@ static pcut_item_t default_suite = {
 	}
 };
 
+/** Find the suite given test belongs to.
+ *
+ * @param it The test.
+ * @return Always a valid test suite item.
+ */
 static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 	while (it != NULL) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
@@ -64,12 +96,23 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 	return &default_suite;
 }
 
+/** Run a set-up (tear-down) function.
+ *
+ * @param func Function to run (can be NULL).
+ */
 static void run_setup_teardown(pcut_setup_func_t func) {
 	if (func != NULL) {
 		func();
 	}
 }
 
+/** Terminate current test with given outcome.
+ *
+ * @warning This function may execute a long jump or terminate
+ * current process.
+ *
+ * @param outcome Outcome of the current test.
+ */
 static void leave_test(int outcome) {
 	if (leave_means_exit) {
 		exit(outcome);
@@ -80,6 +123,13 @@ static void leave_test(int outcome) {
 #endif
 }
 
+/** Process a failed assertion.
+ *
+ * @warning This function calls leave_test() and typically will not
+ * return.
+ *
+ * @param message Message describing the failure.
+ */
 void pcut_failed_assertion(const char *message) {
 	static const char *prev_message = NULL;
 	/*
@@ -113,7 +163,11 @@ void pcut_failed_assertion(const char *message) {
 	leave_test(TEST_OUTCOME_FAIL); /* No return. */
 }
 
-
+/** Run a test.
+ *
+ * @param test Test to execute.
+ * @return Error status (zero means success).
+ */
 static int run_test(pcut_item_t *test) {
 	/*
 	 * Set here as the returning point in case of test failure.
@@ -170,6 +224,14 @@ static int run_test(pcut_item_t *test) {
 	return 0;
 }
 
+/** Run a test in a forked mode.
+ *
+ * Forked mode means that the caller of the test is already a new
+ * process running this test only.
+ *
+ * @param test Test to execute.
+ * @return Error status (zero means success).
+ */
 int pcut_run_test_forked(pcut_item_t *test) {
 	report_test_result = 0;
 	print_test_error = 1;
@@ -183,6 +245,14 @@ int pcut_run_test_forked(pcut_item_t *test) {
 	return rc;
 }
 
+/** Run a test in a single mode.
+ *
+ * Single mode means that the test is called in the context of the
+ * parent process, that is no new process is forked.
+ *
+ * @param test Test to execute.
+ * @return Error status (zero means success).
+ */
 int pcut_run_test_single(pcut_item_t *test) {
 	report_test_result = 1;
 	print_test_error = 0;

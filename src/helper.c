@@ -30,7 +30,11 @@
 #include <assert.h>
 #include "internal.h"
 
-
+/** Find next item with actual content.
+ *
+ * @param item Head of the list.
+ * @return First item with actual content or NULL on end of list.
+ */
 pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
 	if (item == NULL) {
 		return NULL;
@@ -44,6 +48,14 @@ pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
 	return item;
 }
 
+/** Retrieve the first item with actual content.
+ *
+ * Unlike pcut_get_real_next(), where we always advance after the
+ * first item, here the @p item itself could be returned.
+ *
+ * @param item Head of the list.
+ * @return First item with actual content or NULL on end of list.
+ */
 pcut_item_t *pcut_get_real(pcut_item_t *item) {
 	if (item == NULL) {
 		return NULL;
@@ -56,6 +68,13 @@ pcut_item_t *pcut_get_real(pcut_item_t *item) {
 	}
 }
 
+/** Checks whether the argument is an option followed by a number.
+ *
+ * @param arg Argument from the user.
+ * @param opt Option, including the leading dashes.
+ * @param value Where to store the integer value.
+ * @return Whether @p arg is @p opt followed by a number.
+ */
 int pcut_is_arg_with_number(const char *arg, const char *opt, int *value) {
 	int opt_len = pcut_str_size(opt);
 	if (! pcut_str_start_equals(arg, opt, opt_len)) {

@@ -26,8 +26,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * @file
+/** @file
  *
  * PCUT: Plain-C unit-testing mini-framework.
  */

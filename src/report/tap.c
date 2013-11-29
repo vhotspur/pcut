@@ -26,6 +26,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Test-anything-protocol reporting routines.
+ */
+
 #include "../internal.h"
 #include "report.h"
 #ifndef __helenos__
@@ -33,10 +38,16 @@
 #endif
 #include <stdio.h>
 
+/** Counter of all run tests. */
 static int test_counter;
+
+/** Counter for tests in a current suite. */
 static int tests_in_suite;
+
+/** Counter of failed tests in current suite. */
 static int failed_tests_in_suite;
 
+/** Initialize the tap output. */
 static void tap_init(pcut_item_t *all_items) {
 	int tests_total = pcut_count_tests(all_items);
 	test_counter = 0;
@@ -44,6 +55,7 @@ static void tap_init(pcut_item_t *all_items) {
 	printf("1..%d\n", tests_total);
 }
 
+/** Report that a suite was started. */
 static void tap_suite_start(pcut_item_t *suite) {
 	tests_in_suite = 0;
 	failed_tests_in_suite = 0;
@@ -51,11 +63,18 @@ static void tap_suite_start(pcut_item_t *suite) {
 	printf("#> Starting suite %s.\n", suite->suite.name);
 }
 
+/** Report that a suite was completed. */
 static void tap_suite_done(pcut_item_t *suite) {
 	printf("#> Finished suite %s (failed %d of %d).\n",
 			suite->suite.name, failed_tests_in_suite, tests_in_suite);
 }
 
+/** Report that a test was started.
+ *
+ * We do nothing - all handling is done after the test completes.
+ *
+ * @param test Test that is started.
+ */
 static void tap_test_start(pcut_item_t *test) {
 	PCUT_UNUSED(test);
 
@@ -63,6 +82,11 @@ static void tap_test_start(pcut_item_t *test) {
 	test_counter++;
 }
 
+/** Print the buffer, prefix new line with a given string.
+ *
+ * @param message Message to print.
+ * @param prefix Prefix for each new line, such as comment character.
+ */
 static void print_by_lines(const char *message, const char *prefix) {
 	if ((message == NULL) || (message[0] == 0)) {
 		return;
@@ -79,6 +103,7 @@ static void print_by_lines(const char *message, const char *prefix) {
 	}
 }
 
+/** Report a completed test. */
 static void tap_test_done(pcut_item_t *test, int outcome,
 		const char *error_message, const char *teardown_error_message,
 		const char *extra_output) {
@@ -115,6 +140,7 @@ static void tap_test_done(pcut_item_t *test, int outcome,
 	print_by_lines(extra_output, "# stdio: ");
 }
 
+/** Report testing done. */
 static void tap_done() {
 }
 

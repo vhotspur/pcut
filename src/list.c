@@ -26,13 +26,22 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Helper functions for working with list of items.
+ */
+
 #include <assert.h>
 #include <stdlib.h>
 #include "internal.h"
 #include <pcut/test.h>
 
 
-static void fix_nested(pcut_item_t *nested) {
+/** In-line nested lists into the parent.
+ *
+ * @param nested Head of the nested list.
+ */
+static void inline_nested_lists(pcut_item_t *nested) {
 	if (nested->kind != PCUT_KIND_NESTED) {
 		return;
 	}
@@ -53,6 +62,10 @@ static void fix_nested(pcut_item_t *nested) {
 	nested->kind = PCUT_KIND_SKIP;
 }
 
+/** Assing unique ids to each item in the list.
+ *
+ * @param first List head.
+ */
 static void set_ids(pcut_item_t *first) {
 	assert(first != NULL);
 	int id = 1;
@@ -65,17 +78,27 @@ static void set_ids(pcut_item_t *first) {
 	}
 }
 
+/** Convert the static single-linked list into a flat double-linked list.
+ *
+ * The conversion includes
+ * * adding forward links
+ * * flattening of any nested lists
+ * * assigning of unique ids
+ *
+ * @param last Tail of the list.
+ * @return Head of the fixed list.
+ */
 pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last) {
 	last->next = NULL;
 
-	fix_nested(last);
+	inline_nested_lists(last);
 
 	pcut_item_t *next = last;
 
 	pcut_item_t *it = last->previous;
 	while (it != NULL) {
 		it->next = next;
-		fix_nested(it);
+		inline_nested_lists(it);
 		next = it;
 		it = it->previous;
 	}
@@ -85,6 +108,11 @@ pcut_item_t *pcut_fix_list_get_real_head(pcut_item_t *last) {
 	return next;
 }
 
+/** Compute the number of all tests in a list.
+ *
+ * @param it Head of the list.
+ * @return Number of tests.
+ */
 int pcut_count_tests(pcut_item_t *it) {
 	int count = 0;
 	while (it != NULL) {

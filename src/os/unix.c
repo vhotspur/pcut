@@ -26,6 +26,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Unix-specific functions for test execution via the fork() system call.
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -34,16 +39,18 @@
 #include <sys/wait.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "../internal.h"
 
-#define MAX_TEST_NUMBER_WIDTH 24
-#define MAX_COMMAND_LINE_LENGTH 1024
+/** Maximum size of stdout we are able to capture. */
 #define OUTPUT_BUFFER_SIZE 8192
 
+/** Buffer for assertion and other error messages. */
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
+
+/** Buffer for stdout from the test. */
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+/** Prepare for a new test. */
 static void before_test_start(pcut_item_t *test) {
 	pcut_report_test_start(test);
 
@@ -51,6 +58,17 @@ static void before_test_start(pcut_item_t *test) {
 	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
 }
 
+/** Read full buffer from given file descriptor.
+ *
+ * This function exists to overcome the possibility that read() may
+ * not fill the full length of the provided buffer even when EOF is
+ * not reached.
+ *
+ * @param fd Opened file descriptor.
+ * @param buffer Buffer to store data into.
+ * @param buffer_size Size of the @p buffer in bytes.
+ * @return Number of actually read bytes.
+ */
 static size_t read_all(int fd, char *buffer, size_t buffer_size) {
 	ssize_t actually_read;
 	char *buffer_start = buffer;
@@ -73,6 +91,11 @@ static size_t read_all(int fd, char *buffer, size_t buffer_size) {
 	return buffer - buffer_start;
 }
 
+/** Convert program exit code to test outcome.
+ *
+ * @param status Status value from the wait() function.
+ * @return Test outcome code.
+ */
 static int convert_wait_status_to_outcome(int status) {
 	if (WIFEXITED(status)) {
 		if (WEXITSTATUS(status) != 0) {
@@ -89,6 +112,11 @@ static int convert_wait_status_to_outcome(int status) {
 	return status;
 }
 
+/** Run the test in a forked environment and report the result.
+ *
+ * @param self_path Ignored.
+ * @param test Test to be run.
+ */
 void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	PCUT_UNUSED(self_path);
 

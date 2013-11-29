@@ -26,6 +26,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * String operation functions for systems with a standard C library.
+ */
+
 #include <string.h>
 #include "../internal.h"
 

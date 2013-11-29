@@ -26,12 +26,20 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Test results reporting.
+ */
+
 #ifndef PCUT_REPORT_H_GUARD
 #define PCUT_REPORT_H_GUARD
 
 #include "../internal.h"
 
+/** Reporting functions for the test-anything-protocol. */
 extern pcut_report_ops_t pcut_report_tap;
+
+/** Reporting functions for XML report output. */
 extern pcut_report_ops_t pcut_report_xml;
 
 #endif

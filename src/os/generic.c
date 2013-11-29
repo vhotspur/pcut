@@ -26,6 +26,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Platform-dependent test execution function when system() is available.
+ */
+
 #include <stdlib.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -33,11 +38,16 @@
 #include <string.h>
 #include "../internal.h"
 
-#define MAX_TEST_NUMBER_WIDTH 24
+/** Maximum command-line length. */
 #define PCUT_COMMAND_LINE_BUFFER_SIZE 256
+
+/** Maximum length of a temporary file name. */
 #define PCUT_TEMP_FILENAME_BUFFER_SIZE 128
-#define MAX_COMMAND_LINE_LENGTH 1024
+
+/** Maximum size of stdout we are able to capture. */
 #define OUTPUT_BUFFER_SIZE 8192
+
+/* Format the command to launch a test according to OS we are running on. */
 
 #if defined(__WIN64) || defined(__WIN32)
 #include <process.h>
@@ -59,9 +69,13 @@
 #error "Unknown operating system."
 #endif
 
+/** Buffer for assertion and other error messages. */
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
+
+/** Buffer for stdout from the test. */
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+/** Prepare for a new test. */
 static void before_test_start(pcut_item_t *test) {
 	pcut_report_test_start(test);
 
@@ -69,7 +83,11 @@ static void before_test_start(pcut_item_t *test) {
 	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
 }
 
-
+/** Convert program exit code to test outcome.
+ *
+ * @param status Return value from the system() function.
+ * @return Test outcome code.
+ */
 static int convert_wait_status_to_outcome(int status) {
 	if (status < 0) {
 		return TEST_OUTCOME_ERROR;
@@ -80,6 +98,11 @@ static int convert_wait_status_to_outcome(int status) {
 	}
 }
 
+/** Run the test as a new process and report the result.
+ *
+ * @param self_path Path to itself, that is to current binary.
+ * @param test Test to be run.
+ */
 void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	before_test_start(test);
 

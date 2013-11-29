@@ -26,16 +26,27 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * The main control loop of the whole library.
+ */
+
 #include "internal.h"
 #include "report/report.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+/** Current running mode. */
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 
-int pcut_error_count;
-
+/** Find item by its id.
+ *
+ * @param first List to search.
+ * @param id Id to find.
+ * @return The item with given id.
+ * @retval NULL No item with such id exists in the list.
+ */
 static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	pcut_item_t *it = pcut_get_real(first);
 	while (it != NULL) {
@@ -47,8 +58,13 @@ static pcut_item_t *pcut_find_by_id(pcut_item_t *first, int id) {
 	return NULL;
 }
 
-
-static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
+/** Run the whole test suite.
+ *
+ * @param suite Suite to run.
+ * @param last Pointer to first item after this suite is stored here.
+ * @param prog_path Path to the current binary (used in forked mode).
+ */
+static void run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_path) {
 	pcut_item_t *it = pcut_get_real_next(suite);
 	if ((it == NULL) || (it->kind == PCUT_KIND_TESTSUITE)) {
 		goto leave_no_print;
@@ -78,8 +94,6 @@ static int run_suite(pcut_item_t *suite, pcut_item_t **last, const char *prog_pa
 		total_count++;
 	}
 
-	int ret_val = 0;
-
 leave_ok:
 	if (total_count > 0) {
 		pcut_report_suite_done(suite);
@@ -89,10 +103,16 @@ leave_no_print:
 	if (last != NULL) {
 		*last = it;
 	}
-
-	return ret_val;
 }
 
+/** Add direct pointers to set-up/tear-down functions to a suites.
+ *
+ * At start-up, set-up and tear-down functions are scattered in the
+ * list as siblings of suites and tests.
+ * This puts them into the structure describing the suite itself.
+ *
+ * @param first First item of the list.
+ */
 static void set_setup_teardown_callbacks(pcut_item_t *first) {
 	pcut_item_t *active_suite = NULL;
 	for (pcut_item_t *it = first; it != NULL; it = pcut_get_real_next(it)) {
@@ -114,6 +134,16 @@ static void set_setup_teardown_callbacks(pcut_item_t *first) {
 	}
 }
 
+/** The main function of PCUT.
+ *
+ * This function is expected to be called as the only function in
+ * normal main().
+ *
+ * @param last Pointer to the last item defined by PCUT_TEST macros.
+ * @param argc Original argc of the program.
+ * @param argv Original argv of the program.
+ * @return Program exit code.
+ */
 int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	pcut_item_t *items = pcut_fix_list_get_real_head(last);
 
@@ -163,7 +193,8 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			return 3;
 		}
 
-		return run_suite(suite, NULL, argv[0]);
+		run_suite(suite, NULL, argv[0]);
+		return 0;
 	}
 
 	if (run_only_test > 0) {
@@ -184,7 +215,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 			rc = pcut_run_test_forked(test);
 		}
 
-		exit(rc);
+		return rc;
 	}
 
 	/* Otherwise, run the whole thing. */
@@ -194,10 +225,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	while (it != NULL) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
 			pcut_item_t *tmp;
-			int suite_failed = run_suite(it, &tmp, argv[0]);
-			if (suite_failed) {
-				/* Do something. */
-			}
+			run_suite(it, &tmp, argv[0]);
 			it = tmp;
 		} else {
 			it = pcut_get_real_next(it);

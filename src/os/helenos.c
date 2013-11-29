@@ -26,6 +26,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ *
+ * Implementation of platform-dependent functions for HelenOS.
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -38,7 +43,7 @@
 
 
 /* String functions. */
-/* String functions. */
+
 int pcut_str_equals(const char *a, const char *b) {
 	return str_cmp(a, b) == 0;
 }
@@ -64,14 +69,25 @@ char *pcut_str_find_char(const char *haystack, const char needle) {
 
 /* Forking-mode related functions. */
 
+/** Maximum width of a test number. */
 #define MAX_TEST_NUMBER_WIDTH 24
+
+/** Maximum length of a temporary file name. */
 #define PCUT_TEMP_FILENAME_BUFFER_SIZE 128
+
+/** Maximum command-line length. */
 #define MAX_COMMAND_LINE_LENGTH 1024
+
+/** Maximum size of stdout we are able to capture. */
 #define OUTPUT_BUFFER_SIZE 8192
 
+/** Buffer for assertion and other error messages. */
 static char error_message_buffer[OUTPUT_BUFFER_SIZE];
+
+/** Buffer for stdout from the test. */
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+/** Prepare for a new test. */
 static void before_test_start(pcut_item_t *test) {
 	pcut_report_test_start(test);
 
@@ -79,6 +95,11 @@ static void before_test_start(pcut_item_t *test) {
 	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
 }
 
+/** Run the test as a new task and report the result.
+ *
+ * @param self_path Path to itself, that is to current binary.
+ * @param test Test to be run.
+ */
 void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	before_test_start(test);
 
