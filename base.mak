@@ -32,7 +32,6 @@ PCUT_CFLAGS = -Wall -Wextra -std=c99 -Werror -I$(PCUT_INCLUDE)
 
 PCUT_SOURCES = \
 	src/assert.c \
-	src/helper.c \
 	src/list.c \
 	src/main.c \
 	src/print.c \

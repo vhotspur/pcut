@@ -37,6 +37,45 @@
 #include <pcut/test.h>
 
 
+/** Find next item with actual content.
+ *
+ * @param item Head of the list.
+ * @return First item with actual content or NULL on end of list.
+ */
+pcut_item_t *pcut_get_real_next(pcut_item_t *item) {
+	if (item == NULL) {
+		return NULL;
+	}
+
+	do {
+		item = item->next;
+	} while ((item != NULL) && (item->kind == PCUT_KIND_SKIP));
+
+
+	return item;
+}
+
+/** Retrieve the first item with actual content.
+ *
+ * Unlike pcut_get_real_next(), where we always advance after the
+ * first item, here the @p item itself could be returned.
+ *
+ * @param item Head of the list.
+ * @return First item with actual content or NULL on end of list.
+ */
+pcut_item_t *pcut_get_real(pcut_item_t *item) {
+	if (item == NULL) {
+		return NULL;
+	}
+
+	if (item->kind == PCUT_KIND_SKIP) {
+		return pcut_get_real_next(item);
+	} else {
+		return item;
+	}
+}
+
+
 /** In-line nested lists into the parent.
  *
  * @param nested Head of the nested list.

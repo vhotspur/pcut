@@ -40,6 +40,25 @@
 /** Current running mode. */
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 
+
+/** Checks whether the argument is an option followed by a number.
+ *
+ * @param arg Argument from the user.
+ * @param opt Option, including the leading dashes.
+ * @param value Where to store the integer value.
+ * @return Whether @p arg is @p opt followed by a number.
+ */
+int pcut_is_arg_with_number(const char *arg, const char *opt, int *value) {
+	int opt_len = pcut_str_size(opt);
+	if (! pcut_str_start_equals(arg, opt, opt_len)) {
+		return 0;
+	}
+	int val = pcut_str_to_int(arg + opt_len);
+	*value = val;
+	return 1;
+}
+
+
 /** Find item by its id.
  *
  * @param first List to search.
