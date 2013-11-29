@@ -30,10 +30,57 @@
 #error "You cannot include this file directly."
 #endif
 
-#ifndef PCUT_PRIVATE_H_GUARD
-#define PCUT_PRIVATE_H_GUARD
+#ifndef PCUT_IMPL_H_GUARD
+#define PCUT_IMPL_H_GUARD
 
-#include <pcut/prevs.h>
+#include "prevs.h"
+#include <stdlib.h>
+
+enum {
+	PCUT_KIND_SKIP,
+	PCUT_KIND_NESTED,
+	PCUT_KIND_SETUP,
+	PCUT_KIND_TEARDOWN,
+	PCUT_KIND_TESTSUITE,
+	PCUT_KIND_TEST
+};
+
+typedef struct pcut_item pcut_item_t;
+typedef void (*pcut_test_func_t)(void);
+typedef void (*pcut_setup_func_t)(void);
+
+struct pcut_item {
+	pcut_item_t *previous;
+	pcut_item_t *next;
+	int id;
+	int kind;
+	union {
+		struct {
+			const char *name;
+			pcut_setup_func_t setup;
+			pcut_setup_func_t teardown;
+		} suite;
+		struct {
+			const char *name;
+			pcut_test_func_t func;
+		} test;
+		/* setup is used for both set-up and tear-down */
+		struct {
+			pcut_setup_func_t func;
+		} setup;
+		struct {
+			pcut_item_t *last;
+		} nested;
+		struct {
+			int dummy;
+		} meta;
+	};
+};
+
+void pcut_failed_assertion(const char *message);
+void pcut_failed_assertion_fmt(const char *fmt, ...);
+int pcut_str_equals(const char *a, const char *b);
+int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 #define PCUT_ASSERTION_FAILED(fmt, ...) \
 	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt, __LINE__, ##__VA_ARGS__)
@@ -108,6 +155,24 @@
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
 		.nested.last = &pcut_exported_##identifier \
 	)
+
+#define PCUT_INIT_IMPL(first_number) \
+	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
+		.previous = NULL, \
+		.next = NULL, \
+		.id = -1, \
+		.kind = PCUT_KIND_SKIP \
+	}; \
+	PCUT_TEST_SUITE("Default");
+
+#define PCUT_MAIN_IMPL(last_number) \
+	static pcut_item_t pcut_item_last = { \
+		.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, last_number)), \
+		.kind = PCUT_KIND_SKIP \
+	}; \
+	int main(int argc, char *argv[]) { \
+		return pcut_main(&pcut_item_last, argc, argv); \
+	}
 
 #ifdef PCUT_DEBUG_BUILD
 #define PCUT_DEBUG(msg, ...) \

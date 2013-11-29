@@ -29,53 +29,7 @@
 #ifndef PCUT_TEST_H_GUARD
 #define PCUT_TEST_H_GUARD
 
-#include <pcut/private.h>
-#include <stdlib.h>
-
-enum {
-	PCUT_KIND_SKIP,
-	PCUT_KIND_NESTED,
-	PCUT_KIND_SETUP,
-	PCUT_KIND_TEARDOWN,
-	PCUT_KIND_TESTSUITE,
-	PCUT_KIND_TEST
-};
-
-void pcut_failed_assertion(const char *message);
-void pcut_failed_assertion_fmt(const char *fmt, ...);
-int pcut_str_equals(const char *a, const char *b);
-
-typedef struct pcut_item pcut_item_t;
-typedef void (*pcut_test_func_t)(void);
-typedef void (*pcut_setup_func_t)(void);
-
-struct pcut_item {
-	pcut_item_t *previous;
-	pcut_item_t *next;
-	int id;
-	int kind;
-	union {
-		struct {
-			const char *name;
-			pcut_setup_func_t setup;
-			pcut_setup_func_t teardown;
-		} suite;
-		struct {
-			const char *name;
-			pcut_test_func_t func;
-		} test;
-		/* setup is used for both set-up and tear-down */
-		struct {
-			pcut_setup_func_t func;
-		} setup;
-		struct {
-			pcut_item_t *last;
-		} nested;
-		struct {
-			int dummy;
-		} meta;
-	};
-};
+#include "impl.h"
 
 #define PCUT_ASSERT_EQUALS(expected, actual) \
 		do {\
@@ -139,25 +93,10 @@ struct pcut_item {
 #define PCUT_IMPORT(identifier) \
 	PCUT_IMPORT_IMPL(identifier, __COUNTER__)
 
-int pcut_main(pcut_item_t *last, int argc, char *argv[]);
-
-
 #define PCUT_INIT \
-	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
-			.previous = NULL, \
-			.next = NULL, \
-			.id = -1, \
-			.kind = PCUT_KIND_SKIP \
-	}; \
-	PCUT_TEST_SUITE("Default");
+	PCUT_INIT_IMPL(__COUNTER__)
 
 #define PCUT_MAIN \
-	static pcut_item_t pcut_item_last = { \
-			.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, __COUNTER__)), \
-			.kind = PCUT_KIND_SKIP \
-	}; \
-	int main(int argc, char *argv[]) { \
-		return pcut_main(&pcut_item_last, argc, argv); \
-	}
+	PCUT_MAIN_IMPL(__COUNTER__)
 
 #endif
