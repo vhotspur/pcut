@@ -26,16 +26,38 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * Formatting and processing of failed assertion messages.
+ *
+ * We are using static buffers to prevent any calls to malloc()/free()
+ * by the testing framework.
+ */
+
 #include "internal.h"
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdio.h>
 
+/** Maximum length of failed-assert message. */
 #define MAX_MESSAGE_LENGTH 256
+
+/** How many assertion messages we need to keep in memory at once. */
 #define MESSAGE_BUFFER_COUNT 2
+
+/** Assertion message buffers. */
 static char message_buffer[MESSAGE_BUFFER_COUNT][MAX_MESSAGE_LENGTH + 1];
+
+/** Currently active assertion buffer. */
 static int message_buffer_index = 0;
 
+/** Announce that assertion failed.
+ *
+ * @warning This function may not return.
+ *
+ * @param fmt printf-style formatting string.
+ *
+ */
 void pcut_failed_assertion_fmt(const char *fmt, ...) {
 	char *current_buffer = message_buffer[message_buffer_index];
 	message_buffer_index = (message_buffer_index + 1) % MESSAGE_BUFFER_COUNT;
@@ -47,4 +69,3 @@ void pcut_failed_assertion_fmt(const char *fmt, ...) {
 
 	pcut_failed_assertion(current_buffer);
 }
-

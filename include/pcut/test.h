@@ -26,11 +26,21 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ *
+ * PCUT: Plain-C unit-testing mini-framework.
+ */
 #ifndef PCUT_TEST_H_GUARD
 #define PCUT_TEST_H_GUARD
 
 #include "impl.h"
 
+/** Generic assertion for types where == is defined.
+ *
+ * @param expected Expected (correct) value.
+ * @param actual Actually obtained (computed) value we wish to test.
+ */
 #define PCUT_ASSERT_EQUALS(expected, actual) \
 		do {\
 			if (!((expected) == (actual))) { \
@@ -38,7 +48,10 @@
 			} \
 		} while (0)
 
-
+/** Asserts that given pointer is NULL.
+ *
+ * @param pointer The pointer to be tested.
+ */
 #define PCUT_ASSERT_NULL(pointer) \
 	do { \
 		void *pcut_ptr_eval = (pointer); \
@@ -48,6 +61,10 @@
 		} \
 	} while (0)
 
+/** Asserts that given pointer is not NULL.
+ *
+ * @param pointer The pointer to be tested.
+ */
 #define PCUT_ASSERT_NOT_NULL(pointer) \
 	do { \
 		void *pcut_ptr_eval = (pointer); \
@@ -57,6 +74,11 @@
 	} while (0)
 
 
+/** Assertion for checking that two integers are equal.
+ *
+ * @param expected Expected (correct) value.
+ * @param actual Actually obtained (computed) value we wish to test.
+ */
 #define PCUT_ASSERT_INT_EQUALS(expected, actual) \
 	do {\
 		long pcut_expected_eval = (expected); \
@@ -68,6 +90,11 @@
 		} \
 	} while (0)
 
+/** Assertion for checking that two strings (`const char *`) are equal.
+ *
+ * @param expected Expected (correct) value.
+ * @param actual Actually obtained (computed) value we wish to test.
+ */
 #define PCUT_ASSERT_STR_EQUALS(expected, actual) \
 	do {\
 		const char *pcut_expected_eval = (expected); \
@@ -80,22 +107,47 @@
 	} while (0)
 
 
+/** Define a new test with given name.
+ *
+ * @param name A valid C identifier name (not quoted).
+ */
 #define PCUT_TEST(name) PCUT_TEST_IMPL(name, __COUNTER__)
 
+/** Define a new test suite with given name.
+ *
+ * All tests following this macro belong to the new suite
+ * (up to next occurence of PCUT_TEST_SUITE).
+ *
+ */
 #define PCUT_TEST_SUITE(name) PCUT_TEST_SUITE_IMPL(name, __COUNTER__)
 
-#define PCUT_TEST_BEFORE PCUT_TEST_BEFORE_IMPL(__COUNTER__)
-#define PCUT_TEST_AFTER PCUT_TEST_AFTER_IMPL(__COUNTER__)
+/** Define a set-up function for a test suite.
+ *
+ * There could be only a single set-up function for each suite.
+ */
+#define PCUT_TEST_BEFORE \
+	PCUT_TEST_BEFORE_IMPL(__COUNTER__)
 
+/** Define a tear-down function for a test suite.
+ *
+ * There could be only a single tear-down function for each suite.
+ */
+#define PCUT_TEST_AFTER \
+	PCUT_TEST_AFTER_IMPL(__COUNTER__)
+
+/** Export test cases from current file. */
 #define PCUT_EXPORT(identifier) \
 	PCUT_EXPORT_IMPL(identifier, __COUNTER__)
 
+/** Import test cases from a different file. */
 #define PCUT_IMPORT(identifier) \
 	PCUT_IMPORT_IMPL(identifier, __COUNTER__)
 
+/** Initialize the PCUT testing framework. */
 #define PCUT_INIT \
 	PCUT_INIT_IMPL(__COUNTER__)
 
+/** Insert code to run all the tests. */
 #define PCUT_MAIN \
 	PCUT_MAIN_IMPL(__COUNTER__)
 
