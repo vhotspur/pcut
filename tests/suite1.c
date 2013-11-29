@@ -31,7 +31,7 @@
 
 PCUT_INIT
 
-PCUT_TEST_SUITE("intpow");
+PCUT_TEST_SUITE(intpow);
 
 PCUT_TEST(zero_exponent) {
 	PCUT_ASSERT_INT_EQUALS(1, intpow(2, 0));

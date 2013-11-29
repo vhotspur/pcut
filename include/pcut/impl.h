@@ -116,7 +116,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 #define PCUT_TEST_SUITE_IMPL(suitename, number) \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
 				.suite = { \
-					.name = suitename, \
+					.name = #suitename, \
 					.setup = NULL, \
 					.teardown = NULL \
 				} \
@@ -163,7 +163,7 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 		.id = -1, \
 		.kind = PCUT_KIND_SKIP \
 	}; \
-	PCUT_TEST_SUITE("Default");
+	PCUT_TEST_SUITE(Default);
 
 #define PCUT_MAIN_IMPL(last_number) \
 	static pcut_item_t pcut_item_last = { \

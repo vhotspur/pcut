@@ -1,7 +1,7 @@
 1..2
-#> Starting suite Tests with set-up and tear-down.
+#> Starting suite suite_with_setup_and_teardown.
 ok 1 snprintf
-#> Finished suite Tests with set-up and tear-down (failed 0 of 1).
-#> Starting suite Another suite without set-up.
+#> Finished suite suite_with_setup_and_teardown (failed 0 of 1).
+#> Starting suite another_without_setup.
 ok 2 whatever
-#> Finished suite Another suite without set-up (failed 0 of 1).
+#> Finished suite another_without_setup (failed 0 of 1).

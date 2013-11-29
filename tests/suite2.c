@@ -31,7 +31,7 @@
 
 PCUT_INIT
 
-PCUT_TEST_SUITE("intmin");
+PCUT_TEST_SUITE(intmin);
 
 PCUT_TEST(test_min) {
 	PCUT_ASSERT_INT_EQUALS(5, intmin(5, 654));
