@@ -89,6 +89,25 @@
 		} \
 	} while (0)
 
+/** Assertion for checking that two doubles are close enough.
+ *
+ * @param expected Expected (correct) value.
+ * @param actual Actually obtained (computed) value we wish to test.
+ * @param epsilon How much the actual value can differ from the expected one.
+ */
+#define PCUT_ASSERT_DOUBLE_EQUALS(expected, actual, epsilon) \
+	do {\
+		double pcut_expected_eval = (expected); \
+		double pcut_actual_eval = (actual); \
+		double pcut_epsilon_eval = (epsilon); \
+		double pcut_double_diff = pcut_expected_eval - pcut_actual_eval; \
+		if ((pcut_double_diff < -pcut_epsilon_eval) | (pcut_double_diff > pcut_epsilon_eval)) { \
+			PCUT_ASSERTION_FAILED("Expected <%lf+-%lf> but got <%lf> (%s != %s)", \
+				pcut_expected_eval, pcut_epsilon_eval, pcut_actual_eval, \
+				#expected, #actual); \
+		} \
+	} while (0)
+
 /** Assertion for checking that two strings (`const char *`) are equal.
  *
  * @param expected Expected (correct) value.
