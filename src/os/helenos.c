@@ -32,11 +32,12 @@
  */
 
 #include <stdlib.h>
+#include <str.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <task.h>
 #include <fcntl.h>
 #include "../internal.h"
