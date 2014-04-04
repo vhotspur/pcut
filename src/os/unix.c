@@ -31,9 +31,11 @@
  * Unix-specific functions for test execution via the fork() system call.
  */
 
+#define _POSIX_SOURCE
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <signal.h>
 #include <errno.h>
 #include <assert.h>
 #include <sys/wait.h>
@@ -56,6 +58,15 @@ static void before_test_start(pcut_item_t *test) {
 
 	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
 	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
+}
+
+/** PID of the forked process running the actual test. */
+static pid_t child_pid;
+
+/** Signal handler that kills the child. */
+static void kill_child_on_alarm(int sig) {
+	PCUT_UNUSED(sig);
+	kill(child_pid, SIGKILL);
 }
 
 /** Read full buffer from given file descriptor.
@@ -123,7 +134,6 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	before_test_start(test);
 
 	int link_stdout[2], link_stderr[2];
-	pid_t pid;
 
 	int rc = pipe(link_stdout);
 	if (rc == -1) {
@@ -140,15 +150,15 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 		return;
 	}
 
-	pid = fork();
-	if (pid == (pid_t)-1) {
+	child_pid = fork();
+	if (child_pid == (pid_t)-1) {
 		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 			"fork() failed: %s.", strerror(rc));
 		rc = TEST_OUTCOME_ERROR;
 		goto leave_close_pipes;
 	}
 
-	if (pid == 0) {
+	if (child_pid == 0) {
 		/* We are the child. */
 		dup2(link_stdout[1], STDOUT_FILENO);
 		close(link_stdout[0]);
@@ -163,11 +173,15 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	close(link_stdout[1]);
 	close(link_stderr[1]);
 
+	signal(SIGALRM, kill_child_on_alarm);
+	alarm(pcut_get_test_timeout(test));
+
 	size_t stderr_size = read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
 	read_all(link_stdout[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1 - stderr_size);
 
 	int status;
 	wait(&status);
+	alarm(0);
 
 	rc = convert_wait_status_to_outcome(status);
 
