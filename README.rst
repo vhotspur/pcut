@@ -75,7 +75,7 @@ In PCUT, that would be translated to the following code:::
 		PCUT_ASSERT_INT_EQUALS(9876, intmin(9876, INT_MAX) );
 	}
 
-	PCUT_MAIN
+	PCUT_MAIN()
 
 And that's all.
 You do not need to manually specify which tests to run etc., 
