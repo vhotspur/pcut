@@ -42,6 +42,8 @@ TEST_APPS = \
 
 check-build: $(TEST_APPS)
 
+.PRECIOUS: $(TEST_BASE)tested.o
+
 check-clean:
 	rm -f $(TEST_BASE)*.o $(TEST_BASE)*.$(EXE_EXT) $(TEST_BASE)*.got
 
