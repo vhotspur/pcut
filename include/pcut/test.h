@@ -166,7 +166,7 @@
 	PCUT_INIT_IMPL(__COUNTER__)
 
 /** Insert code to run all the tests. */
-#define PCUT_MAIN \
+#define PCUT_MAIN() \
 	PCUT_MAIN_IMPL(__COUNTER__)
 
 #endif

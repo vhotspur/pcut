@@ -39,4 +39,4 @@ PCUT_TEST(access_null_pointer) {
 	PCUT_ASSERT_INT_EQUALS(5, *p);
 }
 
-PCUT_MAIN
+PCUT_MAIN()

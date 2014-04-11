@@ -46,4 +46,4 @@ PCUT_TEST(str_equals) {
 	PCUT_ASSERT_STR_EQUALS("abc", "xyz");
 }
 
-PCUT_MAIN
+PCUT_MAIN()

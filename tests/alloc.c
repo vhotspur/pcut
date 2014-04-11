@@ -59,4 +59,4 @@ PCUT_TEST(whatever) {
 }
 
 
-PCUT_MAIN
+PCUT_MAIN()
