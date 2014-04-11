@@ -53,7 +53,7 @@ In PCUT, that would be translated to the following code:::
 	
 	PCUT_INIT
 
-	PCUT_TEST_SUITE("intmin() tests");
+	PCUT_TEST_SUITE(intmin_tests);
 
 	PCUT_TEST(same_number) {
 		PCUT_ASSERT_INT_EQUALS(719, intmin(719, 719) );
