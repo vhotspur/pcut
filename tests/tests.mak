@@ -48,7 +48,7 @@ check-clean:
 	rm -f $(TEST_BASE)*.o $(TEST_BASE)*.$(EXE_EXT) $(TEST_BASE)*.got
 
 $(TEST_BASE)%.$(EXE_EXT): $(TEST_DEPS)
-	$(CC) -o $@ $^ $(TEST_LDFLAGS)
+	$(LD) -o $@ $^ $(TEST_LDFLAGS)
 
 $(TEST_BASE)alloc.$(EXE_EXT): $(TEST_BASE)alloc.o $(PCUT_LIB)
 $(TEST_BASE)asserts.$(EXE_EXT): $(TEST_BASE)asserts.o $(PCUT_LIB)
