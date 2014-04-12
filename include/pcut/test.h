@@ -169,4 +169,8 @@
 #define PCUT_MAIN() \
 	PCUT_MAIN_IMPL(__COUNTER__)
 
+
+/** Default timeout for a single test (in seconds). */
+#define PCUT_DEFAULT_TEST_TIMEOUT 3
+
 #endif

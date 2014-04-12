@@ -38,7 +38,8 @@ TEST_APPS = \
 	$(TEST_BASE)printing.$(EXE_EXT) \
 	$(TEST_BASE)simple.$(EXE_EXT) \
 	$(TEST_BASE)suites.$(EXE_EXT) \
-	$(TEST_BASE)teardown.$(EXE_EXT)
+	$(TEST_BASE)teardown.$(EXE_EXT) \
+	$(TEST_BASE)timeout.$(EXE_EXT)
 
 check-build: $(TEST_APPS)
 
@@ -60,6 +61,7 @@ $(TEST_BASE)printing.$(EXE_EXT): $(TEST_BASE)printing.o $(PCUT_LIB)
 $(TEST_BASE)simple.$(EXE_EXT): $(TEST_BASE)simple.o $(PCUT_LIB)
 $(TEST_BASE)suites.$(EXE_EXT): $(TEST_BASE)suites.o $(PCUT_LIB)
 $(TEST_BASE)teardown.$(EXE_EXT): $(TEST_BASE)teardown.o $(PCUT_LIB)
+$(TEST_BASE)timeout.$(EXE_EXT): $(TEST_BASE)timeout.o $(PCUT_LIB)
 
 $(TEST_BASE)%.o: $(TEST_BASE)%.c
 	$(CC) -c -o $@ $(TEST_CFLAGS) $<

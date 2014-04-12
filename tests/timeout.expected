@@ -1,0 +1,5 @@
+1..1
+#> Starting suite Default.
+not ok 1 shall_time_out aborted
+# stdio: Text before sleeping.
+#> Finished suite Default (failed 1 of 1).
