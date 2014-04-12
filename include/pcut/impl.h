@@ -45,9 +45,22 @@ enum {
 	PCUT_KIND_TEST
 };
 
+enum {
+	PCUT_EXTRA_TIMEOUT,
+	PCUT_EXTRA_LAST
+};
+
 typedef struct pcut_item pcut_item_t;
+typedef struct pcut_extra pcut_extra_t;
 typedef void (*pcut_test_func_t)(void);
 typedef void (*pcut_setup_func_t)(void);
+
+struct pcut_extra {
+	int type;
+	union {
+		int timeout;
+	};
+};
 
 struct pcut_item {
 	pcut_item_t *previous;
@@ -63,6 +76,7 @@ struct pcut_item {
 		struct {
 			const char *name;
 			pcut_test_func_t func;
+			pcut_extra_t *extras;
 		} test;
 		/* setup is used for both set-up and tear-down */
 		struct {
@@ -103,15 +117,24 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 				__VA_ARGS__ \
 		}; \
 
-#define PCUT_TEST_IMPL(testname, number) \
+#define PCUT_TEST_IMPL(testname, number, ...) \
+		static pcut_extra_t PCUT_JOIN(test_extras_, number)[] = { \
+				__VA_ARGS__ \
+		}; \
 		static void PCUT_JOIN(test_, testname)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
 				.test = { \
 					.name = #testname, \
-					.func = PCUT_JOIN(test_, testname) \
+					.func = PCUT_JOIN(test_, testname), \
+					.extras = PCUT_JOIN(test_extras_, number), \
 				} \
 		) \
 		void PCUT_JOIN(test_, testname)(void)
+
+#define PCUT_TEST_EXTRA_LAST { .type = PCUT_EXTRA_LAST }
+
+#define PCUT_TEST_SET_TIMEOUT_IMPL(time_out) \
+		{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
 
 #define PCUT_TEST_SUITE_IMPL(suitename, number) \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \

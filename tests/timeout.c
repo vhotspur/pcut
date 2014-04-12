@@ -39,4 +39,11 @@ PCUT_TEST(shall_time_out) {
 	printf("Text after the sleep.\n");
 }
 
+PCUT_TEST(custom_time_out,
+		PCUT_TEST_SET_TIMEOUT(PCUT_DEFAULT_TEST_TIMEOUT * 3)) {
+	printf("Text before sleeping.\n");
+	sleep(PCUT_DEFAULT_TEST_TIMEOUT * 2);
+	printf("Text after the sleep.\n");
+}
+
 PCUT_MAIN()

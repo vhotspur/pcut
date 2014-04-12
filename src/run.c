@@ -274,5 +274,15 @@ int pcut_run_test_single(pcut_item_t *test) {
 int pcut_get_test_timeout(pcut_item_t *test) {
 	PCUT_UNUSED(test);
 
-	return PCUT_DEFAULT_TEST_TIMEOUT;
+	int timeout = PCUT_DEFAULT_TEST_TIMEOUT;
+
+	pcut_extra_t *extras = test->test.extras;
+	while (extras->type != PCUT_EXTRA_LAST) {
+		if (extras->type == PCUT_EXTRA_TIMEOUT) {
+			timeout = extras->timeout;
+		}
+		extras++;
+	}
+
+	return timeout;
 }

@@ -129,7 +129,15 @@
  *
  * @param name A valid C identifier name (not quoted).
  */
-#define PCUT_TEST(name) PCUT_TEST_IMPL(name, __COUNTER__)
+#define PCUT_TEST(name, ...) PCUT_TEST_IMPL(name, __COUNTER__, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
+
+/** Define test time-out.
+ *
+ * Use as argument to PCUT_TEST().
+ *
+ * @param time_out Time-out value in seconds.
+ */
+#define PCUT_TEST_SET_TIMEOUT(time_out) PCUT_TEST_SET_TIMEOUT_IMPL(time_out)
 
 /** Define a new test suite with given name.
  *
