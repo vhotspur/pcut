@@ -52,7 +52,7 @@ $(DEPEND):
 TEST_BASE = tests/
 EXE_EXT = run
 TEST_CFLAGS = $(PCUT_CFLAGS)
-TEST_LDFLAGS = -L. -lpcut
+TEST_LDFLAGS = 
 -include tests/tests.mak
 TEST_APPS_BASENAMES := $(basename $(TEST_APPS))
 DIFF = diff

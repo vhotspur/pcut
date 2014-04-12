@@ -26,7 +26,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TEST_DEPS = $(TEST_BASE)tested.o $(PCUT_LIB)
+TEST_DEPS = $(TEST_BASE)tested.o
 
 TEST_APPS = \
 	$(TEST_BASE)alloc.$(EXE_EXT) \
@@ -50,16 +50,16 @@ check-clean:
 $(TEST_BASE)%.$(EXE_EXT): $(TEST_DEPS)
 	$(CC) -o $@ $^ $(TEST_LDFLAGS)
 
-$(TEST_BASE)alloc.$(EXE_EXT): $(TEST_BASE)alloc.o
-$(TEST_BASE)asserts.$(EXE_EXT): $(TEST_BASE)asserts.o
-$(TEST_BASE)manytests.$(EXE_EXT): $(TEST_BASE)manytests.o
-$(TEST_BASE)multisuite.$(EXE_EXT): $(TEST_BASE)suite_all.o $(TEST_BASE)suite1.o $(TEST_BASE)suite2.o
-$(TEST_BASE)null.$(EXE_EXT): $(TEST_BASE)null.o
-$(TEST_BASE)nullteardown.$(EXE_EXT): $(TEST_BASE)nullteardown.o
-$(TEST_BASE)printing.$(EXE_EXT): $(TEST_BASE)printing.o
-$(TEST_BASE)simple.$(EXE_EXT): $(TEST_BASE)simple.o
-$(TEST_BASE)suites.$(EXE_EXT): $(TEST_BASE)suites.o
-$(TEST_BASE)teardown.$(EXE_EXT): $(TEST_BASE)teardown.o
+$(TEST_BASE)alloc.$(EXE_EXT): $(TEST_BASE)alloc.o $(PCUT_LIB)
+$(TEST_BASE)asserts.$(EXE_EXT): $(TEST_BASE)asserts.o $(PCUT_LIB)
+$(TEST_BASE)manytests.$(EXE_EXT): $(TEST_BASE)manytests.o $(PCUT_LIB)
+$(TEST_BASE)multisuite.$(EXE_EXT): $(TEST_BASE)suite_all.o $(TEST_BASE)suite1.o $(TEST_BASE)suite2.o $(PCUT_LIB)
+$(TEST_BASE)null.$(EXE_EXT): $(TEST_BASE)null.o $(PCUT_LIB)
+$(TEST_BASE)nullteardown.$(EXE_EXT): $(TEST_BASE)nullteardown.o $(PCUT_LIB)
+$(TEST_BASE)printing.$(EXE_EXT): $(TEST_BASE)printing.o $(PCUT_LIB)
+$(TEST_BASE)simple.$(EXE_EXT): $(TEST_BASE)simple.o $(PCUT_LIB)
+$(TEST_BASE)suites.$(EXE_EXT): $(TEST_BASE)suites.o $(PCUT_LIB)
+$(TEST_BASE)teardown.$(EXE_EXT): $(TEST_BASE)teardown.o $(PCUT_LIB)
 
 $(TEST_BASE)%.o: $(TEST_BASE)%.c
 	$(CC) -c -o $@ $(TEST_CFLAGS) $<
