@@ -35,6 +35,7 @@
 
 #include "prevs.h"
 #include <stdlib.h>
+#include <stddef.h>
 
 enum {
 	PCUT_KIND_SKIP,
