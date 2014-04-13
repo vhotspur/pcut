@@ -47,6 +47,7 @@ enum {
 
 enum {
 	PCUT_EXTRA_TIMEOUT,
+	PCUT_EXTRA_SKIP,
 	PCUT_EXTRA_LAST
 };
 
@@ -135,6 +136,9 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 #define PCUT_TEST_SET_TIMEOUT_IMPL(time_out) \
 		{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
+
+#define PCUT_TEST_SKIP_IMPL \
+		{ .type = PCUT_EXTRA_SKIP }
 
 #define PCUT_TEST_SUITE_IMPL(suitename, number) \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \

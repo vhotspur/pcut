@@ -139,6 +139,8 @@
  */
 #define PCUT_TEST_SET_TIMEOUT(time_out) PCUT_TEST_SET_TIMEOUT_IMPL(time_out)
 
+#define PCUT_TEST_SKIP PCUT_TEST_SKIP_IMPL
+
 /** Define a new test suite with given name.
  *
  * All tests following this macro belong to the new suite
