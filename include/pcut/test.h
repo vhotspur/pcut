@@ -34,6 +34,7 @@
 #define PCUT_TEST_H_GUARD
 
 #include "impl.h"
+#include <errno.h>
 
 /** Generic assertion for a boolean expression.
  *
@@ -149,6 +150,39 @@
 		} \
 	} while (0)
 
+
+// TODO: add message from strerror
+
+/** Assertion for checking errno-style variables for errors.
+ *
+ * @param expected Expected errno error code.
+ * @param actual Actual value of the error code.
+ */
+#define PCUT_ASSERT_ERRNO_VAL(expected, actual) \
+	do {\
+		int pcut_expected_eval = (expected); \
+		int pcut_actual_eval = (actual); \
+		if (pcut_expected_eval != pcut_actual_eval) { \
+			PCUT_ASSERTION_FAILED("Expected error %d (%s) but got error %d", \
+				pcut_expected_eval, #expected, \
+				pcut_actual_eval); \
+		} \
+	} while (0)
+
+/** Assertion for checking errno variable for errors.
+ *
+ * @param expected Expected errno error code.
+ */
+#define PCUT_ASSERT_ERRNO(expected) \
+	do {\
+		int pcut_expected_eval = (expected); \
+		int pcut_actual_eval = (errno); \
+		if (pcut_expected_eval != pcut_actual_eval) { \
+			PCUT_ASSERTION_FAILED("Expected error %d (%s) but got error %d", \
+				pcut_expected_eval, #expected, \
+				pcut_actual_eval); \
+		} \
+	} while (0)
 
 /** Define a new test with given name.
  *

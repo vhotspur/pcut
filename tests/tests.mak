@@ -31,6 +31,7 @@ TEST_DEPS = $(TEST_BASE)tested.o
 TEST_APPS = \
 	$(TEST_BASE)alloc.$(EXE_EXT) \
 	$(TEST_BASE)asserts.$(EXE_EXT) \
+	$(TEST_BASE)errno.$(EXE_EXT) \
 	$(TEST_BASE)manytests.$(EXE_EXT) \
 	$(TEST_BASE)multisuite.$(EXE_EXT) \
 	$(TEST_BASE)null.$(EXE_EXT) \
@@ -54,6 +55,7 @@ $(TEST_BASE)%.$(EXE_EXT): $(TEST_DEPS)
 
 $(TEST_BASE)alloc.$(EXE_EXT): $(TEST_BASE)alloc.o $(PCUT_LIB)
 $(TEST_BASE)asserts.$(EXE_EXT): $(TEST_BASE)asserts.o $(PCUT_LIB)
+$(TEST_BASE)errno.$(EXE_EXT): $(TEST_BASE)errno.o $(PCUT_LIB)
 $(TEST_BASE)manytests.$(EXE_EXT): $(TEST_BASE)manytests.o $(PCUT_LIB)
 $(TEST_BASE)multisuite.$(EXE_EXT): $(TEST_BASE)suite_all.o $(TEST_BASE)suite1.o $(TEST_BASE)suite2.o $(PCUT_LIB)
 $(TEST_BASE)null.$(EXE_EXT): $(TEST_BASE)null.o $(PCUT_LIB)
