@@ -35,6 +35,31 @@
 
 #include "impl.h"
 
+/** Generic assertion for a boolean expression.
+ *
+ * @param actual Actually obtained (computed) value we wish to test to true.
+ */
+#define PCUT_ASSERT_TRUE(actual) \
+	do { \
+		if (!(actual)) { \
+			PCUT_ASSERTION_FAILED("Expected true but got <%s>", \
+				#actual); \
+		} \
+	} while (0)
+
+/** Generic assertion for a boolean expression.
+ *
+ * @param actual Actually obtained (computed) value we wish to test to false.
+ */
+#define PCUT_ASSERT_FALSE(actual) \
+	do { \
+		if ((actual)) { \
+			PCUT_ASSERTION_FAILED("Expected false but got <%s>", \
+				#actual); \
+		} \
+	} while (0)
+
+
 /** Generic assertion for types where == is defined.
  *
  * @param expected Expected (correct) value.
