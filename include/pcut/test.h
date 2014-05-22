@@ -151,7 +151,21 @@
 	} while (0)
 
 
-// TODO: add message from strerror
+#define PCUT_ASSERT_ERRNO_INTERNAL(expected_value, expected_quoted, actual_value) \
+	do {\
+		int pcut_expected_eval = (expected_value); \
+		int pcut_actual_eval = (actual_value); \
+		if (pcut_expected_eval != pcut_actual_eval) { \
+			char pcut_expected_description[100]; \
+			char pcut_actual_description[100]; \
+			pcut_str_error(pcut_expected_eval, pcut_expected_description, 100); \
+			pcut_str_error(pcut_actual_eval, pcut_actual_description, 100); \
+			PCUT_ASSERTION_FAILED("Expected error %d (%s, %s) but got error %d (%s)", \
+				pcut_expected_eval, expected_quoted, \
+				pcut_expected_description, \
+				pcut_actual_eval, pcut_actual_description); \
+		} \
+	} while (0)
 
 /** Assertion for checking errno-style variables for errors.
  *
@@ -159,30 +173,14 @@
  * @param actual Actual value of the error code.
  */
 #define PCUT_ASSERT_ERRNO_VAL(expected, actual) \
-	do {\
-		int pcut_expected_eval = (expected); \
-		int pcut_actual_eval = (actual); \
-		if (pcut_expected_eval != pcut_actual_eval) { \
-			PCUT_ASSERTION_FAILED("Expected error %d (%s) but got error %d", \
-				pcut_expected_eval, #expected, \
-				pcut_actual_eval); \
-		} \
-	} while (0)
+	PCUT_ASSERT_ERRNO_INTERNAL(expected, #expected, actual)
 
 /** Assertion for checking errno variable for errors.
  *
  * @param expected Expected errno error code.
  */
 #define PCUT_ASSERT_ERRNO(expected) \
-	do {\
-		int pcut_expected_eval = (expected); \
-		int pcut_actual_eval = (errno); \
-		if (pcut_expected_eval != pcut_actual_eval) { \
-			PCUT_ASSERTION_FAILED("Expected error %d (%s) but got error %d", \
-				pcut_expected_eval, #expected, \
-				pcut_actual_eval); \
-		} \
-	} while (0)
+	PCUT_ASSERT_ERRNO_INTERNAL(expected, #expected, (errno))
 
 /** Define a new test with given name.
  *

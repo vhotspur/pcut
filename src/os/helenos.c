@@ -33,6 +33,7 @@
 
 #include <stdlib.h>
 #include <str.h>
+#include <str_error.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -66,6 +67,14 @@ int pcut_str_to_int(const char *s) {
 
 char *pcut_str_find_char(const char *haystack, const char needle) {
 	return str_chr(haystack, needle);
+}
+
+void pcut_str_error(int error, char *buffer, int size) {
+	const char *str = str_error(error);
+	if (str == NULL) {
+		str = "(strerror failure)";
+	}
+	strcpy(buffer, size, str);
 }
 
 

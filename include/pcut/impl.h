@@ -96,6 +96,7 @@ struct pcut_item {
 void pcut_failed_assertion(const char *message);
 void pcut_failed_assertion_fmt(const char *fmt, ...);
 int pcut_str_equals(const char *a, const char *b);
+void pcut_str_error(int error, char *buffer, int size);
 int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 #define PCUT_ASSERTION_FAILED(fmt, ...) \
