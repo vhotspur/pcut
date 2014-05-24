@@ -86,17 +86,22 @@
 		} \
 	} while (0)
 
+
+#define PCUT_ASSERT_NOT_NULL_INTERNAL(pointer, pointer_name) \
+	do { \
+		const void *pcut_ptr_eval = (pointer); \
+		if (pcut_ptr_eval == (NULL)) { \
+			PCUT_ASSERTION_FAILED("Pointer <" pointer_name "> ought not to be NULL"); \
+		} \
+	} while (0)
+
+
 /** Asserts that given pointer is not NULL.
  *
  * @param pointer The pointer to be tested.
  */
 #define PCUT_ASSERT_NOT_NULL(pointer) \
-	do { \
-		void *pcut_ptr_eval = (pointer); \
-		if (pcut_ptr_eval == (NULL)) { \
-			PCUT_ASSERTION_FAILED("Pointer <" #pointer "> ought not to be NULL"); \
-		} \
-	} while (0)
+	PCUT_ASSERT_NOT_NULL_INTERNAL(pointer, #pointer)
 
 
 /** Assertion for checking that two integers are equal.
@@ -143,6 +148,8 @@
 	do {\
 		const char *pcut_expected_eval = (expected); \
 		const char *pcut_actual_eval = (actual); \
+		PCUT_ASSERT_NOT_NULL_INTERNAL(pcut_expected_eval, #expected); \
+		PCUT_ASSERT_NOT_NULL_INTERNAL(pcut_actual_eval, #actual); \
 		if (!pcut_str_equals(pcut_expected_eval, pcut_actual_eval)) { \
 			PCUT_ASSERTION_FAILED("Expected <%s> but got <%s> (%s != %s)", \
 				pcut_expected_eval, pcut_actual_eval, \
