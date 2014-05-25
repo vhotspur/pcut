@@ -158,6 +158,26 @@
 	} while (0)
 
 
+/** Assertion for checking that two strings (`const char *`) are equal or both NULL.
+ *
+ * @param expected Expected (correct) value.
+ * @param actual Actually obtained (computed) value we wish to test.
+ */
+#define PCUT_ASSERT_STR_EQUALS_OR_NULL(expected, actual) \
+	do {\
+		const char *pcut_expected_eval = (expected); \
+		const char *pcut_actual_eval = (actual); \
+		int pcut_both_null = (pcut_expected_eval == NULL) && (pcut_actual_eval == NULL); \
+		int pcut_some_null = (pcut_expected_eval == NULL) || (pcut_actual_eval == NULL); \
+		if (!pcut_both_null && (pcut_some_null || !pcut_str_equals(pcut_expected_eval, pcut_actual_eval))) { \
+			PCUT_ASSERTION_FAILED("Expected <%s> but got <%s> (%s != %s)", \
+				pcut_expected_eval == NULL ? "NULL" : pcut_expected_eval, \
+				pcut_actual_eval == NULL ? "NULL" : pcut_actual_eval, \
+				#expected, #actual); \
+		} \
+	} while (0)
+
+
 #define PCUT_ASSERT_ERRNO_INTERNAL(expected_value, expected_quoted, actual_value) \
 	do {\
 		int pcut_expected_eval = (expected_value); \

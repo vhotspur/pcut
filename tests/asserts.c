@@ -46,6 +46,22 @@ PCUT_TEST(str_equals) {
 	PCUT_ASSERT_STR_EQUALS("abc", "xyz");
 }
 
+PCUT_TEST(str_equals_or_null_base) {
+	PCUT_ASSERT_STR_EQUALS_OR_NULL("xyz", "xyz");
+}
+
+PCUT_TEST(str_equals_or_null_different) {
+	PCUT_ASSERT_STR_EQUALS_OR_NULL("abc", "xyz");
+}
+
+PCUT_TEST(str_equals_or_null_one_null) {
+	PCUT_ASSERT_STR_EQUALS_OR_NULL(NULL, "xyz");
+}
+
+PCUT_TEST(str_equals_or_null_both) {
+	PCUT_ASSERT_STR_EQUALS_OR_NULL(NULL, NULL);
+}
+
 PCUT_TEST(assert_true) {
 	PCUT_ASSERT_TRUE(42);
 	PCUT_ASSERT_TRUE(0);
