@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Vojtech Horky
+ * Copyright (c) 2012-2014 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,10 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#if !defined(PCUT_TEST_H_GUARD) && !defined(PCUT_INTERNAL)
-#error "You cannot include this file directly."
-#endif
 
 #ifndef PCUT_PREVS_H_GUARD
 #define PCUT_PREVS_H_GUARD

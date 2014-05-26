@@ -26,14 +26,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !defined(PCUT_TEST_H_GUARD) && !defined(PCUT_INTERNAL)
-#error "You cannot include this file directly."
-#endif
-
 #ifndef PCUT_IMPL_H_GUARD
 #define PCUT_IMPL_H_GUARD
 
-#include "prevs.h"
+#include <pcut/prevs.h>
 #include <stdlib.h>
 #include <stddef.h>
 
