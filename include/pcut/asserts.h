@@ -27,8 +27,9 @@
  */
 
 /** @file
- *
- * PCUT: Plain-C unit-testing mini-framework.
+ * @defgroup asserts Asserts
+ * Predefined asserts you can use with PCUT.
+ * @{
  */
 #ifndef PCUT_ASSERTS_H_GUARD
 #define PCUT_ASSERTS_H_GUARD
@@ -86,7 +87,11 @@
 		} \
 	} while (0)
 
-
+/** Asserts that given pointer is not NULL.
+ *
+ * @param pointer The pointer to be tested.
+ * @param pointer_name Name of the pointer (when <code>\#pointer</code> does not make sense).
+ */
 #define PCUT_ASSERT_NOT_NULL_INTERNAL(pointer, pointer_name) \
 	do { \
 		const void *pcut_ptr_eval = (pointer); \
@@ -94,7 +99,6 @@
 			PCUT_ASSERTION_FAILED("Pointer <" pointer_name "> ought not to be NULL"); \
 		} \
 	} while (0)
-
 
 /** Asserts that given pointer is not NULL.
  *
@@ -208,5 +212,9 @@
  */
 #define PCUT_ASSERT_ERRNO(expected) \
 	PCUT_ASSERT_ERRNO_INTERNAL(expected, #expected, (errno))
+
+/**
+ * @}
+ */
 
 #endif

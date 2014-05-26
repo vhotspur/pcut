@@ -27,8 +27,9 @@
  */
 
 /** @file
- *
- * PCUT: Plain-C unit-testing mini-framework.
+ * @defgroup tests Tests
+ * Create test suites and test cases.
+ * @{
  */
 #ifndef PCUT_TESTS_H_GUARD
 #define PCUT_TESTS_H_GUARD
@@ -92,5 +93,9 @@
 
 /** Default timeout for a single test (in seconds). */
 #define PCUT_DEFAULT_TEST_TIMEOUT 3
+
+/**
+ * @}
+ */
 
 #endif
