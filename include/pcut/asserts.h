@@ -87,6 +87,7 @@
 		} \
 	} while (0)
 
+/** @cond devel */
 /** Asserts that given pointer is not NULL.
  *
  * @param pointer The pointer to be tested.
@@ -99,6 +100,8 @@
 			PCUT_ASSERTION_FAILED("Pointer <" pointer_name "> ought not to be NULL"); \
 		} \
 	} while (0)
+
+/** @endcond */
 
 /** Asserts that given pointer is not NULL.
  *
