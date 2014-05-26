@@ -29,7 +29,7 @@
 #ifndef PCUT_INTERNAL_H_GUARD
 #define PCUT_INTERNAL_H_GUARD
 
-#include <pcut/test.h>
+#include <pcut/pcut.h>
 #include <stdlib.h>
 
 /** Mark a variable as unused. */

@@ -34,7 +34,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "internal.h"
-#include <pcut/test.h>
+#include <pcut/pcut.h>
 
 
 /** Find next item with actual content.
