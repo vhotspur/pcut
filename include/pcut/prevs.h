@@ -34,6 +34,7 @@
 #ifndef PCUT_PREVS_H_GUARD
 #define PCUT_PREVS_H_GUARD
 
+#ifndef PCUT_DOXYGEN_IS_RUNNING
 /** @cond devel */
 
 #define PCUT_PREV_1 0
@@ -338,6 +339,8 @@
 #define PCUT_PREV_300 299
 
 /** @endcond */
+
+#endif
 
 #endif
 
