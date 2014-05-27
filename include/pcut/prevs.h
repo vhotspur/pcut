@@ -26,8 +26,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * Counter macros internally used by PCUT. */
+ */
+
 #ifndef PCUT_PREVS_H_GUARD
 #define PCUT_PREVS_H_GUARD
+
+/** @cond devel */
 
 #define PCUT_PREV_1 0
 #define PCUT_PREV_2 1
@@ -329,6 +336,8 @@
 #define PCUT_PREV_298 297
 #define PCUT_PREV_299 298
 #define PCUT_PREV_300 299
+
+/** @endcond */
 
 #endif
 

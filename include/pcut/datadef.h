@@ -26,12 +26,17 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PCUT_IMPL_H_GUARD
-#define PCUT_IMPL_H_GUARD
+/** @file
+ * Data types internally used by PCUT.
+ */
+#ifndef PCUT_DATADEF_H_GUARD
+#define PCUT_DATADEF_H_GUARD
 
 #include <pcut/prevs.h>
 #include <stdlib.h>
 #include <stddef.h>
+
+/** @cond devel */
 
 enum {
 	PCUT_KIND_SKIP,
@@ -95,5 +100,7 @@ struct pcut_item {
 #else
 #define PCUT_DEBUG(msg, ...) (void)0
 #endif
+
+/** @endcond */
 
 #endif

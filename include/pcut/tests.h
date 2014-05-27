@@ -27,6 +27,8 @@
  */
 
 /** @file
+ * Tests and test suites.
+ *
  * @defgroup tests Tests
  * Create test suites and test cases.
  * @{
@@ -36,9 +38,31 @@
 
 #include <pcut/datadef.h>
 
+/*
+ * Trick with [] and & copied from
+ * http://bytes.com/topic/c/answers/553555-initializer-element-not-constant#post2159846
+ * because following does not work:
+ * extern int *a;
+ * int *b = a;
+ */
 
 
-int pcut_main(pcut_item_t *last, int argc, char *argv[]);
+
+/** Default timeout for a single test (in seconds).
+ * @showinitializer
+ */
+#define PCUT_DEFAULT_TEST_TIMEOUT 3
+
+
+
+
+
+/*
+ * Helper macros
+ * -------------
+ */
+
+/** @cond devel */
 
 #define PCUT_JOIN_IMPL(a, b) a##b
 #define PCUT_JOIN(a, b) PCUT_JOIN_IMPL(a, b)
@@ -56,9 +80,40 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 				.id = -1, \
 				.kind = itemkind, \
 				__VA_ARGS__ \
-		}; \
+		};
 
-#define PCUT_TEST_IMPL(testname, number, ...) \
+/** @endcond */
+
+
+
+/*
+ * Test-case related macros
+ * ------------------------
+ */
+
+/** Define test time-out.
+ *
+ * Use as argument to PCUT_TEST().
+ *
+ * @param time_out Time-out value in seconds.
+ */
+#define PCUT_TEST_SET_TIMEOUT(time_out) \
+	{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
+
+/** Skip current test.
+ *
+ * Use as argument to PCUT_TEST().
+ */
+#define PCUT_TEST_SKIP \
+	{ .type = PCUT_EXTRA_SKIP }
+
+
+/** @cond devel */
+
+/** Terminate list of extra test options. */
+#define PCUT_TEST_EXTRA_LAST { .type = PCUT_EXTRA_LAST }
+
+#define PCUT_TEST_WITH_NUMBER(testname, number, ...) \
 		static pcut_extra_t PCUT_JOIN(test_extras_, number)[] = { \
 				__VA_ARGS__ \
 		}; \
@@ -72,15 +127,27 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 		) \
 		void PCUT_JOIN(test_, testname)(void)
 
-#define PCUT_TEST_EXTRA_LAST { .type = PCUT_EXTRA_LAST }
+/** @endcond */
 
-#define PCUT_TEST_SET_TIMEOUT_IMPL(time_out) \
-		{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
+/** Define a new test with given name.
+ *
+ * @param name A valid C identifier name (not quoted).
+ */
+#define PCUT_TEST(name, ...) \
+	PCUT_TEST_WITH_NUMBER(name, __COUNTER__, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
 
-#define PCUT_TEST_SKIP_IMPL \
-		{ .type = PCUT_EXTRA_SKIP }
 
-#define PCUT_TEST_SUITE_IMPL(suitename, number) \
+
+
+
+/*
+ * Test suite related macros
+ * -------------------------
+ */
+
+/** @cond devel */
+
+#define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
 				.suite = { \
 					.name = #suitename, \
@@ -89,41 +156,92 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 				} \
 		)
 
-#define PCUT_TEST_BEFORE_IMPL(number) \
+#define PCUT_TEST_BEFORE_WITH_NUMBER(number) \
 		static void PCUT_JOIN(setup_, number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
 				.setup.func = PCUT_JOIN(setup_, number) \
 		) \
 		void PCUT_JOIN(setup_, number)(void)
 
-#define PCUT_TEST_AFTER_IMPL(number) \
+#define PCUT_TEST_AFTER_WITH_NUMBER(number) \
 		static void PCUT_JOIN(teardown_, number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
 				.setup.func = PCUT_JOIN(teardown_, number) \
 		) \
 		void PCUT_JOIN(teardown_, number)(void)
 
-#define PCUT_EXPORT_IMPL(identifier, number) \
+/** @endcond */
+
+
+/** Define a new test suite with given name.
+ *
+ * All tests following this macro belong to the new suite
+ * (up to next occurrence of PCUT_TEST_SUITE).
+ *
+ */
+#define PCUT_TEST_SUITE(name) \
+	PCUT_TEST_SUITE_WITH_NUMBER(name, __COUNTER__)
+
+/** Define a set-up function for a test suite.
+ *
+ * There could be only a single set-up function for each suite.
+ */
+#define PCUT_TEST_BEFORE \
+	PCUT_TEST_BEFORE_WITH_NUMBER(__COUNTER__)
+
+/** Define a tear-down function for a test suite.
+ *
+ * There could be only a single tear-down function for each suite.
+ */
+#define PCUT_TEST_AFTER \
+	PCUT_TEST_AFTER_WITH_NUMBER(__COUNTER__)
+
+
+
+
+
+/*
+ * Import/export related macros
+ * ----------------------------
+ */
+
+/** @cond devel */
+
+#define PCUT_EXPORT_WITH_NUMBER(identifier, number) \
 	pcut_item_t pcut_exported_##identifier = { \
 		.previous = &PCUT_ITEM_NAME_PREV(number), \
 		.next = NULL, \
 		.kind = PCUT_KIND_SKIP \
 	}
 
-/*
- * Trick with [] and & copied from
- * http://bytes.com/topic/c/answers/553555-initializer-element-not-constant#post2159846
- * because following does not work:
- * extern int *a;
- * int *b = a;
- */
-#define PCUT_IMPORT_IMPL(identifier, number) \
+#define PCUT_IMPORT_WITH_NUMBER(identifier, number) \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
 		.nested.last = &pcut_exported_##identifier \
 	)
 
-#define PCUT_INIT_IMPL(first_number) \
+/** @endcond */
+
+/** Export test cases from current file. */
+#define PCUT_EXPORT(identifier) \
+	PCUT_EXPORT_WITH_NUMBER(identifier, __COUNTER__)
+
+/** Import test cases from a different file. */
+#define PCUT_IMPORT(identifier) \
+	PCUT_IMPORT_WITH_NUMBER(identifier, __COUNTER__)
+
+
+
+
+
+/*
+ * PCUT initialization and invocation macros
+ * -----------------------------------------
+ */
+
+/** @cond devel */
+
+#define PCUT_INIT_WITH_NUMBER(first_number) \
 	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
 		.previous = NULL, \
 		.next = NULL, \
@@ -132,7 +250,9 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 	}; \
 	PCUT_TEST_SUITE(Default);
 
-#define PCUT_MAIN_IMPL(last_number) \
+int pcut_main(pcut_item_t *last, int argc, char *argv[]);
+
+#define PCUT_MAIN_WITH_NUMBER(last_number) \
 	static pcut_item_t pcut_item_last = { \
 		.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, last_number)), \
 		.kind = PCUT_KIND_SKIP \
@@ -141,66 +261,16 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 		return pcut_main(&pcut_item_last, argc, argv); \
 	}
 
-
-
-
-/** Define a new test with given name.
- *
- * @param name A valid C identifier name (not quoted).
- */
-#define PCUT_TEST(name, ...) PCUT_TEST_IMPL(name, __COUNTER__, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
-
-/** Define test time-out.
- *
- * Use as argument to PCUT_TEST().
- *
- * @param time_out Time-out value in seconds.
- */
-#define PCUT_TEST_SET_TIMEOUT(time_out) PCUT_TEST_SET_TIMEOUT_IMPL(time_out)
-
-#define PCUT_TEST_SKIP PCUT_TEST_SKIP_IMPL
-
-/** Define a new test suite with given name.
- *
- * All tests following this macro belong to the new suite
- * (up to next occurence of PCUT_TEST_SUITE).
- *
- */
-#define PCUT_TEST_SUITE(name) PCUT_TEST_SUITE_IMPL(name, __COUNTER__)
-
-/** Define a set-up function for a test suite.
- *
- * There could be only a single set-up function for each suite.
- */
-#define PCUT_TEST_BEFORE \
-	PCUT_TEST_BEFORE_IMPL(__COUNTER__)
-
-/** Define a tear-down function for a test suite.
- *
- * There could be only a single tear-down function for each suite.
- */
-#define PCUT_TEST_AFTER \
-	PCUT_TEST_AFTER_IMPL(__COUNTER__)
-
-/** Export test cases from current file. */
-#define PCUT_EXPORT(identifier) \
-	PCUT_EXPORT_IMPL(identifier, __COUNTER__)
-
-/** Import test cases from a different file. */
-#define PCUT_IMPORT(identifier) \
-	PCUT_IMPORT_IMPL(identifier, __COUNTER__)
+/** @endcond */
 
 /** Initialize the PCUT testing framework. */
 #define PCUT_INIT \
-	PCUT_INIT_IMPL(__COUNTER__)
+	PCUT_INIT_WITH_NUMBER(__COUNTER__)
 
 /** Insert code to run all the tests. */
 #define PCUT_MAIN() \
-	PCUT_MAIN_IMPL(__COUNTER__)
+	PCUT_MAIN_WITH_NUMBER(__COUNTER__)
 
-
-/** Default timeout for a single test (in seconds). */
-#define PCUT_DEFAULT_TEST_TIMEOUT 3
 
 /**
  * @}

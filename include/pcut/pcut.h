@@ -27,7 +27,6 @@
  */
 
 /** @file
- *
  * PCUT: Plain-C unit-testing mini-framework.
  */
 #ifndef PCUT_PCUT_H_GUARD

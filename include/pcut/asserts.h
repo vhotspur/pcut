@@ -27,6 +27,8 @@
  */
 
 /** @file
+ * Predefined asserts.
+ *
  * @defgroup asserts Asserts
  * Predefined asserts you can use with PCUT.
  * @{
@@ -36,10 +38,22 @@
 
 #include <errno.h>
 
+/** @cond devel */
+
 void pcut_failed_assertion_fmt(const char *fmt, ...);
 int pcut_str_equals(const char *a, const char *b);
 void pcut_str_error(int error, char *buffer, int size);
 
+/** @endcond */
+
+/** Raise assertion error.
+ *
+ * This macro adds current file and line and triggers immediate test
+ * abort (tear-down function of the test suite is run when available).
+ *
+ * @param fmt Printf-like format string.
+ * @param ... Extra arguments.
+ */
 #define PCUT_ASSERTION_FAILED(fmt, ...) \
 	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt, __LINE__, ##__VA_ARGS__)
 
@@ -94,13 +108,15 @@ void pcut_str_error(int error, char *buffer, int size);
 		} \
 	} while (0)
 
-/** @cond devel */
 /** Asserts that given pointer is not NULL.
  *
+ * Use this function when directly quoting the original pointer variable
+ * does not provide sufficient information.
+ *
  * @param pointer The pointer to be tested.
- * @param pointer_name Name of the pointer (when <code>\#pointer</code> does not make sense).
+ * @param pointer_name Name of the pointer.
  */
-#define PCUT_ASSERT_NOT_NULL_INTERNAL(pointer, pointer_name) \
+#define PCUT_ASSERT_NOT_NULL_WITH_NAME(pointer, pointer_name) \
 	do { \
 		const void *pcut_ptr_eval = (pointer); \
 		if (pcut_ptr_eval == (NULL)) { \
@@ -108,14 +124,12 @@ void pcut_str_error(int error, char *buffer, int size);
 		} \
 	} while (0)
 
-/** @endcond */
-
 /** Asserts that given pointer is not NULL.
  *
  * @param pointer The pointer to be tested.
  */
 #define PCUT_ASSERT_NOT_NULL(pointer) \
-	PCUT_ASSERT_NOT_NULL_INTERNAL(pointer, #pointer)
+	PCUT_ASSERT_NOT_NULL_WITH_NAME(pointer, #pointer)
 
 
 /** Assertion for checking that two integers are equal.
@@ -162,8 +176,8 @@ void pcut_str_error(int error, char *buffer, int size);
 	do {\
 		const char *pcut_expected_eval = (expected); \
 		const char *pcut_actual_eval = (actual); \
-		PCUT_ASSERT_NOT_NULL_INTERNAL(pcut_expected_eval, #expected); \
-		PCUT_ASSERT_NOT_NULL_INTERNAL(pcut_actual_eval, #actual); \
+		PCUT_ASSERT_NOT_NULL_WITH_NAME(pcut_expected_eval, #expected); \
+		PCUT_ASSERT_NOT_NULL_WITH_NAME(pcut_actual_eval, #actual); \
 		if (!pcut_str_equals(pcut_expected_eval, pcut_actual_eval)) { \
 			PCUT_ASSERTION_FAILED("Expected <%s> but got <%s> (%s != %s)", \
 				pcut_expected_eval, pcut_actual_eval, \
@@ -192,7 +206,7 @@ void pcut_str_error(int error, char *buffer, int size);
 	} while (0)
 
 
-#define PCUT_ASSERT_ERRNO_INTERNAL(expected_value, expected_quoted, actual_value) \
+#define PCUT_ASSERT_ERRNO_VAL_WITH_NAME(expected_value, expected_quoted, actual_value) \
 	do {\
 		int pcut_expected_eval = (expected_value); \
 		int pcut_actual_eval = (actual_value); \
@@ -214,14 +228,14 @@ void pcut_str_error(int error, char *buffer, int size);
  * @param actual Actual value of the error code.
  */
 #define PCUT_ASSERT_ERRNO_VAL(expected, actual) \
-	PCUT_ASSERT_ERRNO_INTERNAL(expected, #expected, actual)
+	PCUT_ASSERT_ERRNO_VAL_WITH_NAME(expected, #expected, actual)
 
 /** Assertion for checking errno variable for errors.
  *
  * @param expected Expected errno error code.
  */
 #define PCUT_ASSERT_ERRNO(expected) \
-	PCUT_ASSERT_ERRNO_INTERNAL(expected, #expected, (errno))
+	PCUT_ASSERT_ERRNO_VAL_WITH_NAME(expected, #expected, (errno))
 
 /**
  * @}
