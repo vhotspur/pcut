@@ -34,7 +34,115 @@
 #ifndef PCUT_TESTS_H_GUARD
 #define PCUT_TESTS_H_GUARD
 
-#include <pcut/impl.h>
+#include <pcut/datadef.h>
+
+
+
+int pcut_main(pcut_item_t *last, int argc, char *argv[]);
+
+#define PCUT_JOIN_IMPL(a, b) a##b
+#define PCUT_JOIN(a, b) PCUT_JOIN_IMPL(a, b)
+
+#define PCUT_ITEM_NAME(number) \
+	PCUT_JOIN(pcut_item_, number)
+
+#define PCUT_ITEM_NAME_PREV(number) \
+	PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, number))
+
+#define PCUT_ADD_ITEM(number, itemkind, ...) \
+		static pcut_item_t PCUT_ITEM_NAME(number) = { \
+				.previous = &PCUT_ITEM_NAME_PREV(number), \
+				.next = NULL, \
+				.id = -1, \
+				.kind = itemkind, \
+				__VA_ARGS__ \
+		}; \
+
+#define PCUT_TEST_IMPL(testname, number, ...) \
+		static pcut_extra_t PCUT_JOIN(test_extras_, number)[] = { \
+				__VA_ARGS__ \
+		}; \
+		static void PCUT_JOIN(test_, testname)(void); \
+		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
+				.test = { \
+					.name = #testname, \
+					.func = PCUT_JOIN(test_, testname), \
+					.extras = PCUT_JOIN(test_extras_, number), \
+				} \
+		) \
+		void PCUT_JOIN(test_, testname)(void)
+
+#define PCUT_TEST_EXTRA_LAST { .type = PCUT_EXTRA_LAST }
+
+#define PCUT_TEST_SET_TIMEOUT_IMPL(time_out) \
+		{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
+
+#define PCUT_TEST_SKIP_IMPL \
+		{ .type = PCUT_EXTRA_SKIP }
+
+#define PCUT_TEST_SUITE_IMPL(suitename, number) \
+		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
+				.suite = { \
+					.name = #suitename, \
+					.setup = NULL, \
+					.teardown = NULL \
+				} \
+		)
+
+#define PCUT_TEST_BEFORE_IMPL(number) \
+		static void PCUT_JOIN(setup_, number)(void); \
+		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
+				.setup.func = PCUT_JOIN(setup_, number) \
+		) \
+		void PCUT_JOIN(setup_, number)(void)
+
+#define PCUT_TEST_AFTER_IMPL(number) \
+		static void PCUT_JOIN(teardown_, number)(void); \
+		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
+				.setup.func = PCUT_JOIN(teardown_, number) \
+		) \
+		void PCUT_JOIN(teardown_, number)(void)
+
+#define PCUT_EXPORT_IMPL(identifier, number) \
+	pcut_item_t pcut_exported_##identifier = { \
+		.previous = &PCUT_ITEM_NAME_PREV(number), \
+		.next = NULL, \
+		.kind = PCUT_KIND_SKIP \
+	}
+
+/*
+ * Trick with [] and & copied from
+ * http://bytes.com/topic/c/answers/553555-initializer-element-not-constant#post2159846
+ * because following does not work:
+ * extern int *a;
+ * int *b = a;
+ */
+#define PCUT_IMPORT_IMPL(identifier, number) \
+	extern pcut_item_t pcut_exported_##identifier; \
+	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
+		.nested.last = &pcut_exported_##identifier \
+	)
+
+#define PCUT_INIT_IMPL(first_number) \
+	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
+		.previous = NULL, \
+		.next = NULL, \
+		.id = -1, \
+		.kind = PCUT_KIND_SKIP \
+	}; \
+	PCUT_TEST_SUITE(Default);
+
+#define PCUT_MAIN_IMPL(last_number) \
+	static pcut_item_t pcut_item_last = { \
+		.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, last_number)), \
+		.kind = PCUT_KIND_SKIP \
+	}; \
+	int main(int argc, char *argv[]) { \
+		return pcut_main(&pcut_item_last, argc, argv); \
+	}
+
+
+
 
 /** Define a new test with given name.
  *

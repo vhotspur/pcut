@@ -34,8 +34,15 @@
 #ifndef PCUT_ASSERTS_H_GUARD
 #define PCUT_ASSERTS_H_GUARD
 
-#include <pcut/impl.h>
 #include <errno.h>
+
+void pcut_failed_assertion_fmt(const char *fmt, ...);
+int pcut_str_equals(const char *a, const char *b);
+void pcut_str_error(int error, char *buffer, int size);
+
+#define PCUT_ASSERTION_FAILED(fmt, ...) \
+	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt, __LINE__, ##__VA_ARGS__)
+
 
 /** Generic assertion for a boolean expression.
  *

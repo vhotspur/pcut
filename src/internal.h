@@ -84,6 +84,7 @@ extern pcut_item_t *pcut_current_suite;
 extern int pcut_running_test_now;
 extern int pcut_running_setup_now;
 
+void pcut_failed_assertion(const char *message);
 void pcut_print_fail_message(const char *msg);
 
 typedef struct pcut_report_ops pcut_report_ops_t;
