@@ -206,6 +206,15 @@ void pcut_str_error(int error, char *buffer, int size);
 	} while (0)
 
 
+/** Assertion for checking errno-style variables for errors.
+ *
+ * Use this function when directly quoting the original error code does
+ * not provide sufficient information.
+ *
+ * @param expected_value Expected errno error code.
+ * @param expected_quoted Expected error code as a string.
+ * @param actual_value Actual value of the error code.
+ */
 #define PCUT_ASSERT_ERRNO_VAL_WITH_NAME(expected_value, expected_quoted, actual_value) \
 	do {\
 		int pcut_expected_eval = (expected_value); \

@@ -64,15 +64,32 @@
 
 /** @cond devel */
 
+/** Join the two arguments on preprocessor level (inner call). */
 #define PCUT_JOIN_IMPL(a, b) a##b
+
+/** Join the two arguments on preprocessor level. */
 #define PCUT_JOIN(a, b) PCUT_JOIN_IMPL(a, b)
 
+/** Produce identifier name for an item with given number.
+ *
+ * @param number Item number.
+ */
 #define PCUT_ITEM_NAME(number) \
 	PCUT_JOIN(pcut_item_, number)
 
+/** Produce identifier name for a preceding item.
+ *
+ * @param number Number of the current item.
+ */
 #define PCUT_ITEM_NAME_PREV(number) \
 	PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, number))
 
+/** Create a new item, append it to the list.
+ *
+ * @param number Number of this item.
+ * @param itemkind Kind of this item (PCUT_KIND_*).
+ * @param ... Other initializers of the pcut_item_t.
+ */
 #define PCUT_ADD_ITEM(number, itemkind, ...) \
 		static pcut_item_t PCUT_ITEM_NAME(number) = { \
 				.previous = &PCUT_ITEM_NAME_PREV(number), \
@@ -113,6 +130,12 @@
 /** Terminate list of extra test options. */
 #define PCUT_TEST_EXTRA_LAST { .type = PCUT_EXTRA_LAST }
 
+/** Define a new test with given name and given item number.
+ *
+ * @param testname A valid C identifier name (not quoted).
+ * @param number Number of the item describing this test.
+ * @param ... Extra test properties.
+ */
 #define PCUT_TEST_WITH_NUMBER(testname, number, ...) \
 		static pcut_extra_t PCUT_JOIN(test_extras_, number)[] = { \
 				__VA_ARGS__ \
@@ -132,6 +155,7 @@
 /** Define a new test with given name.
  *
  * @param name A valid C identifier name (not quoted).
+ * @param ... Extra test properties.
  */
 #define PCUT_TEST(name, ...) \
 	PCUT_TEST_WITH_NUMBER(name, __COUNTER__, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
@@ -222,11 +246,18 @@
 
 /** @endcond */
 
-/** Export test cases from current file. */
+/** Export test cases from current file.
+ *
+ * @param identifier Identifier of this block of tests.
+ */
 #define PCUT_EXPORT(identifier) \
 	PCUT_EXPORT_WITH_NUMBER(identifier, __COUNTER__)
 
-/** Import test cases from a different file. */
+/** Import test cases from a different file.
+ *
+ * @param identifier Identifier of the tests to import
+ * (previously exported with PCUT_EXPORT).
+ */
 #define PCUT_IMPORT(identifier) \
 	PCUT_IMPORT_WITH_NUMBER(identifier, __COUNTER__)
 
@@ -241,8 +272,12 @@
 
 /** @cond devel */
 
+/** Initialize the PCUT testing framework with a first item.
+ *
+ * @param first_number Number of the first item.
+ */
 #define PCUT_INIT_WITH_NUMBER(first_number) \
-	static pcut_item_t PCUT_ITEM_NAME(__COUNTER__) = { \
+	static pcut_item_t PCUT_ITEM_NAME(first_number) = { \
 		.previous = NULL, \
 		.next = NULL, \
 		.id = -1, \

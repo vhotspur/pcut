@@ -53,22 +53,45 @@ enum {
 	PCUT_EXTRA_LAST
 };
 
+/** Generic wrapper for test cases, test suites etc. */
 typedef struct pcut_item pcut_item_t;
+
+/** Extra information about a test. */
 typedef struct pcut_extra pcut_extra_t;
+
+/** Test method type. */
 typedef void (*pcut_test_func_t)(void);
+
+/** Set-up or tear-down method type. */
 typedef void (*pcut_setup_func_t)(void);
 
+/** @copydoc pcut_extra_t */
 struct pcut_extra {
+	/** Discriminator for the union.
+	 *
+	 * Use PCUT_EXTRA_* to determine which field of the union is used.
+	 */
 	int type;
 	union {
+		/** Test-specific time-out in seconds. */
 		int timeout;
 	};
 };
 
+/** @copydoc pcut_item_t */
 struct pcut_item {
+	/** Link to previous item. */
 	pcut_item_t *previous;
+	/** Link to next item. */
 	pcut_item_t *next;
+
+	/** Unique id of this item. */
 	int id;
+
+	/** Discriminator for the union.
+	 *
+	 * Use PCUT_KIND_* to determine which field of the union is used.
+	 */
 	int kind;
 	union {
 		struct {

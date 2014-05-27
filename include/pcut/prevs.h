@@ -28,7 +28,7 @@
 
 /**
  * @file
- * Counter macros internally used by PCUT. */
+ * Counter macros internally used by PCUT.
  */
 
 #ifndef PCUT_PREVS_H_GUARD
