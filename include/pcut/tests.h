@@ -171,6 +171,13 @@
 
 /** @cond devel */
 
+/** Define and start a new test suite.
+ *
+ * @see PCUT_TEST_SUITE
+ *
+ * @param suitename Suite name (a valid C identifier).
+ * @param number Item number.
+ */
 #define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
 				.suite = { \
@@ -180,6 +187,12 @@
 				} \
 		)
 
+/** Define a set-up function for a test suite.
+ *
+ * @see PCUT_TEST_BEFORE
+ *
+ * @param number Item number.
+ */
 #define PCUT_TEST_BEFORE_WITH_NUMBER(number) \
 		static void PCUT_JOIN(setup_, number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
@@ -187,6 +200,12 @@
 		) \
 		void PCUT_JOIN(setup_, number)(void)
 
+/** Define a tear-down function for a test suite.
+ *
+ * @see PCUT_TEST_AFTER
+ *
+ * @param number Item number.
+ */
 #define PCUT_TEST_AFTER_WITH_NUMBER(number) \
 		static void PCUT_JOIN(teardown_, number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
@@ -197,16 +216,29 @@
 /** @endcond */
 
 
-/** Define a new test suite with given name.
+/** Define and start a new test suite.
  *
  * All tests following this macro belong to the new suite
  * (up to next occurrence of PCUT_TEST_SUITE).
  *
+ * This command shall be used as is without any extra code.
+ *
+ * @param name Suite name (a valid C identifier).
  */
 #define PCUT_TEST_SUITE(name) \
 	PCUT_TEST_SUITE_WITH_NUMBER(name, __COUNTER__)
 
 /** Define a set-up function for a test suite.
+ *
+ * The code of the function immediately follows this macro.
+ *
+ * @code
+ * PCUT_TEST_SUITE(my_suite);
+ *
+ * PCUT_TEST_BEFORE {
+ *     printf("This is executed before each test in this suite.\n");
+ * }
+ * @endcode
  *
  * There could be only a single set-up function for each suite.
  */
@@ -214,6 +246,16 @@
 	PCUT_TEST_BEFORE_WITH_NUMBER(__COUNTER__)
 
 /** Define a tear-down function for a test suite.
+ *
+ * The code of the function immediately follows this macro.
+ *
+ * @code
+ * PCUT_TEST_SUITE(my_suite);
+ *
+ * PCUT_TEST_AFTER {
+ *     printf("This is executed after each test in this suite.\n");
+ * }
+ * @endcode
  *
  * There could be only a single tear-down function for each suite.
  */
@@ -231,6 +273,13 @@
 
 /** @cond devel */
 
+/** Export test cases from current file.
+ *
+ * @see PCUT_EXPORT
+ *
+ * @param identifier Identifier of this block of tests.
+ * @param number Item number.
+ */
 #define PCUT_EXPORT_WITH_NUMBER(identifier, number) \
 	pcut_item_t pcut_exported_##identifier = { \
 		.previous = &PCUT_ITEM_NAME_PREV(number), \
@@ -238,6 +287,13 @@
 		.kind = PCUT_KIND_SKIP \
 	}
 
+/** Import test cases from a different file.
+ *
+ * @see PCUT_EXPORT
+ *
+ * @param identifier Identifier of the tests to import.
+ * @param number Item number.
+ */
 #define PCUT_IMPORT_WITH_NUMBER(identifier, number) \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
@@ -255,7 +311,7 @@
 
 /** Import test cases from a different file.
  *
- * @param identifier Identifier of the tests to import
+ * @param identifier Identifier of the tests to import.
  * (previously exported with PCUT_EXPORT).
  */
 #define PCUT_IMPORT(identifier) \
@@ -287,6 +343,10 @@
 
 int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
+/** Insert code to run all the tests.
+ *
+ * @param last_number Item number.
+ */
 #define PCUT_MAIN_WITH_NUMBER(last_number) \
 	static pcut_item_t pcut_item_last = { \
 		.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, last_number)), \

@@ -40,8 +40,33 @@
 
 /** @cond devel */
 
+/** Raise assertion error.
+ *
+ * This function immediately terminates current test and executes a tear-down
+ * (if registered).
+ *
+ * @param fmt Printf-like format string.
+ * @param ... Extra arguments.
+ */
 void pcut_failed_assertion_fmt(const char *fmt, ...);
+
+/** OS-agnostic string comparison.
+ *
+ * @param a First string to compare.
+ * @param b Second string to compare.
+ * @return Whether the strings are equal.
+ */
 int pcut_str_equals(const char *a, const char *b);
+
+/** OS-agnostic conversion from error code to error description.
+ *
+ * This function ensures that the description stored in @p buffer is
+ * always a nul-terminated string.
+ *
+ * @param error Error code.
+ * @param buffer Where to store the error description.
+ * @param size Size of the buffer.
+ */
 void pcut_str_error(int error, char *buffer, int size);
 
 /** @endcond */
