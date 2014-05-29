@@ -98,7 +98,10 @@ static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 /** Buffer for stdout from the test. */
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
-/** Prepare for a new test. */
+/** Prepare for a new test.
+ *
+ * @param test Test that is about to be run.
+ */
 static void before_test_start(pcut_item_t *test) {
 	pcut_report_test_start(test);
 
@@ -106,12 +109,28 @@ static void before_test_start(pcut_item_t *test) {
 	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
 }
 
-static FIBRIL_MUTEX_INITIALIZE(forced_termination_mutex);
-static FIBRIL_CONDVAR_INITIALIZE(forced_termination_cv);
+/** Mutex guard for forced_termination_cv. */
+static fibril_mutex_t forced_termination_mutex
+	= FIBRIL_MUTEX_INITIALIZER(forced_termination_mutex);
 
+/** Condition-variable for checking whether test timed-out. */
+static fibril_condvar_t forced_termination_cv
+	= FIBRIL_CONDVAR_INITIALIZER(forced_termination_cv);
+
+/** Spawned task id. */
 static task_id_t test_task_id;
+
+/** Flag whether test is still running.
+ *
+ * This flag is used when checking whether test timed-out.
+ */
 static int test_running;
 
+/** Main fibril for checking whether test timed-out.
+ *
+ * @param arg Test that is currently running (pcut_item_t *).
+ * @return EOK Always.
+ */
 static int test_timeout_handler_fibril(void *arg) {
 	pcut_item_t *test = arg;
 	int timeout_sec = pcut_get_test_timeout(test);

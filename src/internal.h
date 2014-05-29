@@ -26,6 +26,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** @file
+ * Common definitions internally used in PCUT.
+ */
+
 #ifndef PCUT_INTERNAL_H_GUARD
 #define PCUT_INTERNAL_H_GUARD
 
@@ -87,8 +91,10 @@ extern int pcut_running_setup_now;
 void pcut_failed_assertion(const char *message);
 void pcut_print_fail_message(const char *msg);
 
-typedef struct pcut_report_ops pcut_report_ops_t;
 /** Reporting callbacks structure. */
+typedef struct pcut_report_ops pcut_report_ops_t;
+
+/** @copydoc pcut_report_ops_t */
 struct pcut_report_ops {
 	/** Initialize the reporting, given all tests. */
 	void (*init)(pcut_item_t *);
@@ -118,10 +124,38 @@ void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 		const char *unparsed_output, size_t unparsed_output_size);
 void pcut_report_done(void);
 
+/* OS-dependent functions. */
 
+/** Tell whether two strings start with the same prefix.
+ *
+ * @param a First string.
+ * @param b Second string.
+ * @param len Length of common prefix.
+ * @return Whether first @p len characters of @p a are the same as in @p b.
+ */
 int pcut_str_start_equals(const char *a, const char *b, int len);
+
+/** Get size of string in bytes.
+ *
+ * @param s String in question.
+ * @return Size of @p s in bytes.
+ */
 int pcut_str_size(const char *s);
+
+/** Convert string to integer.
+ *
+ * @param s String with integer.
+ * @return Converted integer.
+ */
 int pcut_str_to_int(const char *s);
+
+/** Find character in a string.
+ *
+ * @param haystack Where to look for the @p needle.
+ * @param needle Character to find.
+ * @return String starting with @p needle.
+ * @retval NULL there is no @p needle in @p haystack.
+ */
 char *pcut_str_find_char(const char *haystack, const char needle);
 
 
