@@ -49,7 +49,7 @@ struct item {
 	NUMBERED_IDENTIFIER_INC \
 	static void my_##funcname(void); \
 	static item_t NUMBERED_IDENTIFIER_NAME = { \
-		.prev = & NUMBERED_IDENTIFIER_PREV_NAME , \
+		.prev = &NUMBERED_IDENTIFIER_PREV_NAME, \
 		.func = &my_##funcname, \
 		.name = #funcname \
 	}; \
@@ -57,7 +57,7 @@ struct item {
 
 #define LAST(identifname) \
 	item_t identifname = { \
-		.prev = & NUMBERED_IDENTIFIER_NAME , \
+		.prev = &NUMBERED_IDENTIFIER_NAME, \
 		.func = NULL, \
 		.name = "<last>" \
 	};

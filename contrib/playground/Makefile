@@ -31,16 +31,19 @@ CFLAGS = -std=c99
 PPFLAGS = 
 LDFLAGS = 
 
-all: assert_that.run nocounter.run
+all: assert_that.run nocounter.run preproc.run
 
 assert_that.run: assert_that.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+
+preproc.run: preproc.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 nocounter.run: nocounter.pcut.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 	
-nocounter.pcut.c: nocounter.c numbers.awk
-	$(CC) $(PPFLAGS) -E $< | awk -f numbers.awk >$@
+nocounter.pcut.c: nocounter.c preproc.run
+	$(CC) $(PPFLAGS) -E $< | ./preproc.run >$@
 
 clean:
 	rm -f *.run *.pcut.c
