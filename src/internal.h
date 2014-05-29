@@ -72,8 +72,6 @@ void pcut_print_items(pcut_item_t *first);
 
 pcut_item_t *pcut_get_real_next(pcut_item_t *item);
 pcut_item_t *pcut_get_real(pcut_item_t *item);
-const char* pcut_run_test(pcut_test_func_t function);
-const char* pcut_run_setup_teardown(pcut_setup_func_t function);
 void pcut_print_tests(pcut_item_t *first);
 int pcut_is_arg_with_number(const char *arg, const char *opt, int *value);
 
@@ -82,11 +80,6 @@ int pcut_run_test_forked(pcut_item_t *test);
 int pcut_run_test_single(pcut_item_t *test);
 
 int pcut_get_test_timeout(pcut_item_t *test);
-
-extern pcut_item_t *pcut_current_test;
-extern pcut_item_t *pcut_current_suite;
-extern int pcut_running_test_now;
-extern int pcut_running_setup_now;
 
 void pcut_failed_assertion(const char *message);
 void pcut_print_fail_message(const char *msg);
