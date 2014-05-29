@@ -26,22 +26,25 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-CC = gcc
-CFLAGS = -std=c99
-PPFLAGS = 
-LDFLAGS = 
 
-all: assert_that.run nocounter.run
+BEGIN {
+	THE_COUNTER = 0;
+}
 
-assert_that.run: assert_that.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
-
-nocounter.run: nocounter.i
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
-	
-nocounter.i: nocounter.c numbers.awk
-	$(CC) $(PPFLAGS) -E $< | awk -f numbers.awk >$@
-
-clean:
-	rm -f *.run *.i
-	
+{
+	for (i = 1; i <= NF; i++) {
+		if (i > 1) {
+			printf " "
+		}
+		if ($i == "NUMBERED_IDENTIFIER_INC") {
+			THE_COUNTER++
+		} else if ($i == "NUMBERED_IDENTIFIER_NAME") {
+			printf "xxx_numbered_item_%d", THE_COUNTER
+		} else if ($i == "NUMBERED_IDENTIFIER_PREV_NAME") {
+			printf "xxx_numbered_item_%d", THE_COUNTER - 1
+		} else {
+			printf "%s", $i
+		}
+	}
+	print ""
+}
