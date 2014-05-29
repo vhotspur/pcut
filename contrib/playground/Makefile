@@ -36,12 +36,12 @@ all: assert_that.run nocounter.run
 assert_that.run: assert_that.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
-nocounter.run: nocounter.i
+nocounter.run: nocounter.pcut.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 	
-nocounter.i: nocounter.c numbers.awk
+nocounter.pcut.c: nocounter.c numbers.awk
 	$(CC) $(PPFLAGS) -E $< | awk -f numbers.awk >$@
 
 clean:
-	rm -f *.run *.i
+	rm -f *.run *.pcut.c
 	
