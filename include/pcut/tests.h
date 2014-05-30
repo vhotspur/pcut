@@ -349,11 +349,11 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 /** Insert code to run all the tests.
  *
- * @param last_number Item number.
+ * @param number Item number.
  */
-#define PCUT_MAIN_WITH_NUMBER(last_number) \
+#define PCUT_MAIN_WITH_NUMBER(number) \
 	static pcut_item_t pcut_item_last = { \
-		.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, last_number)), \
+		.previous = &PCUT_ITEM_NAME_PREV(number), \
 		.kind = PCUT_KIND_SKIP \
 	}; \
 	int main(int argc, char *argv[]) { \
