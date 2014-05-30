@@ -53,8 +53,12 @@
  */
 #define PCUT_DEFAULT_TEST_TIMEOUT 3
 
-
-
+/** Item counter that is expected to be incremented by preprocessor.
+ *
+ * Used compiler must support __COUNTER__ for this to work without any
+ * extra preprocessing.
+ */
+#define PCUT_ITEM_COUNTER __COUNTER__
 
 
 /*
@@ -158,7 +162,7 @@
  * @param ... Extra test properties.
  */
 #define PCUT_TEST(name, ...) \
-	PCUT_TEST_WITH_NUMBER(name, __COUNTER__, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
+	PCUT_TEST_WITH_NUMBER(name, PCUT_ITEM_COUNTER, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
 
 
 
@@ -226,7 +230,7 @@
  * @param name Suite name (a valid C identifier).
  */
 #define PCUT_TEST_SUITE(name) \
-	PCUT_TEST_SUITE_WITH_NUMBER(name, __COUNTER__)
+	PCUT_TEST_SUITE_WITH_NUMBER(name, PCUT_ITEM_COUNTER)
 
 /** Define a set-up function for a test suite.
  *
@@ -243,7 +247,7 @@
  * There could be only a single set-up function for each suite.
  */
 #define PCUT_TEST_BEFORE \
-	PCUT_TEST_BEFORE_WITH_NUMBER(__COUNTER__)
+	PCUT_TEST_BEFORE_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 /** Define a tear-down function for a test suite.
  *
@@ -260,7 +264,7 @@
  * There could be only a single tear-down function for each suite.
  */
 #define PCUT_TEST_AFTER \
-	PCUT_TEST_AFTER_WITH_NUMBER(__COUNTER__)
+	PCUT_TEST_AFTER_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 
 
@@ -307,7 +311,7 @@
  * @param identifier Identifier of this block of tests.
  */
 #define PCUT_EXPORT(identifier) \
-	PCUT_EXPORT_WITH_NUMBER(identifier, __COUNTER__)
+	PCUT_EXPORT_WITH_NUMBER(identifier, PCUT_ITEM_COUNTER)
 
 /** Import test cases from a different file.
  *
@@ -315,7 +319,7 @@
  * (previously exported with PCUT_EXPORT).
  */
 #define PCUT_IMPORT(identifier) \
-	PCUT_IMPORT_WITH_NUMBER(identifier, __COUNTER__)
+	PCUT_IMPORT_WITH_NUMBER(identifier, PCUT_ITEM_COUNTER)
 
 
 
@@ -360,11 +364,11 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 /** Initialize the PCUT testing framework. */
 #define PCUT_INIT \
-	PCUT_INIT_WITH_NUMBER(__COUNTER__)
+	PCUT_INIT_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 /** Insert code to run all the tests. */
 #define PCUT_MAIN() \
-	PCUT_MAIN_WITH_NUMBER(__COUNTER__)
+	PCUT_MAIN_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 
 /**
