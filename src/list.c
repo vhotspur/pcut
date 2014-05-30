@@ -34,7 +34,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "internal.h"
-#include <pcut/test.h>
+#include <pcut/pcut.h>
 
 
 /** Find next item with actual content.
@@ -117,6 +117,13 @@ static void set_ids(pcut_item_t *first) {
 	}
 }
 
+/** Hide tests that are marked to be skipped.
+ *
+ * Go through all tests and those that have PCUT_EXTRA_SKIP mark
+ * as skipped with PCUT_KIND_SKIP.
+ *
+ * @param first Head of the list.
+ */
 static void detect_skipped_tests(pcut_item_t *first) {
 	assert(first != NULL);
 	if (first->kind == PCUT_KIND_SKIP) {

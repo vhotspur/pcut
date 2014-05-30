@@ -31,6 +31,7 @@
  * Unix-specific functions for test execution via the fork() system call.
  */
 
+/** We need _POSX_SOURCE because of kill(). */
 #define _POSIX_SOURCE
 #include <stdlib.h>
 #include <unistd.h>
@@ -52,7 +53,10 @@ static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 /** Buffer for stdout from the test. */
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
-/** Prepare for a new test. */
+/** Prepare for a new test.
+ *
+ * @param test Test that is about to be run.
+ */
 static void before_test_start(pcut_item_t *test) {
 	pcut_report_test_start(test);
 
@@ -63,7 +67,10 @@ static void before_test_start(pcut_item_t *test) {
 /** PID of the forked process running the actual test. */
 static pid_t child_pid;
 
-/** Signal handler that kills the child. */
+/** Signal handler that kills the child.
+ *
+ * @param sig Signal number.
+ */
 static void kill_child_on_alarm(int sig) {
 	PCUT_UNUSED(sig);
 	kill(child_pid, SIGKILL);

@@ -35,3 +35,7 @@ pcut-clean: check-clean platform-clean
 
 %.o: %.c
 	$(CC) -c -o $@ $(PCUT_CFLAGS) $<
+
+doxygen:
+	doxygen doc/Doxyfile.devel
+	doxygen doc/Doxyfile.user
