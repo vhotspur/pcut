@@ -48,7 +48,7 @@ check-build: $(TEST_APPS)
 .PRECIOUS: $(TEST_BASE)tested.o
 
 check-clean:
-	rm -f $(TEST_BASE)*.o $(TEST_BASE)*.$(EXE_EXT) $(TEST_BASE)*.got
+	rm -f $(TEST_BASE)*.o $(TEST_BASE)*.pcut.c $(TEST_BASE)*.$(EXE_EXT) $(TEST_BASE)*.got
 
 $(TEST_BASE)%.$(EXE_EXT): $(TEST_DEPS)
 	$(LD) -o $@ $^ $(TEST_LDFLAGS)
@@ -67,5 +67,14 @@ $(TEST_BASE)suites.$(EXE_EXT): $(TEST_BASE)suites.o $(PCUT_LIB)
 $(TEST_BASE)teardown.$(EXE_EXT): $(TEST_BASE)teardown.o $(PCUT_LIB)
 $(TEST_BASE)timeout.$(EXE_EXT): $(TEST_BASE)timeout.o $(PCUT_LIB)
 
+
+ifeq ($(NEEDS_PREPROC),y)
+$(TEST_BASE)%.o: $(TEST_BASE)%.pcut.c
+	$(CC) -c -o $@ $(TEST_CFLAGS) $<
+
+$(TEST_BASE)%.pcut.c: $(TEST_BASE)%.c $(PCUT_PREPROC)
+	$(CC) -E $(TEST_CFLAGS) $< | $(PCUT_PREPROC) >$@
+else
 $(TEST_BASE)%.o: $(TEST_BASE)%.c
 	$(CC) -c -o $@ $(TEST_CFLAGS) $<
+endif

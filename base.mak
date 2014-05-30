@@ -30,6 +30,9 @@
 PCUT_INCLUDE = include
 PCUT_CFLAGS = -Wall -Wextra -std=c99 -Werror -I$(PCUT_INCLUDE)
 
+PCUT_PREPROC_SOURCES = \
+	src/preproc.c
+
 PCUT_SOURCES = \
 	src/assert.c \
 	src/list.c \
