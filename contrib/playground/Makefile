@@ -31,9 +31,12 @@ CFLAGS = -std=c99
 PPFLAGS = 
 LDFLAGS = 
 
-all: assert_that.run nocounter.run preproc.run
+all: assert_that.run nocounter.run preproc.run macros.run
 
 assert_that.run: assert_that.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+
+macros.run: macros.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 preproc.run: preproc.c
