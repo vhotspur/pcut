@@ -47,14 +47,30 @@
  */
 
 
+#ifndef __COUNTER__
+#define PCUT_WITHOUT_COUNTER
+#endif
+
+#ifndef PCUT_WITHOUT_COUNTER
+#define PCUT_ITEM_COUNTER_INCREMENT
+#endif
+
 
 /** Default timeout for a single test (in seconds).
  * @showinitializer
  */
 #define PCUT_DEFAULT_TEST_TIMEOUT 3
 
-
-
+/** Item counter that is expected to be incremented by preprocessor.
+ *
+ * Used compiler must support __COUNTER__ for this to work without any
+ * extra preprocessing.
+ */
+#ifdef PCUT_WITHOUT_COUNTER
+#define PCUT_ITEM_COUNTER PCUT_you_need_to_run_pcut_preprocessor
+#else
+#define PCUT_ITEM_COUNTER __COUNTER__
+#endif
 
 
 /*
@@ -74,15 +90,39 @@
  *
  * @param number Item number.
  */
+#ifndef PCUT_WITHOUT_COUNTER
 #define PCUT_ITEM_NAME(number) \
 	PCUT_JOIN(pcut_item_, number)
+#else
+#define PCUT_ITEM_NAME(number) PCUT_ITEM_NAME
+#endif
 
 /** Produce identifier name for a preceding item.
  *
  * @param number Number of the current item.
  */
+#ifndef PCUT_WITHOUT_COUNTER
 #define PCUT_ITEM_NAME_PREV(number) \
 	PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, number))
+#else
+#define PCUT_ITEM_NAME_PREV(number) PCUT_ITEM_NAME_PREV
+#endif
+
+#ifndef PCUT_WITHOUT_COUNTER
+#define PCUT_ITEM_EXTRAS_NAME(number) \
+	PCUT_JOIN(pcut_extras_, number)
+#else
+#define PCUT_ITEM_EXTRAS_NAME(number) PCUT_ITEM2_NAME
+#endif
+
+#ifndef PCUT_WITHOUT_COUNTER
+#define PCUT_ITEM_SETUP_NAME(number) \
+	PCUT_JOIN(pcut_setup_, number)
+#else
+#define PCUT_ITEM_SETUP_NAME(number) PCUT_ITEM3_NAME
+#endif
+
+
 
 /** Create a new item, append it to the list.
  *
@@ -137,7 +177,8 @@
  * @param ... Extra test properties.
  */
 #define PCUT_TEST_WITH_NUMBER(testname, number, ...) \
-		static pcut_extra_t PCUT_JOIN(test_extras_, number)[] = { \
+		PCUT_ITEM_COUNTER_INCREMENT \
+		static pcut_extra_t PCUT_ITEM_EXTRAS_NAME(number)[] = { \
 				__VA_ARGS__ \
 		}; \
 		static void PCUT_JOIN(test_, testname)(void); \
@@ -145,7 +186,7 @@
 				.test = { \
 					.name = #testname, \
 					.func = PCUT_JOIN(test_, testname), \
-					.extras = PCUT_JOIN(test_extras_, number), \
+					.extras = PCUT_ITEM_EXTRAS_NAME(number), \
 				} \
 		) \
 		void PCUT_JOIN(test_, testname)(void)
@@ -158,7 +199,7 @@
  * @param ... Extra test properties.
  */
 #define PCUT_TEST(name, ...) \
-	PCUT_TEST_WITH_NUMBER(name, __COUNTER__, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
+	PCUT_TEST_WITH_NUMBER(name, PCUT_ITEM_COUNTER, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
 
 
 
@@ -179,6 +220,7 @@
  * @param number Item number.
  */
 #define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
+		PCUT_ITEM_COUNTER_INCREMENT \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
 				.suite = { \
 					.name = #suitename, \
@@ -194,11 +236,12 @@
  * @param number Item number.
  */
 #define PCUT_TEST_BEFORE_WITH_NUMBER(number) \
-		static void PCUT_JOIN(setup_, number)(void); \
+		PCUT_ITEM_COUNTER_INCREMENT \
+		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
-				.setup.func = PCUT_JOIN(setup_, number) \
+				.setup.func = PCUT_ITEM_SETUP_NAME(number) \
 		) \
-		void PCUT_JOIN(setup_, number)(void)
+		void PCUT_ITEM_SETUP_NAME(number)(void)
 
 /** Define a tear-down function for a test suite.
  *
@@ -207,11 +250,12 @@
  * @param number Item number.
  */
 #define PCUT_TEST_AFTER_WITH_NUMBER(number) \
-		static void PCUT_JOIN(teardown_, number)(void); \
+		PCUT_ITEM_COUNTER_INCREMENT \
+		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
-				.setup.func = PCUT_JOIN(teardown_, number) \
+				.setup.func = PCUT_ITEM_SETUP_NAME(number) \
 		) \
-		void PCUT_JOIN(teardown_, number)(void)
+		void PCUT_ITEM_SETUP_NAME(number)(void)
 
 /** @endcond */
 
@@ -226,7 +270,7 @@
  * @param name Suite name (a valid C identifier).
  */
 #define PCUT_TEST_SUITE(name) \
-	PCUT_TEST_SUITE_WITH_NUMBER(name, __COUNTER__)
+	PCUT_TEST_SUITE_WITH_NUMBER(name, PCUT_ITEM_COUNTER)
 
 /** Define a set-up function for a test suite.
  *
@@ -243,7 +287,7 @@
  * There could be only a single set-up function for each suite.
  */
 #define PCUT_TEST_BEFORE \
-	PCUT_TEST_BEFORE_WITH_NUMBER(__COUNTER__)
+	PCUT_TEST_BEFORE_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 /** Define a tear-down function for a test suite.
  *
@@ -260,7 +304,7 @@
  * There could be only a single tear-down function for each suite.
  */
 #define PCUT_TEST_AFTER \
-	PCUT_TEST_AFTER_WITH_NUMBER(__COUNTER__)
+	PCUT_TEST_AFTER_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 
 
@@ -281,6 +325,7 @@
  * @param number Item number.
  */
 #define PCUT_EXPORT_WITH_NUMBER(identifier, number) \
+	PCUT_ITEM_COUNTER_INCREMENT \
 	pcut_item_t pcut_exported_##identifier = { \
 		.previous = &PCUT_ITEM_NAME_PREV(number), \
 		.next = NULL, \
@@ -295,6 +340,7 @@
  * @param number Item number.
  */
 #define PCUT_IMPORT_WITH_NUMBER(identifier, number) \
+	PCUT_ITEM_COUNTER_INCREMENT \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
 		.nested.last = &pcut_exported_##identifier \
@@ -307,7 +353,7 @@
  * @param identifier Identifier of this block of tests.
  */
 #define PCUT_EXPORT(identifier) \
-	PCUT_EXPORT_WITH_NUMBER(identifier, __COUNTER__)
+	PCUT_EXPORT_WITH_NUMBER(identifier, PCUT_ITEM_COUNTER)
 
 /** Import test cases from a different file.
  *
@@ -315,7 +361,7 @@
  * (previously exported with PCUT_EXPORT).
  */
 #define PCUT_IMPORT(identifier) \
-	PCUT_IMPORT_WITH_NUMBER(identifier, __COUNTER__)
+	PCUT_IMPORT_WITH_NUMBER(identifier, PCUT_ITEM_COUNTER)
 
 
 
@@ -333,6 +379,7 @@
  * @param first_number Number of the first item.
  */
 #define PCUT_INIT_WITH_NUMBER(first_number) \
+	PCUT_ITEM_COUNTER_INCREMENT \
 	static pcut_item_t PCUT_ITEM_NAME(first_number) = { \
 		.previous = NULL, \
 		.next = NULL, \
@@ -345,11 +392,12 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 /** Insert code to run all the tests.
  *
- * @param last_number Item number.
+ * @param number Item number.
  */
-#define PCUT_MAIN_WITH_NUMBER(last_number) \
+#define PCUT_MAIN_WITH_NUMBER(number) \
+	PCUT_ITEM_COUNTER_INCREMENT \
 	static pcut_item_t pcut_item_last = { \
-		.previous = &PCUT_JOIN(pcut_item_, PCUT_JOIN(PCUT_PREV_, last_number)), \
+		.previous = &PCUT_ITEM_NAME_PREV(number), \
 		.kind = PCUT_KIND_SKIP \
 	}; \
 	int main(int argc, char *argv[]) { \
@@ -360,11 +408,11 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 /** Initialize the PCUT testing framework. */
 #define PCUT_INIT \
-	PCUT_INIT_WITH_NUMBER(__COUNTER__)
+	PCUT_INIT_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 /** Insert code to run all the tests. */
 #define PCUT_MAIN() \
-	PCUT_MAIN_WITH_NUMBER(__COUNTER__)
+	PCUT_MAIN_WITH_NUMBER(PCUT_ITEM_COUNTER)
 
 
 /**

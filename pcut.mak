@@ -28,12 +28,14 @@
 
 -include base.mak
 
-all: $(PCUT_LIB)
+all: $(PCUT_LIB) $(PCUT_PREPROC)
 
 pcut-clean: check-clean platform-clean
 	$(RM) *.$(OBJ_EXT) src/*.$(OBJ_EXT) src/*/*.$(OBJ_EXT)
 
 %.o: %.c
+
+src/%.o: src/%.c
 	$(CC) -c -o $@ $(PCUT_CFLAGS) $<
 
 doxygen:
