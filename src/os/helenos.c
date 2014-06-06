@@ -74,7 +74,7 @@ void pcut_str_error(int error, char *buffer, int size) {
 	if (str == NULL) {
 		str = "(strerror failure)";
 	}
-	strcpy(buffer, size, str);
+	str_cpy(buffer, size, str);
 }
 
 
