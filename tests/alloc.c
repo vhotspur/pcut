@@ -35,7 +35,7 @@ PCUT_INIT
 static char *buffer = NULL;
 #define BUFFER_SIZE 512
 
-PCUT_TEST_SUITE(suite_with_setup_and_teardown)
+PCUT_TEST_SUITE(suite_with_setup_and_teardown);
 
 PCUT_TEST_BEFORE {
 	buffer = malloc(BUFFER_SIZE);
@@ -52,7 +52,7 @@ PCUT_TEST(snprintf) {
 	PCUT_ASSERT_STR_EQUALS("56-abcd", buffer);
 }
 
-PCUT_TEST_SUITE(another_without_setup)
+PCUT_TEST_SUITE(another_without_setup);
 
 PCUT_TEST(whatever) {
 	PCUT_ASSERT_NULL(buffer);

@@ -49,7 +49,7 @@ PCUT_TEST(failing) {
 
 
 
-PCUT_TEST_SUITE(with_failing_teardown)
+PCUT_TEST_SUITE(with_failing_teardown);
 
 PCUT_TEST_AFTER {
 	printf("This is failing teardown-function.\n");

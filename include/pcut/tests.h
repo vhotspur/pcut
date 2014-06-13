@@ -137,7 +137,7 @@
 				.id = -1, \
 				.kind = itemkind, \
 				__VA_ARGS__ \
-		};
+		}
 
 /** @endcond */
 
@@ -188,7 +188,7 @@
 					.func = PCUT_JOIN(test_, testname), \
 					.extras = PCUT_ITEM_EXTRAS_NAME(number), \
 				}} \
-		) \
+		); \
 		void PCUT_JOIN(test_, testname)(void)
 
 /** @endcond */
@@ -240,7 +240,7 @@
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
 				.details = { .setup.func = PCUT_ITEM_SETUP_NAME(number) } \
-		) \
+		); \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
 /** Define a tear-down function for a test suite.
@@ -254,7 +254,7 @@
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
 				.details = { .setup.func = PCUT_ITEM_SETUP_NAME(number) } \
-		) \
+		); \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
 /** @endcond */
@@ -386,7 +386,7 @@
 		.id = -1, \
 		.kind = PCUT_KIND_SKIP \
 	}; \
-	PCUT_TEST_SUITE(Default)
+	PCUT_TEST_SUITE(Default);
 
 int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
