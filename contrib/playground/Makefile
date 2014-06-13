@@ -31,9 +31,12 @@ CFLAGS = -std=c99
 PPFLAGS = 
 LDFLAGS = 
 
-all: assert_that.run macros.run
+all: assert_that.run assert_that_fmt.run macros.run
 
 assert_that.run: assert_that.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+
+assert_that_fmt.run: assert_that_fmt.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 macros.run: macros.c
