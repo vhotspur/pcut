@@ -38,6 +38,15 @@
 
 /** @cond devel */
 
+#if defined(__GNUC__) || defined(__clang__)
+#define PCUT_CC_UNUSED_VARIABLE(name, initializer) \
+	name __attribute__((unused)) = initializer
+#else
+#define PCUT_CC_UNUSED_VARIABLE(name, initializer) \
+	name = initializer
+#endif
+
+
 enum {
 	PCUT_KIND_SKIP,
 	PCUT_KIND_NESTED,

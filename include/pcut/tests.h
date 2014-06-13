@@ -176,11 +176,12 @@
  * @param number Number of the item describing this test.
  * @param ... Extra test properties.
  */
-#define PCUT_TEST_WITH_NUMBER(testname, number, ...) \
+#define PCUT_TEST_WITH_NUMBER(number, testname, ...) \
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static pcut_extra_t PCUT_ITEM_EXTRAS_NAME(number)[] = { \
 				__VA_ARGS__ \
 		}; \
+		static int PCUT_CC_UNUSED_VARIABLE(testname##0_test_name_missing_or_duplicated, 0); \
 		static void PCUT_JOIN(test_, testname)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
 				.details = { .test = { \
@@ -195,11 +196,10 @@
 
 /** Define a new test with given name.
  *
- * @param name A valid C identifier name (not quoted).
- * @param ... Extra test properties.
+ * @param ... Test name (C identifier) followed by extra test properties.
  */
-#define PCUT_TEST(name, ...) \
-	PCUT_TEST_WITH_NUMBER(name, PCUT_ITEM_COUNTER, ##__VA_ARGS__, PCUT_TEST_EXTRA_LAST)
+#define PCUT_TEST(...) \
+	PCUT_TEST_WITH_NUMBER(PCUT_ITEM_COUNTER, __VA_ARGS__, PCUT_TEST_EXTRA_LAST)
 
 
 
