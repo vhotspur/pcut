@@ -3,7 +3,6 @@
 
 .project
 .cproject
+.settings
 
-
-Makefile.depend
-libpcut.a
+build/

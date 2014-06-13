@@ -80,6 +80,9 @@ set(SOURCES
 if(${UNIX})
 	list(APPEND SOURCES src/os/stdc.c src/os/unix.c)
 endif()
+if(${WINDOWS})
+	list(APPEND SOURCES src/os/stdc.c src/os/generic.c)
+endif()
 
 
 include_directories(include)
