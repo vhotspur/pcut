@@ -155,7 +155,7 @@
  * @param time_out Time-out value in seconds.
  */
 #define PCUT_TEST_SET_TIMEOUT(time_out) \
-	{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
+	{ .type = PCUT_EXTRA_TIMEOUT, .details = { .timeout = (time_out) } }
 
 /** Skip current test.
  *
@@ -183,11 +183,11 @@
 		}; \
 		static void PCUT_JOIN(test_, testname)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
-				.test = { \
+				.details = { .test = { \
 					.name = #testname, \
 					.func = PCUT_JOIN(test_, testname), \
 					.extras = PCUT_ITEM_EXTRAS_NAME(number), \
-				} \
+				}} \
 		) \
 		void PCUT_JOIN(test_, testname)(void)
 
@@ -222,11 +222,11 @@
 #define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
 		PCUT_ITEM_COUNTER_INCREMENT \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
-				.suite = { \
+				.details = { .suite = { \
 					.name = #suitename, \
 					.setup = NULL, \
 					.teardown = NULL \
-				} \
+				}} \
 		)
 
 /** Define a set-up function for a test suite.
@@ -239,7 +239,7 @@
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
-				.setup.func = PCUT_ITEM_SETUP_NAME(number) \
+				.details = { .setup.func = PCUT_ITEM_SETUP_NAME(number) } \
 		) \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -253,7 +253,7 @@
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
-				.setup.func = PCUT_ITEM_SETUP_NAME(number) \
+				.details = { .setup.func = PCUT_ITEM_SETUP_NAME(number) } \
 		) \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -343,7 +343,7 @@
 	PCUT_ITEM_COUNTER_INCREMENT \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
-		.nested.last = &pcut_exported_##identifier \
+		.details = { .nested.last = &pcut_exported_##identifier } \
 	)
 
 /** @endcond */
@@ -386,7 +386,7 @@
 		.id = -1, \
 		.kind = PCUT_KIND_SKIP \
 	}; \
-	PCUT_TEST_SUITE(Default);
+	PCUT_TEST_SUITE(Default)
 
 int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 

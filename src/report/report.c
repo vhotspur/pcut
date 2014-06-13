@@ -213,6 +213,6 @@ void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
  *
  */
 void pcut_report_done() {
-	REPORT_CALL(done);
+	REPORT_CALL(done, );
 }
 

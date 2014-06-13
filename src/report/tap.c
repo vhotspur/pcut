@@ -66,7 +66,7 @@ static void tap_suite_start(pcut_item_t *suite) {
 	tests_in_suite = 0;
 	failed_tests_in_suite = 0;
 
-	printf("#> Starting suite %s.\n", suite->suite.name);
+	printf("#> Starting suite %s.\n", suite->details.suite.name);
 }
 
 /** Report that a suite was completed.
@@ -75,7 +75,7 @@ static void tap_suite_start(pcut_item_t *suite) {
  */
 static void tap_suite_done(pcut_item_t *suite) {
 	printf("#> Finished suite %s (failed %d of %d).\n",
-			suite->suite.name, failed_tests_in_suite, tests_in_suite);
+			suite->details.suite.name, failed_tests_in_suite, tests_in_suite);
 }
 
 /** Report that a test was started.
@@ -123,7 +123,7 @@ static void print_by_lines(const char *message, const char *prefix) {
 static void tap_test_done(pcut_item_t *test, int outcome,
 		const char *error_message, const char *teardown_error_message,
 		const char *extra_output) {
-	const char *test_name = test->test.name;
+	const char *test_name = test->details.test.name;
 
 	if (outcome != TEST_OUTCOME_PASS) {
 		failed_tests_in_suite++;

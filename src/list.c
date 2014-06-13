@@ -85,15 +85,15 @@ static void inline_nested_lists(pcut_item_t *nested) {
 		return;
 	}
 
-	if (nested->nested.last == NULL) {
+	if (nested->details.nested.last == NULL) {
 		nested->kind = PCUT_KIND_SKIP;
 		return;
 	}
 
-	pcut_item_t *first = pcut_fix_list_get_real_head(nested->nested.last);
-	nested->nested.last->next = nested->next;
+	pcut_item_t *first = pcut_fix_list_get_real_head(nested->details.nested.last);
+	nested->details.nested.last->next = nested->next;
 	if (nested->next != NULL) {
-		nested->next->previous = nested->nested.last;
+		nested->next->previous = nested->details.nested.last;
 	}
 	nested->next = first;
 	first->previous = nested;
@@ -111,7 +111,8 @@ static void set_ids(pcut_item_t *first) {
 	if (first->kind == PCUT_KIND_SKIP) {
 		first = pcut_get_real_next(first);
 	}
-	for (pcut_item_t *it = first; it != NULL; it = pcut_get_real_next(it)) {
+	pcut_item_t *it;
+	for (it = first; it != NULL; it = pcut_get_real_next(it)) {
 		it->id = id;
 		id++;
 	}
@@ -133,7 +134,7 @@ static void detect_skipped_tests(pcut_item_t *first) {
 		if (it->kind != PCUT_KIND_TEST) {
 			continue;
 		}
-		pcut_extra_t *extras = it->test.extras;
+		pcut_extra_t *extras = it->details.test.extras;
 		while (extras->type != PCUT_EXTRA_LAST) {
 			if (extras->type == PCUT_EXTRA_SKIP) {
 				it->kind = PCUT_KIND_SKIP;

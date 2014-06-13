@@ -32,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
@@ -49,7 +50,7 @@
 
 /* Format the command to launch a test according to OS we are running on. */
 
-#if defined(__WIN64) || defined(__WIN32)
+#if defined(__WIN64) || defined(__WIN32) || defined(_WIN32)
 #include <process.h>
 
 #define FORMAT_COMMAND(buffer, buffer_size, self_path, test_id, temp_file) \

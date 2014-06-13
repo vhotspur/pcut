@@ -75,7 +75,7 @@ struct pcut_extra {
 	union {
 		/** Test-specific time-out in seconds. */
 		int timeout;
-	};
+	} details;
 };
 
 /** @copydoc pcut_item_t */
@@ -114,7 +114,7 @@ struct pcut_item {
 		struct {
 			int dummy;
 		} meta;
-	};
+	} details;
 };
 
 #ifdef PCUT_DEBUG_BUILD

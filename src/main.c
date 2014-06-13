@@ -139,12 +139,12 @@ static void set_setup_teardown_callbacks(pcut_item_t *first) {
 			active_suite = it;
 		} else if (it->kind == PCUT_KIND_SETUP) {
 			if (active_suite != NULL) {
-				active_suite->suite.setup = it->setup.func;
+				active_suite->details.suite.setup = it->details.setup.func;
 			}
 			it->kind = PCUT_KIND_SKIP;
 		} else if (it->kind == PCUT_KIND_TEARDOWN) {
 			if (active_suite != NULL) {
-				active_suite->suite.teardown = it->setup.func;
+				active_suite->details.suite.teardown = it->details.setup.func;
 			}
 			it->kind = PCUT_KIND_SKIP;
 		} else {

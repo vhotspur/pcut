@@ -115,7 +115,7 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 		const char *extra_output);
 void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 		const char *unparsed_output, size_t unparsed_output_size);
-void pcut_report_done(void);
+void pcut_report_done();
 
 /* OS-dependent functions. */
 

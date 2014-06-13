@@ -74,10 +74,12 @@ static pcut_item_t default_suite = {
 	.id = -1,
 	.previous = NULL,
 	.next = NULL,
-	.suite = {
-		.name = "Default",
-		.setup = NULL,
-		.teardown = NULL
+	.details = {
+		.suite = {
+			.name = "Default",
+			.setup = NULL,
+			.teardown = NULL
+		}
 	}
 };
 
@@ -144,7 +146,7 @@ void pcut_failed_assertion(const char *message) {
 	if (execute_teardown_on_failure) {
 		execute_teardown_on_failure = 0;
 		prev_message = message;
-		run_setup_teardown(current_suite->suite.teardown);
+		run_setup_teardown(current_suite->details.suite.teardown);
 
 		/* Tear-down was okay. */
 		if (report_test_result) {
@@ -197,20 +199,20 @@ static int run_test(pcut_item_t *test) {
 	/*
 	 * Run the set-up function.
 	 */
-	run_setup_teardown(current_suite->suite.setup);
+	run_setup_teardown(current_suite->details.suite.setup);
 
 	/*
 	 * The setup function was performed, it is time to run
 	 * the actual test.
 	 */
-	test->test.func();
+	test->details.test.func();
 
 	/*
 	 * Finally, run the tear-down function. We need to clear
 	 * the flag to prevent endless loop.
 	 */
 	execute_teardown_on_failure = 0;
-	run_setup_teardown(current_suite->suite.teardown);
+	run_setup_teardown(current_suite->details.suite.teardown);
 
 	/*
 	 * If we got here, it means everything went well with
@@ -276,10 +278,10 @@ int pcut_get_test_timeout(pcut_item_t *test) {
 
 	int timeout = PCUT_DEFAULT_TEST_TIMEOUT;
 
-	pcut_extra_t *extras = test->test.extras;
+	pcut_extra_t *extras = test->details.test.extras;
 	while (extras->type != PCUT_EXTRA_LAST) {
 		if (extras->type == PCUT_EXTRA_TIMEOUT) {
-			timeout = extras->timeout;
+			timeout = extras->details.timeout;
 		}
 		extras++;
 	}
