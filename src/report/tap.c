@@ -97,10 +97,11 @@ static void tap_test_start(pcut_item_t *test) {
  * @param prefix Prefix for each new line, such as comment character.
  */
 static void print_by_lines(const char *message, const char *prefix) {
+	char *next_line_start;
 	if ((message == NULL) || (message[0] == 0)) {
 		return;
 	}
-	char *next_line_start = pcut_str_find_char(message, '\n');
+	next_line_start = pcut_str_find_char(message, '\n');
 	while (next_line_start != NULL) {
 		next_line_start[0] = 0;
 		printf("%s%s\n", prefix, message);
@@ -124,13 +125,13 @@ static void tap_test_done(pcut_item_t *test, int outcome,
 		const char *error_message, const char *teardown_error_message,
 		const char *extra_output) {
 	const char *test_name = test->details.test.name;
+	const char *status_str = NULL;
+	const char *fail_error_str = NULL;
 
 	if (outcome != TEST_OUTCOME_PASS) {
 		failed_tests_in_suite++;
 	}
 
-	const char *status_str = NULL;
-	const char *fail_error_str = NULL;
 	switch (outcome) {
 	case TEST_OUTCOME_PASS:
 		status_str = "ok";
@@ -162,10 +163,7 @@ static void tap_done() {
 
 
 pcut_report_ops_t pcut_report_tap = {
-	.init = tap_init,
-	.done = tap_done,
-	.suite_start = tap_suite_start,
-	.suite_done = tap_suite_done,
-	.test_start = tap_test_start,
-	.test_done = tap_test_done
+	tap_init, tap_done,
+	tap_suite_start, tap_suite_done,
+	tap_test_start, tap_test_done
 };

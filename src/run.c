@@ -69,19 +69,21 @@ static pcut_item_t *current_test = NULL;
 static pcut_item_t *current_suite = NULL;
 
 /** A NULL-like suite. */
-static pcut_item_t default_suite = {
-	.kind = PCUT_KIND_TESTSUITE,
-	.id = -1,
-	.previous = NULL,
-	.next = NULL,
-	.details = {
-		.suite = {
-			.name = "Default",
-			.setup = NULL,
-			.teardown = NULL
-		}
+static pcut_item_t default_suite;
+static int default_suite_initialized = 0;
+
+static void init_default_suite_when_needed() {
+	if (default_suite_initialized) {
+		return;
 	}
-};
+	default_suite.id = -1;
+	default_suite.kind = PCUT_KIND_TESTSUITE;
+	default_suite.previous = NULL;
+	default_suite.next = NULL;
+	default_suite.details.suite.name = "Default";
+	default_suite.details.suite.setup = NULL;
+	default_suite.details.suite.teardown = NULL;
+}
 
 /** Find the suite given test belongs to.
  *
@@ -95,6 +97,7 @@ static pcut_item_t *pcut_find_parent_suite(pcut_item_t *it) {
 		}
 		it = it->previous;
 	}
+	init_default_suite_when_needed();
 	return &default_suite;
 }
 
@@ -235,11 +238,13 @@ static int run_test(pcut_item_t *test) {
  * @return Error status (zero means success).
  */
 int pcut_run_test_forked(pcut_item_t *test) {
+	int rc;
+
 	report_test_result = 0;
 	print_test_error = 1;
 	leave_means_exit = 1;
 
-	int rc = run_test(test);
+	rc = run_test(test);
 
 	current_test = NULL;
 	current_suite = NULL;
@@ -256,11 +261,13 @@ int pcut_run_test_forked(pcut_item_t *test) {
  * @return Error status (zero means success).
  */
 int pcut_run_test_single(pcut_item_t *test) {
+	int rc;
+
 	report_test_result = 1;
 	print_test_error = 0;
 	leave_means_exit = 0;
 
-	int rc = run_test(test);
+	rc = run_test(test);
 
 	current_test = NULL;
 	current_suite = NULL;
@@ -274,11 +281,10 @@ int pcut_run_test_single(pcut_item_t *test) {
  * @return Timeout in seconds.
  */
 int pcut_get_test_timeout(pcut_item_t *test) {
-	PCUT_UNUSED(test);
-
 	int timeout = PCUT_DEFAULT_TEST_TIMEOUT;
-
 	pcut_extra_t *extras = test->details.test.extras;
+
+
 	while (extras->type != PCUT_EXTRA_LAST) {
 		if (extras->type == PCUT_EXTRA_TIMEOUT) {
 			timeout = extras->details.timeout;

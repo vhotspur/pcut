@@ -59,10 +59,10 @@ static int message_buffer_index = 0;
  *
  */
 void pcut_failed_assertion_fmt(const char *fmt, ...) {
+	va_list args;
 	char *current_buffer = message_buffer[message_buffer_index];
 	message_buffer_index = (message_buffer_index + 1) % MESSAGE_BUFFER_COUNT;
 
-	va_list args;
 	va_start(args, fmt);
 	vsnprintf(current_buffer, MAX_MESSAGE_LENGTH, fmt, args);
 	va_end(args);
