@@ -130,7 +130,8 @@ static void detect_skipped_tests(pcut_item_t *first) {
 	if (first->kind == PCUT_KIND_SKIP) {
 		first = pcut_get_real_next(first);
 	}
-	for (pcut_item_t *it = first; it != NULL; it = pcut_get_real_next(it)) {
+	pcut_item_t *it;
+	for (it = first; it != NULL; it = pcut_get_real_next(it)) {
 		if (it->kind != PCUT_KIND_TEST) {
 			continue;
 		}

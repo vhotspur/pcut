@@ -71,7 +71,8 @@ void pcut_print_items(pcut_item_t *first) {
  * @param first First item to be printed.
  */
 void pcut_print_tests(pcut_item_t *first) {
-	for (pcut_item_t *it = pcut_get_real(first); it != NULL; it = pcut_get_real_next(it)) {
+	pcut_item_t *it;
+	for (it = pcut_get_real(first); it != NULL; it = pcut_get_real_next(it)) {
 		switch (it->kind) {
 		case PCUT_KIND_TESTSUITE:
 			printf("  Suite `%s' [%d]\n", it->details.suite.name, it->id);

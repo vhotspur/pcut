@@ -134,7 +134,8 @@ leave_no_print:
  */
 static void set_setup_teardown_callbacks(pcut_item_t *first) {
 	pcut_item_t *active_suite = NULL;
-	for (pcut_item_t *it = first; it != NULL; it = pcut_get_real_next(it)) {
+	pcut_item_t *it;
+	for (it = first; it != NULL; it = pcut_get_real_next(it)) {
 		if (it->kind == PCUT_KIND_TESTSUITE) {
 			active_suite = it;
 		} else if (it->kind == PCUT_KIND_SETUP) {

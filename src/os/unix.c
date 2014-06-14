@@ -31,8 +31,10 @@
  * Unix-specific functions for test execution via the fork() system call.
  */
 
-/** We need _POSX_SOURCE because of kill(). */
+/** We need _POSIX_SOURCE because of kill(). */
 #define _POSIX_SOURCE
+/** We need _BSD_SOURCE because of snprintf() when compiling under C89. */
+#define _BSD_SOURCE
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
