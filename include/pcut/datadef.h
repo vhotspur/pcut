@@ -81,10 +81,8 @@ struct pcut_extra {
 	 * Use PCUT_EXTRA_* to determine which field of the union is used.
 	 */
 	int type;
-	union {
-		/** Test-specific time-out in seconds. */
-		int timeout;
-	} details;
+	/** Test-specific time-out in seconds. */
+	int timeout;
 };
 
 /** @copydoc pcut_item_t */

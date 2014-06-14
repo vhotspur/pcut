@@ -155,7 +155,7 @@
  * @param time_out Time-out value in seconds.
  */
 #define PCUT_TEST_SET_TIMEOUT(time_out) \
-	{ .type = PCUT_EXTRA_TIMEOUT, .details = { .timeout = (time_out) } }
+	{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
 
 /** Skip current test.
  *

@@ -287,7 +287,7 @@ int pcut_get_test_timeout(pcut_item_t *test) {
 
 	while (extras->type != PCUT_EXTRA_LAST) {
 		if (extras->type == PCUT_EXTRA_TIMEOUT) {
-			timeout = extras->details.timeout;
+			timeout = extras->timeout;
 		}
 		extras++;
 	}
