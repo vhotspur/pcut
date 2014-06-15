@@ -67,7 +67,7 @@ static void xml_suite_start(pcut_item_t *suite) {
 	tests_in_suite = 0;
 	failed_tests_in_suite = 0;
 
-	printf("\t<suite name=\"%s\">\n", suite->details.suite.name);
+	printf("\t<suite name=\"%s\">\n", suite->name);
 }
 
 /** Report that a suite was completed.
@@ -75,7 +75,7 @@ static void xml_suite_start(pcut_item_t *suite) {
  * @param suite Suite that just ended.
  */
 static void xml_suite_done(pcut_item_t *suite) {
-	printf("\t</suite><!-- %s: %d / %d -->\n", suite->details.suite.name,
+	printf("\t</suite><!-- %s: %d / %d -->\n", suite->name,
 		failed_tests_in_suite, tests_in_suite);
 }
 
@@ -131,7 +131,7 @@ static void print_by_lines(const char *message, const char *element_name) {
 static void xml_test_done(pcut_item_t *test, int outcome,
 		const char *error_message, const char *teardown_error_message,
 		const char *extra_output) {
-	const char *test_name = test->details.test.name;
+	const char *test_name = test->name;
 	const char *status_str = NULL;
 
 	if (outcome != TEST_OUTCOME_PASS) {

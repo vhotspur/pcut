@@ -47,10 +47,10 @@ void pcut_print_items(pcut_item_t *first) {
 	while (it != NULL) {
 		switch (it->kind) {
 		case PCUT_KIND_TEST:
-			printf("TEST %s\n", it->details.test.name);
+			printf("TEST %s\n", it->name);
 			break;
 		case PCUT_KIND_TESTSUITE:
-			printf("SUITE %s\n", it->details.suite.name);
+			printf("SUITE %s\n", it->name);
 			break;
 		case PCUT_KIND_SKIP:
 			break;
@@ -75,10 +75,10 @@ void pcut_print_tests(pcut_item_t *first) {
 	for (it = pcut_get_real(first); it != NULL; it = pcut_get_real_next(it)) {
 		switch (it->kind) {
 		case PCUT_KIND_TESTSUITE:
-			printf("  Suite `%s' [%d]\n", it->details.suite.name, it->id);
+			printf("  Suite `%s' [%d]\n", it->name, it->id);
 			break;
 		case PCUT_KIND_TEST:
-			printf("    Test `%s' [%d]\n", it->details.test.name, it->id);
+			printf("    Test `%s' [%d]\n", it->name, it->id);
 			break;
 		default:
 			assert(0 && "unreachable case in item-kind switch");

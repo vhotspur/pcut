@@ -184,11 +184,9 @@
 		static int PCUT_CC_UNUSED_VARIABLE(testname##0_test_name_missing_or_duplicated, 0); \
 		static void PCUT_JOIN(test_, testname)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
-				.details = { .test = { \
-					.name = #testname, \
-					.func = PCUT_JOIN(test_, testname), \
-					.extras = PCUT_ITEM_EXTRAS_NAME(number), \
-				}} \
+			.name = #testname, \
+			.test_func = PCUT_JOIN(test_, testname), \
+			.extras = PCUT_ITEM_EXTRAS_NAME(number), \
 		); \
 		void PCUT_JOIN(test_, testname)(void)
 
@@ -222,11 +220,9 @@
 #define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
 		PCUT_ITEM_COUNTER_INCREMENT \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
-				.details = { .suite = { \
-					.name = #suitename, \
-					.setup = NULL, \
-					.teardown = NULL \
-				}} \
+			.name = #suitename, \
+			.setup_func = NULL, \
+			.teardown_func = NULL \
 		)
 
 /** Define a set-up function for a test suite.
@@ -239,7 +235,7 @@
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
-				.details = { .setup.func = PCUT_ITEM_SETUP_NAME(number) } \
+			.setup_func = PCUT_ITEM_SETUP_NAME(number) \
 		); \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -253,7 +249,7 @@
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
-				.details = { .setup.func = PCUT_ITEM_SETUP_NAME(number) } \
+			.teardown_func = PCUT_ITEM_SETUP_NAME(number) \
 		); \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -343,7 +339,7 @@
 	PCUT_ITEM_COUNTER_INCREMENT \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
-		.details = { .nested.last = &pcut_exported_##identifier } \
+		.nested = &pcut_exported_##identifier \
 	)
 
 /** @endcond */

@@ -87,15 +87,15 @@ static void inline_nested_lists(pcut_item_t *nested) {
 		return;
 	}
 
-	if (nested->details.nested.last == NULL) {
+	if (nested->nested == NULL) {
 		nested->kind = PCUT_KIND_SKIP;
 		return;
 	}
 
-	first = pcut_fix_list_get_real_head(nested->details.nested.last);
-	nested->details.nested.last->next = nested->next;
+	first = pcut_fix_list_get_real_head(nested->nested);
+	nested->nested->next = nested->next;
 	if (nested->next != NULL) {
-		nested->next->previous = nested->details.nested.last;
+		nested->next->previous = nested->nested;
 	}
 	nested->next = first;
 	first->previous = nested;
@@ -145,7 +145,7 @@ static void detect_skipped_tests(pcut_item_t *first) {
 			continue;
 		}
 
-		extras = it->details.test.extras;
+		extras = it->extras;
 		while (extras->type != PCUT_EXTRA_LAST) {
 			if (extras->type == PCUT_EXTRA_SKIP) {
 				it->kind = PCUT_KIND_SKIP;
