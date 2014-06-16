@@ -27,6 +27,9 @@
 #
 
 cmake_minimum_required(VERSION 2.6)
+if(CMAKE_MAJOR_VERSION GREATER 2)
+	cmake_policy(SET CMP0026 OLD)
+endif()
 
 include(CheckCCompilerFlag)
 enable_testing()
@@ -81,7 +84,7 @@ set(SOURCES
 if(${UNIX})
 	list(APPEND SOURCES src/os/stdc.c src/os/unix.c)
 endif()
-if(${WINDOWS})
+if(${WIN32})
 	list(APPEND SOURCES src/os/stdc.c src/os/generic.c)
 endif()
 
