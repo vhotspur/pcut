@@ -26,6 +26,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _BSD_SOURCE
+
 #include <pcut/pcut.h>
 #include <stdlib.h>
 #include <stdio.h>

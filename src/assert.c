@@ -34,6 +34,9 @@
  * by the testing framework.
  */
 
+/** We need _BSD_SOURCE because of vsnprintf() when compiling under C89. */
+#define _BSD_SOURCE
+
 #include "internal.h"
 #include <setjmp.h>
 #include <stdarg.h>
