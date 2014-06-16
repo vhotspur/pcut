@@ -27,7 +27,9 @@
 #
 
 cmake_minimum_required(VERSION 2.6)
-cmake_policy(SET CMP0026 OLD)
+if(CMAKE_MAJOR_VERSION GREATER 2)
+	cmake_policy(SET CMP0026 OLD)
+endif()
 
 include(CheckCCompilerFlag)
 enable_testing()
