@@ -101,13 +101,13 @@ struct pcut_item {
 	/** Name of this item. */
 	const char *name;
 
+	/** Test-case function. */
+	pcut_test_func_t test_func;
+
 	/** Set-up function of a suite. */
 	pcut_setup_func_t setup_func;
 	/** Tear-down function of a suite. */
 	pcut_setup_func_t teardown_func;
-
-	/** Test-case function. */
-	pcut_test_func_t test_func;
 
 	/** Extra attributes. */
 	pcut_extra_t *extras;

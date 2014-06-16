@@ -132,11 +132,11 @@
  */
 #define PCUT_ADD_ITEM(number, itemkind, ...) \
 		static pcut_item_t PCUT_ITEM_NAME(number) = { \
-				.previous = &PCUT_ITEM_NAME_PREV(number), \
-				.next = NULL, \
-				.id = -1, \
-				.kind = itemkind, \
-				__VA_ARGS__ \
+			&PCUT_ITEM_NAME_PREV(number), \
+			NULL, \
+			-1, \
+			itemkind, \
+			__VA_ARGS__ \
 		}
 
 /** @endcond */
@@ -155,20 +155,20 @@
  * @param time_out Time-out value in seconds.
  */
 #define PCUT_TEST_SET_TIMEOUT(time_out) \
-	{ .type = PCUT_EXTRA_TIMEOUT, .timeout = (time_out) }
+	{ PCUT_EXTRA_TIMEOUT, (time_out) }
 
 /** Skip current test.
  *
  * Use as argument to PCUT_TEST().
  */
 #define PCUT_TEST_SKIP \
-	{ .type = PCUT_EXTRA_SKIP }
+	{ PCUT_EXTRA_SKIP, 0 }
 
 
 /** @cond devel */
 
 /** Terminate list of extra test options. */
-#define PCUT_TEST_EXTRA_LAST { .type = PCUT_EXTRA_LAST }
+#define PCUT_TEST_EXTRA_LAST { PCUT_EXTRA_LAST, 0 }
 
 /** Define a new test with given name and given item number.
  *
@@ -184,9 +184,11 @@
 		static int PCUT_CC_UNUSED_VARIABLE(testname##0_test_name_missing_or_duplicated, 0); \
 		static void PCUT_JOIN(test_, testname)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
-			.name = #testname, \
-			.test_func = PCUT_JOIN(test_, testname), \
-			.extras = PCUT_ITEM_EXTRAS_NAME(number), \
+			#testname, \
+			PCUT_JOIN(test_, testname), \
+			NULL, NULL, \
+			PCUT_ITEM_EXTRAS_NAME(number), \
+			NULL \
 		); \
 		void PCUT_JOIN(test_, testname)(void)
 
@@ -220,9 +222,10 @@
 #define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
 		PCUT_ITEM_COUNTER_INCREMENT \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
-			.name = #suitename, \
-			.setup_func = NULL, \
-			.teardown_func = NULL \
+			#suitename, \
+			NULL, \
+			NULL, NULL, \
+			NULL, NULL \
 		)
 
 /** Define a set-up function for a test suite.
@@ -235,7 +238,9 @@
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
-			.setup_func = PCUT_ITEM_SETUP_NAME(number) \
+			"setup", NULL, \
+			PCUT_ITEM_SETUP_NAME(number), \
+			NULL, NULL, NULL \
 		); \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -249,7 +254,9 @@
 		PCUT_ITEM_COUNTER_INCREMENT \
 		static void PCUT_ITEM_SETUP_NAME(number)(void); \
 		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
-			.teardown_func = PCUT_ITEM_SETUP_NAME(number) \
+			"teardown", NULL, NULL, \
+			PCUT_ITEM_SETUP_NAME(number), \
+			NULL, NULL \
 		); \
 		void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -323,9 +330,11 @@
 #define PCUT_EXPORT_WITH_NUMBER(identifier, number) \
 	PCUT_ITEM_COUNTER_INCREMENT \
 	pcut_item_t pcut_exported_##identifier = { \
-		.previous = &PCUT_ITEM_NAME_PREV(number), \
-		.next = NULL, \
-		.kind = PCUT_KIND_SKIP \
+		&PCUT_ITEM_NAME_PREV(number), \
+		NULL, \
+		-1, \
+		PCUT_KIND_SKIP, \
+		"exported_" #identifier, NULL, NULL, NULL, NULL, NULL \
 	}
 
 /** Import test cases from a different file.
@@ -339,7 +348,8 @@
 	PCUT_ITEM_COUNTER_INCREMENT \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
-		.nested = &pcut_exported_##identifier \
+		"import_" #identifier, NULL, NULL, NULL, NULL, \
+		&pcut_exported_##identifier \
 	)
 
 /** @endcond */
@@ -377,10 +387,11 @@
 #define PCUT_INIT_WITH_NUMBER(first_number) \
 	PCUT_ITEM_COUNTER_INCREMENT \
 	static pcut_item_t PCUT_ITEM_NAME(first_number) = { \
-		.previous = NULL, \
-		.next = NULL, \
-		.id = -1, \
-		.kind = PCUT_KIND_SKIP \
+		NULL, \
+		NULL, \
+		-1, \
+		PCUT_KIND_SKIP, \
+		"init", NULL, NULL, NULL, NULL, NULL \
 	}; \
 	PCUT_TEST_SUITE(Default);
 
@@ -393,8 +404,11 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 #define PCUT_MAIN_WITH_NUMBER(number) \
 	PCUT_ITEM_COUNTER_INCREMENT \
 	static pcut_item_t pcut_item_last = { \
-		.previous = &PCUT_ITEM_NAME_PREV(number), \
-		.kind = PCUT_KIND_SKIP \
+		&PCUT_ITEM_NAME_PREV(number), \
+		NULL, \
+		-1, \
+		PCUT_KIND_SKIP, \
+		"main", NULL, NULL, NULL, NULL, NULL \
 	}; \
 	int main(int argc, char *argv[]) { \
 		return pcut_main(&pcut_item_last, argc, argv); \
