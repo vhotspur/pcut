@@ -81,7 +81,7 @@ set(SOURCES
 if(${UNIX})
 	list(APPEND SOURCES src/os/stdc.c src/os/unix.c)
 endif()
-if(${WINDOWS})
+if(${WIN32})
 	list(APPEND SOURCES src/os/stdc.c src/os/generic.c)
 endif()
 
