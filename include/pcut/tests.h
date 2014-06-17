@@ -131,13 +131,13 @@
  * @param ... Other initializers of the pcut_item_t.
  */
 #define PCUT_ADD_ITEM(number, itemkind, ...) \
-		static pcut_item_t PCUT_ITEM_NAME(number) = { \
-			&PCUT_ITEM_NAME_PREV(number), \
-			NULL, \
-			-1, \
-			itemkind, \
-			__VA_ARGS__ \
-		}
+	static pcut_item_t PCUT_ITEM_NAME(number) = { \
+		&PCUT_ITEM_NAME_PREV(number), \
+		NULL, \
+		-1, \
+		itemkind, \
+		__VA_ARGS__ \
+	}
 
 /** @endcond */
 
@@ -177,20 +177,20 @@
  * @param ... Extra test properties.
  */
 #define PCUT_TEST_WITH_NUMBER(number, testname, ...) \
-		PCUT_ITEM_COUNTER_INCREMENT \
-		static pcut_extra_t PCUT_ITEM_EXTRAS_NAME(number)[] = { \
-				__VA_ARGS__ \
-		}; \
-		static int PCUT_CC_UNUSED_VARIABLE(testname##0_test_name_missing_or_duplicated, 0); \
-		static void PCUT_JOIN(test_, testname)(void); \
-		PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
-			#testname, \
-			PCUT_JOIN(test_, testname), \
-			NULL, NULL, \
-			PCUT_ITEM_EXTRAS_NAME(number), \
-			NULL \
-		); \
-		void PCUT_JOIN(test_, testname)(void)
+	PCUT_ITEM_COUNTER_INCREMENT \
+	static pcut_extra_t PCUT_ITEM_EXTRAS_NAME(number)[] = { \
+		__VA_ARGS__ \
+	}; \
+	static int PCUT_CC_UNUSED_VARIABLE(testname##0_test_name_missing_or_duplicated, 0); \
+	static void PCUT_JOIN(test_, testname)(void); \
+	PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
+		#testname, \
+		PCUT_JOIN(test_, testname), \
+		NULL, NULL, \
+		PCUT_ITEM_EXTRAS_NAME(number), \
+		NULL \
+	); \
+	void PCUT_JOIN(test_, testname)(void)
 
 /** @endcond */
 
@@ -220,13 +220,13 @@
  * @param number Item number.
  */
 #define PCUT_TEST_SUITE_WITH_NUMBER(suitename, number) \
-		PCUT_ITEM_COUNTER_INCREMENT \
-		PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
-			#suitename, \
-			NULL, \
-			NULL, NULL, \
-			NULL, NULL \
-		)
+	PCUT_ITEM_COUNTER_INCREMENT \
+	PCUT_ADD_ITEM(number, PCUT_KIND_TESTSUITE, \
+		#suitename, \
+		NULL, \
+		NULL, NULL, \
+		NULL, NULL \
+	)
 
 /** Define a set-up function for a test suite.
  *
@@ -235,14 +235,14 @@
  * @param number Item number.
  */
 #define PCUT_TEST_BEFORE_WITH_NUMBER(number) \
-		PCUT_ITEM_COUNTER_INCREMENT \
-		static void PCUT_ITEM_SETUP_NAME(number)(void); \
-		PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
-			"setup", NULL, \
-			PCUT_ITEM_SETUP_NAME(number), \
-			NULL, NULL, NULL \
-		); \
-		void PCUT_ITEM_SETUP_NAME(number)(void)
+	PCUT_ITEM_COUNTER_INCREMENT \
+	static void PCUT_ITEM_SETUP_NAME(number)(void); \
+	PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
+		"setup", NULL, \
+		PCUT_ITEM_SETUP_NAME(number), \
+		NULL, NULL, NULL \
+	); \
+	void PCUT_ITEM_SETUP_NAME(number)(void)
 
 /** Define a tear-down function for a test suite.
  *
@@ -251,14 +251,14 @@
  * @param number Item number.
  */
 #define PCUT_TEST_AFTER_WITH_NUMBER(number) \
-		PCUT_ITEM_COUNTER_INCREMENT \
-		static void PCUT_ITEM_SETUP_NAME(number)(void); \
-		PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
-			"teardown", NULL, NULL, \
-			PCUT_ITEM_SETUP_NAME(number), \
-			NULL, NULL \
-		); \
-		void PCUT_ITEM_SETUP_NAME(number)(void)
+	PCUT_ITEM_COUNTER_INCREMENT \
+	static void PCUT_ITEM_SETUP_NAME(number)(void); \
+	PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
+		"teardown", NULL, NULL, \
+		PCUT_ITEM_SETUP_NAME(number), \
+		NULL, NULL \
+	); \
+	void PCUT_ITEM_SETUP_NAME(number)(void)
 
 /** @endcond */
 

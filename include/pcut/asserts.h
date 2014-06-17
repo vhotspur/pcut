@@ -126,11 +126,11 @@ void pcut_str_error(int error, char *buffer, int size);
  * @param actual Actually obtained (computed) value we wish to test.
  */
 #define PCUT_ASSERT_EQUALS(expected, actual) \
-		do {\
-			if (!((expected) == (actual))) { \
-				PCUT_ASSERTION_FAILED("Expected <"#expected "> but got <" #actual ">"); \
-			} \
-		} while (0)
+	do {\
+		if (!((expected) == (actual))) { \
+			PCUT_ASSERTION_FAILED("Expected <"#expected "> but got <" #actual ">"); \
+		} \
+	} while (0)
 
 /** Asserts that given pointer is NULL.
  *
