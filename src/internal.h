@@ -36,6 +36,27 @@
 #include <pcut/pcut.h>
 #include <stdlib.h>
 
+
+/** @def PCUT_DEBUG(msg, ...)
+ * Debug printing.
+ *
+ * By default, this macro does nothing. Define PCUT_DEBUG_BUILD to
+ * actually print the messages to the console.
+ *
+ * @param msg Printf-like formatting message.
+ * @param ... Extra arguments for printf.
+ */
+#ifdef PCUT_DEBUG_BUILD
+#include <stdio.h>
+#define PCUT_DEBUG_(msg, ...) \
+	fprintf(stderr, "[PCUT %s:%d]: " msg "%s", __FILE__, __LINE__, __VA_ARGS__)
+#define PCUT_DEBUG(...) \
+	PCUT_DEBUG_(__VA_ARGS__, "\n")
+#else
+#define PCUT_DEBUG(...) (void)0
+#endif
+
+
 /** Mark a variable as unused. */
 #define PCUT_UNUSED(x) ((void)x)
 
@@ -63,22 +84,6 @@
 /** Test outcome: test failed unexpectedly. */
 #define TEST_OUTCOME_ERROR 3
 
-
-#ifdef PCUT_DEBUG_BUILD
-#define PCUT_DEBUG(msg, ...) \
-	printf("[PCUT]: Debug: " msg "\n", ##__VA_ARGS__)
-#else
-
-/** Debug printing.
- *
- * By default, this macro does nothing. Define PCUT_DEBUG_BUILD to
- * actually print the messages to the console.
- *
- * @param msg Printf-like formatting message.
- * @param ... Extra arguments for printf.
- */
-#define PCUT_DEBUG(msg, ...) (void)0
-#endif
 
 extern int pcut_run_mode;
 

@@ -119,6 +119,8 @@ static void run_setup_teardown(pcut_setup_func_t func) {
  * @param outcome Outcome of the current test.
  */
 static void leave_test(int outcome) {
+	PCUT_DEBUG("leave_test(outcome=%d), will_exit=%s", outcome,
+		leave_means_exit ? "yes" : "no");
 	if (leave_means_exit) {
 		exit(outcome);
 	}

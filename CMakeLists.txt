@@ -90,6 +90,7 @@ endif()
 
 
 include_directories(include)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DPCUT_DEBUG_BUILD")
 
 add_library(pcut ${SOURCES})
 get_property(PCUT_LIBRARIES TARGET pcut PROPERTY LOCATION)
