@@ -117,22 +117,6 @@ struct pcut_item {
 	};
 };
 
-#ifdef PCUT_DEBUG_BUILD
-#define PCUT_DEBUG(msg, ...) \
-	printf("[PCUT]: Debug: " msg "\n", ##__VA_ARGS__)
-#else
-
-/** Debug printing.
- *
- * By default, this macro does nothing. Define PCUT_DEBUG_BUILD to
- * actually print the messages to the console.
- *
- * @param msg Printf-like formatting message.
- * @param ... Extra arguments for printf.
- */
-#define PCUT_DEBUG(msg, ...) (void)0
-#endif
-
 /** @endcond */
 
 #endif
