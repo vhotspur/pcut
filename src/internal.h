@@ -108,6 +108,8 @@ typedef struct pcut_report_ops pcut_report_ops_t;
 struct pcut_report_ops {
 	/** Initialize the reporting, given all tests. */
 	void (*init)(pcut_item_t *);
+	/** Finalize the reporting. */
+	void (*done)(void);
 	/** Test suite just started. */
 	void (*suite_start)(pcut_item_t *);
 	/** Test suite completed. */
@@ -117,8 +119,6 @@ struct pcut_report_ops {
 	/** Test completed. */
 	void (*test_done)(pcut_item_t *, int, const char *, const char *,
 		const char *);
-	/** Finalize the reporting. */
-	void (*done)(void);
 };
 
 void pcut_report_register_handler(pcut_report_ops_t *ops);
@@ -132,7 +132,7 @@ void pcut_report_test_done(pcut_item_t *test, int outcome,
 		const char *extra_output);
 void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 		const char *unparsed_output, size_t unparsed_output_size);
-void pcut_report_done(void);
+void pcut_report_done();
 
 /* OS-dependent functions. */
 

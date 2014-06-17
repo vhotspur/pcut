@@ -69,6 +69,19 @@ int pcut_str_equals(const char *a, const char *b);
  */
 void pcut_str_error(int error, char *buffer, int size);
 
+/** Raise assertion error (internal version).
+ *
+ * We expect to be always called from PCUT_ASSERTION_FAILED() where
+ * the last argument is empty string to conform to strict ISO C99
+ * ("ISO C99 requires rest arguments to be used").
+ *
+ * @param fmt Printf-like format string.
+ * @param ... Extra arguments.
+ */
+#define PCUT_ASSERTION_FAILED_INTERNAL(fmt, ...) \
+	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt "%s", __LINE__, __VA_ARGS__)
+
+
 /** @endcond */
 
 /** Raise assertion error.
@@ -76,11 +89,10 @@ void pcut_str_error(int error, char *buffer, int size);
  * This macro adds current file and line and triggers immediate test
  * abort (tear-down function of the test suite is run when available).
  *
- * @param fmt Printf-like format string.
- * @param ... Extra arguments.
+ * @param ... Printf-like arguments.
  */
-#define PCUT_ASSERTION_FAILED(fmt, ...) \
-	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt, __LINE__, ##__VA_ARGS__)
+#define PCUT_ASSERTION_FAILED(...) \
+	PCUT_ASSERTION_FAILED_INTERNAL(__VA_ARGS__, "")
 
 
 /** Generic assertion for a boolean expression.
@@ -114,11 +126,11 @@ void pcut_str_error(int error, char *buffer, int size);
  * @param actual Actually obtained (computed) value we wish to test.
  */
 #define PCUT_ASSERT_EQUALS(expected, actual) \
-		do {\
-			if (!((expected) == (actual))) { \
-				PCUT_ASSERTION_FAILED("Expected <"#expected "> but got <" #actual ">"); \
-			} \
-		} while (0)
+	do {\
+		if (!((expected) == (actual))) { \
+			PCUT_ASSERTION_FAILED("Expected <"#expected "> but got <" #actual ">"); \
+		} \
+	} while (0)
 
 /** Asserts that given pointer is NULL.
  *

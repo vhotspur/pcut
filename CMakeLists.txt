@@ -63,10 +63,11 @@ function(add_self_test testname sources)
 	endif()
 endfunction()
 
-add_cc_flag_when_supported(-std=c99 CC_FLAG_C99)
+add_cc_flag_when_supported(-pedantic CC_FLAG_PEDANTIC)
 add_cc_flag_when_supported(-Wall CC_FLAG_WARNING_ALL)
 add_cc_flag_when_supported(-Wextra CC_FLAG_WARNING_EXTRA)
 add_cc_flag_when_supported(-Werror CC_FLAG_WARNING_INTO_ERROR)
+add_cc_flag_when_supported(-Wno-variadic-macros CC_FLAG_VARIADIC_MACROS_ARE_OKAY)
 
 
 
