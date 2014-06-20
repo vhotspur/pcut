@@ -45,10 +45,12 @@
  * This function immediately terminates current test and executes a tear-down
  * (if registered).
  *
+ * @param filename File where the assertion occurred.
+ * @param line Line where the assertion occurred.
  * @param fmt Printf-like format string.
  * @param ... Extra arguments.
  */
-void pcut_failed_assertion_fmt(const char *fmt, ...);
+void pcut_failed_assertion_fmt(const char *filename, int line, const char *fmt, ...);
 
 /** OS-agnostic string comparison.
  *
@@ -79,7 +81,7 @@ void pcut_str_error(int error, char *buffer, int size);
  * @param ... Extra arguments.
  */
 #define PCUT_ASSERTION_FAILED_INTERNAL(fmt, ...) \
-	pcut_failed_assertion_fmt(__FILE__ ":%d: " fmt "%s", __LINE__, __VA_ARGS__)
+	pcut_failed_assertion_fmt(__FILE__, __LINE__, fmt, __VA_ARGS__)
 
 
 /** @endcond */
