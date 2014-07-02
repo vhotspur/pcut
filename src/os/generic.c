@@ -54,9 +54,9 @@
 #include <process.h>
 
 #define FORMAT_COMMAND(buffer, buffer_size, self_path, test_id, temp_file) \
-	sprintf_s(buffer, buffer_size, "\"\"%s\" -t%d >%s\"", self_path, test_id, temp_file)
+	snprintf(buffer, buffer_size, "\"\"%s\" -t%d >%s\"", self_path, test_id, temp_file)
 #define FORMAT_TEMP_FILENAME(buffer, buffer_size) \
-	sprintf_s(buffer, buffer_size, "pcut_%d.tmp", _getpid())
+	snprintf(buffer, buffer_size, "pcut_%d.tmp", _getpid())
 
 #elif defined(__unix)
 #include <unistd.h>

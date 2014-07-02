@@ -85,6 +85,14 @@
 #define TEST_OUTCOME_ERROR 3
 
 
+/*
+ * Use sprintf_s in Windows but only with Microsoft compiler.
+ * Namely, let MinGW use snprintf.
+ */
+#if (defined(__WIN64) || defined(__WIN32) || defined(_WIN32)) && defined(_MSC_VER)
+#define snprintf sprintf_s
+#endif
+
 extern int pcut_run_mode;
 
 

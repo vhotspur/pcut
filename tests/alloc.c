@@ -32,6 +32,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/*
+ * Use sprintf_s in Windows but only with Microsoft compiler.
+ * Namely, let MinGW use snprintf.
+ */
+#if (defined(__WIN64) || defined(__WIN32) || defined(_WIN32)) && defined(_MSC_VER)
+#define snprintf sprintf_s
+#endif
+
 PCUT_INIT
 
 static char *buffer = NULL;
