@@ -158,7 +158,7 @@ static void tap_test_done(pcut_item_t *test, int outcome,
 }
 
 /** Report testing done. */
-static void tap_done() {
+static void tap_done(void) {
 }
 
 

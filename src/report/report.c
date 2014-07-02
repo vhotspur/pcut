@@ -222,7 +222,7 @@ void pcut_report_test_done_unparsed(pcut_item_t *test, int outcome,
 /** Close the report.
  *
  */
-void pcut_report_done() {
+void pcut_report_done(void) {
 	REPORT_CALL_NO_ARGS(done);
 }
 

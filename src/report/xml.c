@@ -165,7 +165,7 @@ static void xml_test_done(pcut_item_t *test, int outcome,
 }
 
 /** Report testing done. */
-static void xml_done() {
+static void xml_done(void) {
 	printf("</report>\n");
 }
 
