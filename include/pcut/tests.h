@@ -86,6 +86,18 @@
 /** Join the two arguments on preprocessor level. */
 #define PCUT_JOIN(a, b) PCUT_JOIN_IMPL(a, b)
 
+/** Quote the parameter (inner call). */
+#define PCUT_QUOTE_IMPL(x) #x
+
+/** Quote the parameter. */
+#define PCUT_QUOTE(x) PCUT_QUOTE_IMPL(x)
+
+/** Get first argument from macro var-args. */
+#define PCUT_VARG_GET_FIRST(x, ...) x
+
+/** Get all but first arguments from macro var-args. */
+#define PCUT_VARG_SKIP_FIRST(x, ...) __VA_ARGS__
+
 /** Produce identifier name for an item with given number.
  *
  * @param number Item number.
@@ -181,10 +193,10 @@
 	static pcut_extra_t PCUT_ITEM_EXTRAS_NAME(number)[] = { \
 		__VA_ARGS__ \
 	}; \
-	static int PCUT_CC_UNUSED_VARIABLE(testname##0_test_name_missing_or_duplicated, 0); \
+	static int PCUT_CC_UNUSED_VARIABLE(PCUT_JOIN(testname, 0_test_name_missing_or_duplicated), 0); \
 	static void PCUT_JOIN(test_, testname)(void); \
 	PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
-		#testname, \
+		PCUT_QUOTE(testname), \
 		PCUT_JOIN(test_, testname), \
 		NULL, NULL, \
 		PCUT_ITEM_EXTRAS_NAME(number), \
@@ -199,7 +211,10 @@
  * @param ... Test name (C identifier) followed by extra test properties.
  */
 #define PCUT_TEST(...) \
-	PCUT_TEST_WITH_NUMBER(PCUT_ITEM_COUNTER, __VA_ARGS__, PCUT_TEST_EXTRA_LAST)
+	PCUT_TEST_WITH_NUMBER(PCUT_ITEM_COUNTER, \
+		PCUT_VARG_GET_FIRST(__VA_ARGS__, this_arg_is_ignored), \
+		PCUT_VARG_SKIP_FIRST(__VA_ARGS__, PCUT_TEST_EXTRA_LAST) \
+	)
 
 
 
