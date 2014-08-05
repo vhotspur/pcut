@@ -60,7 +60,7 @@ function(add_self_test testname sources)
 	
 	add_test(NAME "${testname}"
 		COMMAND ${CMAKE_COMMAND}
-			"-DTEST_EXECUTABLE=${TEST_LOCATION}"
+			"-DTEST_EXECUTABLE=$<TARGET_FILE:test-${testname}>"
 			"-DEXPECTED_OUTPUT=${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
 			-P "${PROJECT_SOURCE_DIR}/run_test.cmake"
 	)
