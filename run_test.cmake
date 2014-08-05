@@ -32,9 +32,10 @@
 # EXPECTED_OUTPUT - file with expected stdout from ${TEST_EXECUTABLE}
 #
 
+# Run the tests
 execute_process(
 	COMMAND ${TEST_EXECUTABLE}
-	OUTPUT_FILE ${TEST_EXECUTABLE}.test.output
+	OUTPUT_FILE ${TEST_EXECUTABLE}.output
 	RESULT_VARIABLE test_result
 )
 
@@ -42,8 +43,22 @@ if(NOT test_result EQUAL 0)
 	message(FATAL_ERROR "Test execution failed for some reason.")
 endif()
 
+
+# Ensure the same line-endings
+# (hopefully, there will not be any ${VAR} inside the outputs.
+configure_file(
+	${TEST_EXECUTABLE}.output ${TEST_EXECUTABLE}.output.lf
+	NEWLINE_STYLE WIN32
+)
+configure_file(
+	${EXPECTED_OUTPUT} ${TEST_EXECUTABLE}.output.expected.lf
+	NEWLINE_STYLE WIN32
+)
+
+
+# Compare them
 execute_process(
-	COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_EXECUTABLE}.test.output ${EXPECTED_OUTPUT}
+	COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_EXECUTABLE}.output.lf  ${TEST_EXECUTABLE}.output.expected.lf
 	RESULT_VARIABLE cmp_result
 )
 
