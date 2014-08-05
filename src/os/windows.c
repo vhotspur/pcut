@@ -250,3 +250,12 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	pcut_report_test_done_unparsed(test, outcome, extra_output_buffer, OUTPUT_BUFFER_SIZE);
 }
 
+void pcut_hook_before_test(pcut_item_t *test) {
+	PCUT_UNUSED(test);
+
+	/*
+	 * Prevent displaying the dialog informing the user that the
+	 * program unexpectedly failed.
+	 */
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+}

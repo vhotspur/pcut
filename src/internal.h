@@ -149,6 +149,18 @@ void pcut_report_done(void);
 
 /* OS-dependent functions. */
 
+/** Hook to execute before test starts.
+ *
+ * Useful for OS-specific preparations prior to launching the actual
+ * test code (i. e. sandboxing the process more etc.).
+ *
+ * This function is not run by the launcher process that only
+ * starts other tests in separate processes.
+ *
+ * @param test The test that is about to be executed.
+ */
+void pcut_hook_before_test(pcut_item_t *test);
+
 /** Tell whether two strings start with the same prefix.
  *
  * @param a First string.

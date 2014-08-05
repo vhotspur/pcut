@@ -195,6 +195,8 @@ static int run_test(pcut_item_t *test) {
 	current_suite = pcut_find_parent_suite(test);
 	current_test = test;
 
+	pcut_hook_before_test(test);
+
 	/*
 	 * If anything goes wrong, execute the tear-down function
 	 * as well.

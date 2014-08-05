@@ -226,3 +226,9 @@ leave_close_tempfile:
 
 	pcut_report_test_done_unparsed(test, status, extra_output_buffer, OUTPUT_BUFFER_SIZE);
 }
+
+void pcut_hook_before_test(pcut_item_t *test) {
+	PCUT_UNUSED(test);
+
+	/* Do nothing. */
+}

@@ -207,3 +207,10 @@ leave_close_parent_pipe:
 
 	pcut_report_test_done_unparsed(test, rc, extra_output_buffer, OUTPUT_BUFFER_SIZE);
 }
+
+void pcut_hook_before_test(pcut_item_t *test) {
+	PCUT_UNUSED(test);
+
+	/* Do nothing. */
+}
+
