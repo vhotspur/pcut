@@ -58,13 +58,12 @@ function(add_self_test testname sources)
 	add_pcut_executable("test-${testname}" ${sources})
 	get_property(TEST_LOCATION TARGET "test-${testname}" PROPERTY LOCATION)
 	
-	if(${UNIX})
-		add_test(NAME "${testname}"
-			COMMAND "${PROJECT_SOURCE_DIR}/run_test.sh"
-				${TEST_LOCATION}
-				"${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
-		)
-	endif()
+	add_test(NAME "${testname}"
+		COMMAND ${CMAKE_COMMAND}
+			"-DTEST_EXECUTABLE=${TEST_LOCATION}"
+			"-DEXPECTED_OUTPUT=${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
+			-P "${PROJECT_SOURCE_DIR}/run_test.cmake"
+	)
 endfunction()
 
 add_cc_flag_when_supported(-pedantic CC_FLAG_PEDANTIC)

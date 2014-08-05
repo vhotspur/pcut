@@ -1,4 +1,3 @@
-#!/bin/sh
 #
 # Copyright (c) 2014 Vojtech Horky
 # All rights reserved.
@@ -27,12 +26,28 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+#
+# We expect following variables would be set:
+# TEST_EXECUTABLE - PCUT executable with the tests to perform
+# EXPECTED_OUTPUT - file with expected stdout from ${TEST_EXECUTABLE}
+#
 
-TEST_EXECUTABLE="$1"
-EXPECTED_FILE="$2"
-STRIP_PATH=`dirname $EXPECTED_FILE`
+execute_process(
+	COMMAND ${TEST_EXECUTABLE}
+	OUTPUT_FILE ${TEST_EXECUTABLE}.test.output
+	RESULT_VARIABLE test_result
+)
 
-TEST_OUTPUT="$TEST_EXECUTABLE.test.output"
+if(NOT test_result EQUAL 0)
+	message(FATAL_ERROR "Test execution failed for some reason.")
+endif()
 
-$TEST_EXECUTABLE | sed "s#$STRIP_PATH/##" >"$TEST_OUTPUT"
-diff -ud "$EXPECTED_FILE" "$TEST_OUTPUT"
+execute_process(
+	COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_EXECUTABLE}.test.output ${EXPECTED_OUTPUT}
+	RESULT_VARIABLE cmp_result
+)
+
+if(NOT cmp_result EQUAL 0)
+	message(FATAL_ERROR "Output does not match the expected one.")
+endif()
+
