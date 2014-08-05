@@ -38,6 +38,13 @@
 
 #include <errno.h>
 
+/** @def PCUT_CURRENT_FILENAME
+ * Overwrite contents of __FILE__ when printing assertion errors.
+ */
+#ifndef PCUT_CURRENT_FILENAME
+#define PCUT_CURRENT_FILENAME __FILE__
+#endif
+
 /** @cond devel */
 
 /** Raise assertion error.
@@ -81,7 +88,7 @@ void pcut_str_error(int error, char *buffer, int size);
  * @param ... Extra arguments.
  */
 #define PCUT_ASSERTION_FAILED_INTERNAL(fmt, ...) \
-	pcut_failed_assertion_fmt(__FILE__, __LINE__, fmt, __VA_ARGS__)
+	pcut_failed_assertion_fmt(PCUT_CURRENT_FILENAME, __LINE__, fmt, __VA_ARGS__)
 
 
 /** @endcond */
