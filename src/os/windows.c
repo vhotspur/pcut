@@ -56,6 +56,22 @@ static char error_message_buffer[OUTPUT_BUFFER_SIZE];
 /** Buffer for stdout from the test. */
 static char extra_output_buffer[OUTPUT_BUFFER_SIZE];
 
+/** Prepare for a new test.
+ *
+ * @param test Test that is about to be run.
+ */
+static void before_test_start(pcut_item_t *test) {
+	pcut_report_test_start(test);
+
+	memset(error_message_buffer, 0, OUTPUT_BUFFER_SIZE);
+	memset(extra_output_buffer, 0, OUTPUT_BUFFER_SIZE);
+}
+
+/** Report that a certain function failed.
+ *
+ * @param test Current test.
+ * @param failed_function_name Name of the failed function.
+ */
 static void report_func_fail(pcut_item_t *test, const char *failed_function_name) {
 	/* TODO: get error description. */
 	sprintf_s(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
@@ -120,6 +136,7 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	STARTUPINFO start_info;
 	char command[PCUT_COMMAND_LINE_BUFFER_SIZE];
 
+	before_test_start(test);
 
 	/* Pipe handles are inherited. */
 	security_attributes.nLength = sizeof(SECURITY_ATTRIBUTES);
