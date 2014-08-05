@@ -241,8 +241,10 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 
 	if (rc == 0) {
 		outcome = TEST_OUTCOME_PASS;
-	} else {
+	} else if ((rc > 0) && (rc < 10)) {
 		outcome = TEST_OUTCOME_FAIL;
+	} else {
+		outcome = TEST_OUTCOME_ERROR;
 	}
 
 	pcut_report_test_done_unparsed(test, outcome, extra_output_buffer, OUTPUT_BUFFER_SIZE);
