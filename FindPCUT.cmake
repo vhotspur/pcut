@@ -123,6 +123,12 @@ function(add_pcut_executable executable sources)
 			get_filename_component(source_full ${source} ABSOLUTE)
 			set(outfile_i ${CMAKE_CURRENT_BINARY_DIR}/${source}.i)
 			set(outfile_c ${CMAKE_CURRENT_BINARY_DIR}/${source}.pcut.c)
+			get_source_file_property(outfile_cflags ${source} COMPILE_FLAGS)
+			if(outfile_cflags STREQUAL "NOTFOUND")
+				set(outfile_cflags "")
+			else()
+				set_source_files_properties(${outfile_c} PROPERTIES COMPILE_FLAGS ${outfile_cflags})
+			endif()
 			list(APPEND pp_sources ${outfile_c})
 			add_custom_command(
 				OUTPUT ${outfile_i}
@@ -130,6 +136,7 @@ function(add_pcut_executable executable sources)
 					ARGS
 						-E -o ${outfile_i}
 						-I${PCUT_INCLUDE_DIRS}
+						${outfile_cflags}
 						${source_full}
 				DEPENDS ${source}
 			)
