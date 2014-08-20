@@ -48,10 +48,13 @@
  */
 #ifdef PCUT_DEBUG_BUILD
 #include <stdio.h>
-#define PCUT_DEBUG_(msg, ...) \
+#define PCUT_DEBUG_INTERNAL(msg, ...) \
 	fprintf(stderr, "[PCUT %s:%d]: " msg "%s", __FILE__, __LINE__, __VA_ARGS__)
 #define PCUT_DEBUG(...) \
-	PCUT_DEBUG_(__VA_ARGS__, "\n")
+	PCUT_DEBUG_INTERNAL( \
+		PCUT_VARG_GET_FIRST(__VA_ARGS__, this_arg_is_ignored), \
+		PCUT_VARG_SKIP_FIRST(__VA_ARGS__, "\n") \
+	)
 #else
 #define PCUT_DEBUG(...) (void)0
 #endif
