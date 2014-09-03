@@ -57,14 +57,14 @@ PCUT_TEST_AFTER {
 	buffer = NULL;
 }
 
-PCUT_TEST(snprintf) {
+PCUT_TEST(test_with_setup_and_teardown) {
 	snprintf(buffer, BUFFER_SIZE - 1, "%d-%s", 56, "abcd");
 	PCUT_ASSERT_STR_EQUALS("56-abcd", buffer);
 }
 
 PCUT_TEST_SUITE(another_without_setup);
 
-PCUT_TEST(whatever) {
+PCUT_TEST(test_without_any_setup_or_teardown) {
 	PCUT_ASSERT_NULL(buffer);
 }
 

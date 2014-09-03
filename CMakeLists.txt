@@ -104,7 +104,7 @@ add_executable(pcutpp src/preproc.c)
 get_property(PCUT_PREPROCESSOR TARGET pcutpp PROPERTY LOCATION)
 
 
-add_self_test(alloc tests/alloc.c)
+add_self_test(beforeafter tests/beforeafter.c)
 add_self_test(asserts tests/asserts.c)
 add_self_test(errno tests/errno.c)
 add_self_test(manytests tests/manytests.c)
