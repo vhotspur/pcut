@@ -27,16 +27,12 @@
  */
 
 #include <pcut/pcut.h>
-#include "tested.h"
+#include <stdlib.h>
 
 PCUT_INIT
 
 PCUT_TEST(access_null_pointer) {
-	int a = 5;
-	int *p = &a;
-	PCUT_ASSERT_INT_EQUALS(5, *p);
-	p = NULL;
-	PCUT_ASSERT_INT_EQUALS(5, *p);
+	abort();
 }
 
 PCUT_MAIN()
