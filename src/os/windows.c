@@ -117,6 +117,27 @@ static size_t read_all(HANDLE fd, char *buffer, size_t buffer_size) {
 	return buffer - buffer_start;
 }
 
+struct test_output_data {
+	HANDLE pipe_stdout;
+	HANDLE pipe_stderr;
+	char *output_buffer;
+	size_t output_buffer_size;
+};
+
+static DWORD WINAPI read_test_output_on_background(LPVOID test_output_data_ptr) {
+	size_t stderr_size = 0;
+	struct test_output_data *test_output_data = (struct test_output_data *) test_output_data_ptr;
+
+	stderr_size = read_all(test_output_data->pipe_stderr,
+		test_output_data->output_buffer,
+		test_output_data->output_buffer_size - 1);
+	read_all(test_output_data->pipe_stdout,
+		test_output_data->output_buffer,
+		test_output_data->output_buffer_size - 1 - stderr_size);
+
+	return 0;
+}
+
 /** Run the test as a new process and report the result.
  *
  * @param self_path Path to itself, that is to current binary.
@@ -127,14 +148,18 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	BOOL okay = FALSE;
 	DWORD rc;
 	int outcome;
+	int timed_out;
+	int time_out_millis;
 	SECURITY_ATTRIBUTES security_attributes;
 	HANDLE link_stdout[2] = { NULL, NULL };
 	HANDLE link_stderr[2] = { NULL, NULL };
 	HANDLE link_stdin[2] = { NULL, NULL };
-	size_t stderr_size = 0;
 	PROCESS_INFORMATION process_info;
 	STARTUPINFO start_info;
 	char command[PCUT_COMMAND_LINE_BUFFER_SIZE];
+	struct test_output_data test_output_data;
+	HANDLE test_output_thread_reader;
+
 
 	before_test_start(test);
 
@@ -201,6 +226,8 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 		return;
 	}
 
+	// FIXME: kill the process on error
+
 	/* Close handles to the first thread. */
 	CloseHandle(process_info.hThread);
 
@@ -221,12 +248,42 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 		return;
 	}
 
-	/* Read data from stdout and stderr. */
-	stderr_size = read_all(link_stderr[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1);
-	read_all(link_stdout[0], extra_output_buffer, OUTPUT_BUFFER_SIZE - 1 - stderr_size);
+	/*
+	 * Read data from stdout and stderr.
+	 * We need to do this in a separate thread to allow the
+	 * time-out to work correctly.
+	 * Probably, this can be done with asynchronous I/O but
+	 * this works for now pretty well.
+	 */
+	test_output_data.pipe_stderr = link_stderr[0];
+	test_output_data.pipe_stdout = link_stdout[0];
+	test_output_data.output_buffer = extra_output_buffer;
+	test_output_data.output_buffer_size = OUTPUT_BUFFER_SIZE;
+
+	test_output_thread_reader = CreateThread(NULL, 0,
+		read_test_output_on_background, &test_output_data,
+		0, NULL);
+
+	if (test_output_thread_reader == NULL) {
+		report_func_fail(test, "CreateThread(/* read test stdout */)");
+		return;
+	}
 
 	/* Wait for the process to terminate. */
-	rc = WaitForSingleObject(process_info.hProcess, INFINITE);
+	timed_out = 0;
+	time_out_millis = pcut_get_test_timeout(test) * 1000;
+	rc = WaitForSingleObject(process_info.hProcess, time_out_millis);
+	PCUT_DEBUG("Waiting for test %s (%dms) returned %d.", test->name, time_out_millis, rc);
+	if (rc == WAIT_TIMEOUT) {
+		/* We timed-out: kill the process and wait for its termination again. */
+		timed_out = 1;
+		okay = TerminateProcess(process_info.hProcess, 5);
+		if (!okay) {
+			report_func_fail(test, "TerminateProcess(/* PROCESS_INFORMATION.hProcess */)");
+			return;
+		}
+		rc = WaitForSingleObject(process_info.hProcess, INFINITE);
+	}
 	if (rc != WAIT_OBJECT_0) {
 		report_func_fail(test, "WaitForSingleObject(/* PROCESS_INFORMATION.hProcess */)");
 		return;
@@ -241,10 +298,17 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 
 	if (rc == 0) {
 		outcome = TEST_OUTCOME_PASS;
-	} else if ((rc > 0) && (rc < 10)) {
+	} else if ((rc > 0) && (rc < 10) && !timed_out) {
 		outcome = TEST_OUTCOME_FAIL;
 	} else {
 		outcome = TEST_OUTCOME_ERROR;
+	}
+
+	/* Wait for the reader thread (shall be terminated by now). */
+	rc = WaitForSingleObject(test_output_thread_reader, INFINITE);
+	if (rc != WAIT_OBJECT_0) {
+		report_func_fail(test, "WaitForSingleObject(/* stdout reader thread */)");
+		return;
 	}
 
 	pcut_report_test_done_unparsed(test, outcome, extra_output_buffer, OUTPUT_BUFFER_SIZE);
