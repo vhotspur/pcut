@@ -43,26 +43,21 @@ if(NOT test_result EQUAL 0)
 	message(FATAL_ERROR "Test execution failed for some reason.")
 endif()
 
+file(READ ${EXPECTED_OUTPUT} expected)
+file(READ ${TEST_EXECUTABLE}.output actual)
 
-# Ensure the same line-endings
-# (hopefully, there will not be any ${VAR} inside the outputs.
-configure_file(
-	${TEST_EXECUTABLE}.output ${TEST_EXECUTABLE}.output.lf
-	NEWLINE_STYLE WIN32
-)
-configure_file(
-	${EXPECTED_OUTPUT} ${TEST_EXECUTABLE}.output.expected.lf
-	NEWLINE_STYLE WIN32
-)
+# Convert the file into a regular expression.
+# We support only ***** as a wildcard for .*
+# The reason is to simplify the .expected files, as there is a lot
+# of parentheses in the assertion messages.
+string(REPLACE "(" "\\(" expected "${expected}")
+string(REPLACE ")" "\\)" expected "${expected}")
+string(REPLACE "+" "\\+" expected "${expected}")
+string(REGEX REPLACE "\r?\n" "\\n" expected "${expected}")
+string(REPLACE "." "\\." expected "${expected}")
+string(REPLACE "*****" ".*" expected "${expected}")
 
-
-# Compare them
-execute_process(
-	COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_EXECUTABLE}.output.lf  ${TEST_EXECUTABLE}.output.expected.lf
-	RESULT_VARIABLE cmp_result
-)
-
-if(NOT cmp_result EQUAL 0)
+if(NOT "${actual}" MATCHES "${expected}")
+	message("Expected '${expected}', but got '${actual}'...")
 	message(FATAL_ERROR "Output does not match the expected one.")
 endif()
-
