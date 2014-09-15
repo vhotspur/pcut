@@ -40,6 +40,14 @@
 /** Current running mode. */
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;
 
+/** Empty list to bypass special handling for NULL. */
+static pcut_main_extra_t empty_main_extra[] = {
+	PCUT_MAIN_EXTRA_SET_LAST
+};
+
+/** Helper for iteration over main extras. */
+#define FOR_EACH_MAIN_EXTRA(extras, it) \
+	for (it = extras; it->type != PCUT_MAIN_EXTRA_LAST; it++)
 
 /** Checks whether the argument is an option followed by a number.
  *
@@ -166,11 +174,26 @@ static void set_setup_teardown_callbacks(pcut_item_t *first) {
 int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 	pcut_item_t *items = pcut_fix_list_get_real_head(last);
 	pcut_item_t *it;
+	pcut_main_extra_t *main_extras = last->main_extras;
+	pcut_main_extra_t *main_extras_it;
 
 	int run_only_suite = -1;
 	int run_only_test = -1;
 
+	if (main_extras == NULL) {
+		main_extras = empty_main_extra;
+	}
+
 	pcut_report_register_handler(&pcut_report_tap);
+
+	FOR_EACH_MAIN_EXTRA(main_extras, main_extras_it) {
+		if (main_extras_it->type == PCUT_MAIN_EXTRA_REPORT_XML) {
+			pcut_report_register_handler(&pcut_report_xml);
+		}
+		if (main_extras_it->type == PCUT_MAIN_EXTRA_PREINIT_HOOK) {
+			main_extras_it->preinit_hook(&argc, &argv);
+		}
+	}
 
 	if (argc > 1) {
 		int i;
@@ -194,6 +217,12 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	set_setup_teardown_callbacks(items);
+
+	FOR_EACH_MAIN_EXTRA(main_extras, main_extras_it) {
+		if (main_extras_it->type == PCUT_MAIN_EXTRA_INIT_HOOK) {
+			main_extras_it->init_hook();
+		}
+	}
 
 	PCUT_DEBUG("run_only_suite = %d   run_only_test = %d", run_only_suite, run_only_test);
 

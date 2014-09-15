@@ -183,7 +183,7 @@
 		PCUT_JOIN(test_, testname), \
 		NULL, NULL, \
 		PCUT_ITEM_EXTRAS_NAME(number), \
-		NULL \
+		NULL, NULL \
 	); \
 	void PCUT_JOIN(test_, testname)(void)
 
@@ -223,7 +223,8 @@
 		#suitename, \
 		NULL, \
 		NULL, NULL, \
-		NULL, NULL \
+		NULL, NULL, \
+		NULL \
 	)
 
 /** Define a set-up function for a test suite.
@@ -238,7 +239,7 @@
 	PCUT_ADD_ITEM(number, PCUT_KIND_SETUP, \
 		"setup", NULL, \
 		PCUT_ITEM_SETUP_NAME(number), \
-		NULL, NULL, NULL \
+		NULL, NULL, NULL, NULL \
 	); \
 	void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -254,7 +255,7 @@
 	PCUT_ADD_ITEM(number, PCUT_KIND_TEARDOWN, \
 		"teardown", NULL, NULL, \
 		PCUT_ITEM_SETUP_NAME(number), \
-		NULL, NULL \
+		NULL, NULL, NULL \
 	); \
 	void PCUT_ITEM_SETUP_NAME(number)(void)
 
@@ -332,7 +333,7 @@
 		NULL, \
 		-1, \
 		PCUT_KIND_SKIP, \
-		"exported_" #identifier, NULL, NULL, NULL, NULL, NULL \
+		"exported_" #identifier, NULL, NULL, NULL, NULL, NULL, NULL \
 	}
 
 /** Import test cases from a different file.
@@ -346,7 +347,7 @@
 	PCUT_ITEM_COUNTER_INCREMENT \
 	extern pcut_item_t pcut_exported_##identifier; \
 	PCUT_ADD_ITEM(number, PCUT_KIND_NESTED, \
-		"import_" #identifier, NULL, NULL, NULL, NULL, \
+		"import_" #identifier, NULL, NULL, NULL, NULL, NULL, \
 		&pcut_exported_##identifier \
 	)
 
@@ -389,7 +390,7 @@
 		NULL, \
 		-1, \
 		PCUT_KIND_SKIP, \
-		"init", NULL, NULL, NULL, NULL, NULL \
+		"init", NULL, NULL, NULL, NULL, NULL, NULL \
 	}; \
 	PCUT_TEST_SUITE(Default);
 
@@ -399,18 +400,28 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
  *
  * @param number Item number.
  */
-#define PCUT_MAIN_WITH_NUMBER(number) \
+#define PCUT_MAIN_WITH_NUMBER(number, ...) \
 	PCUT_ITEM_COUNTER_INCREMENT \
+	static pcut_main_extra_t pcut_main_extras[] = { \
+		__VA_ARGS__ \
+	}; \
 	static pcut_item_t pcut_item_last = { \
 		&PCUT_ITEM_NAME_PREV(number), \
 		NULL, \
 		-1, \
 		PCUT_KIND_SKIP, \
-		"main", NULL, NULL, NULL, NULL, NULL \
+		"main", NULL, NULL, NULL, \
+		NULL, \
+		pcut_main_extras, \
+		NULL \
 	}; \
 	int main(int argc, char *argv[]) { \
 		return pcut_main(&pcut_item_last, argc, argv); \
 	}
+
+/** Terminate list of extra options for main. */
+#define PCUT_MAIN_EXTRA_SET_LAST \
+	{ PCUT_MAIN_EXTRA_LAST, NULL, NULL }
 
 /** @endcond */
 
@@ -420,8 +431,48 @@ int pcut_main(pcut_item_t *last, int argc, char *argv[]);
 
 /** Insert code to run all the tests. */
 #define PCUT_MAIN() \
-	PCUT_MAIN_WITH_NUMBER(PCUT_ITEM_COUNTER)
+	PCUT_MAIN_WITH_NUMBER(PCUT_ITEM_COUNTER, PCUT_MAIN_EXTRA_SET_LAST)
 
+
+/** Set callback for PCUT initialization.
+ *
+ * Use from within PCUT_CUSTOM_MAIN().
+ *
+ * @warning The callback is called for each test and also for the wrapping
+ * invocation.
+ */
+#define PCUT_MAIN_SET_INIT_HOOK(callback) \
+	{ PCUT_MAIN_EXTRA_INIT_HOOK, callback, NULL }
+
+/** Set callback for PCUT pre-initialization.
+ *
+ * Use from within PCUT_CUSTOM_MAIN().
+ * This callback is useful only if you want to manipulate command-line
+ * arguments.
+ * You probably will not need this.
+ *
+ * @warning The callback is called for each test and also for the wrapping
+ * invocation.
+ */
+#define PCUT_MAIN_SET_PREINIT_HOOK(callback) \
+	{ PCUT_MAIN_EXTRA_PREINIT_HOOK, NULL, callback }
+
+
+/** Set XML report as default.
+ *
+ * Use from within PCUT_CUSTOM_MAIN().
+ *
+ */
+#define PCUT_MAIN_SET_XML_REPORT \
+	{ PCUT_MAIN_EXTRA_REPORT_XML, NULL, NULL }
+
+
+/** Insert code to run all tests. */
+#define PCUT_CUSTOM_MAIN(...) \
+	PCUT_MAIN_WITH_NUMBER(PCUT_ITEM_COUNTER, \
+		PCUT_VARG_GET_FIRST(__VA_ARGS__, PCUT_MAIN_EXTRA_SET_LAST), \
+		PCUT_VARG_SKIP_FIRST(__VA_ARGS__, PCUT_MAIN_EXTRA_SET_LAST) \
+ 	)
 
 /**
  * @}

@@ -117,6 +117,10 @@ add_self_test(simple tests/simple.c tests/tested.c)
 add_self_test(skip tests/skip.c)
 add_self_test(suites tests/suites.c tests/tested.c)
 add_self_test(teardown tests/teardown.c tests/tested.c)
+add_self_test(inithook tests/inithook.c)
+add_self_test(preinithook tests/inithook.c)
+add_self_test(xmlreport tests/xmlreport.c tests/tested.c)
+add_self_test(testlist tests/testlist.c)
 add_self_test(timeout tests/timeout.c)
 
 

@@ -62,11 +62,21 @@ enum {
 	PCUT_EXTRA_LAST
 };
 
+enum {
+	PCUT_MAIN_EXTRA_PREINIT_HOOK,
+	PCUT_MAIN_EXTRA_INIT_HOOK,
+	PCUT_MAIN_EXTRA_REPORT_XML,
+	PCUT_MAIN_EXTRA_LAST
+};
+
 /** Generic wrapper for test cases, test suites etc. */
 typedef struct pcut_item pcut_item_t;
 
 /** Extra information about a test. */
 typedef struct pcut_extra pcut_extra_t;
+
+/** Extra information for the main() function. */
+typedef struct pcut_main_extra pcut_main_extra_t;
 
 /** Test method type. */
 typedef void (*pcut_test_func_t)(void);
@@ -83,6 +93,19 @@ struct pcut_extra {
 	int type;
 	/** Test-specific time-out in seconds. */
 	int timeout;
+};
+
+/** @copydoc pcut_main_extra_t */
+struct pcut_main_extra {
+	/** Discriminator for the union.
+	 *
+	 * Use PCUT_MAIN_EXTRA_* to determine which field of the union is used.
+	 */
+	int type;
+	/** Callback once PCUT initializes itself. */
+	void (*init_hook)(void);
+	/** Callback even before command-line arguments are processed. */
+	void (*preinit_hook)(int *, char ***);
 };
 
 /** @copydoc pcut_item_t */
@@ -111,6 +134,9 @@ struct pcut_item {
 
 	/** Extra attributes. */
 	pcut_extra_t *extras;
+
+	/** Extra attributes for main() function. */
+	pcut_main_extra_t *main_extras;
 
 	/** Nested lists. */
 	pcut_item_t *nested;
