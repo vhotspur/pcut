@@ -48,6 +48,7 @@ macro(add_cc_flag_when_supported flag variable)
 endmacro()
 
 set(SELF_TESTS)
+file(WRITE "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# Re-generate with CMake\n\n")
 function(add_self_test testname sources)
 	set(sources ${ARGV})
 	list(REMOVE_AT sources 0)
@@ -64,6 +65,14 @@ function(add_self_test testname sources)
 			"-DEXPECTED_OUTPUT=${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
 			-P "${PROJECT_SOURCE_DIR}/run_test.cmake"
 	)
+	
+	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# ${testname}\n")
+	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "$(PCUT_TEST_PREFIX)${testname}$(PCUT_TEST_SUFFIX):")
+	foreach(source ${sources})
+		string(REGEX REPLACE ".c$" ".o" source "${source}")
+		file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" " ${source}")
+	endforeach()
+	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "\n\n")
 endfunction()
 
 add_cc_flag_when_supported(-pedantic CC_FLAG_PEDANTIC)
