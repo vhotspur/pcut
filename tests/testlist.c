@@ -33,7 +33,7 @@ PCUT_INIT
 
 static char *argv_patched[] = {
 	NULL, /* Will be patched at run-time. */
-	"-l",
+	(char *) "-l",
 	NULL
 };
 
