@@ -35,6 +35,10 @@
 #define _POSIX_SOURCE
 /** We need _BSD_SOURCE because of snprintf() when compiling under C89. */
 #define _BSD_SOURCE
+
+/** Newer versions of features.h needs _DEFAULT_SOURCE. */
+#define _DEFAULT_SOURCE
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
