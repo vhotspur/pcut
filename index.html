@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PCUT by vhotspur</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>PCUT</h1>
+        <p>Plain C unit testing framework</p>
+        <p class="view"><a href="https://github.com/vhotspur/pcut">View the Project on GitHub <small>vhotspur/pcut</small></a></p>
+        <ul>
+          <li><a href="https://github.com/vhotspur/pcut/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/vhotspur/pcut/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/vhotspur/pcut">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>PCUT is a very simple framework for unit testing of C code.
+Unlike many other frameworks where you need to specify manually which
+functions belong to a particular test, PCUT provides several smart
+macros that hides this and lets you focus on the most important
+part of testing only: that is, coding the test cases.</p>
+
+<p>This mini-framework is definitely not complete but it offers the basic
+functionality needed for writing unit tests.
+This includes the possibility to group tests into test suites, optionally
+having set-up and tear-down functions.
+There are several assert macros for evaluating the results, their highlight
+is very detailed information about the problem.</p>
+
+<p>The output of the test can come in two forms: either as an XML output suited
+for later processing or in the form of Test-Anything-Protocol.
+PCUT is able to capture standard output and display it together with test
+results.
+And by running each test in a separate process, the whole framework is pretty
+safe against unexpected crashes, such as null pointer dereference.</p>
+
+<p>More details can be found on PCUT wiki on GitHub:
+<a href="https://github.com/vhotspur/pcut/wiki">https://github.com/vhotspur/pcut/wiki</a></p>
+
+<h2>
+<a id="quick-start-example" class="anchor" href="#quick-start-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Quick-start example</h2>
+
+<p>The following code tests the standard <code>atoi</code> function:</p>
+
+<div class="highlight highlight-c"><pre>#<span class="pl-k">include</span> <span class="pl-s1"><span class="pl-pds">&lt;</span>pcut/pcut.h<span class="pl-pds">&gt;</span></span>
+#<span class="pl-k">include</span> <span class="pl-s1"><span class="pl-pds">&lt;</span>stdlib.h<span class="pl-pds">&gt;</span></span>
+
+PCUT_INIT
+
+<span class="pl-en">PCUT_TEST</span>(atoi_zero) {
+    <span class="pl-s3">PCUT_ASSERT_INT_EQUALS</span>(<span class="pl-c1">0</span>, <span class="pl-s3">atoi</span>(<span class="pl-s1"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>));
+}
+
+<span class="pl-en">PCUT_TEST</span>(atoi_positive) {
+    <span class="pl-s3">PCUT_ASSERT_INT_EQUALS</span>(<span class="pl-c1">42</span>, <span class="pl-s3">atoi</span>(<span class="pl-s1"><span class="pl-pds">"</span>42<span class="pl-pds">"</span></span>));
+}
+
+<span class="pl-en">PCUT_TEST</span>(atoi_negative) {
+    <span class="pl-s3">PCUT_ASSERT_INT_EQUALS</span>(-<span class="pl-c1">273</span>, <span class="pl-s3">atoi</span>(<span class="pl-s1"><span class="pl-pds">"</span>-273<span class="pl-pds">"</span></span>));
+}
+
+<span class="pl-en">PCUT_MAIN</span>()</pre></div>
+
+<p>As you can see, there is no manual listing of tests that form the test
+suite etc, only the tests and <code>PCUT_INIT</code> at the beginning and
+<code>PCUT_MAIN</code> at the end.</p>
+
+<p>This code has to be linked with <code>libpcut</code> to get an executable that runs
+the tests and reports the results.</p>
+
+<p>More examples, in the form of self-tests, are available in the <code>tests/</code>
+subdirectory.
+Other examples can be found on the Wiki.</p>
+
+<h2>
+<a id="building-and-installing" class="anchor" href="#building-and-installing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building and installing</h2>
+
+<p>PCUT uses CMake (<a href="http://www.cmake.org/">http://www.cmake.org/</a>).
+On Unix systems, following commands build the library and execute the
+built-in tests::</p>
+
+<pre><code>mkdir build
+cd build
+cmake .. &amp;&amp; make all test
+</code></pre>
+
+<p>More details can be found on <a href="https://github.com/vhotspur/pcut/wiki/Building">https://github.com/vhotspur/pcut/wiki/Building</a>.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/vhotspur">vhotspur</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
