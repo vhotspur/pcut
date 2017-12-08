@@ -27,9 +27,6 @@
 #
 
 cmake_minimum_required(VERSION 2.6)
-if(CMAKE_MAJOR_VERSION GREATER 2)
-	cmake_policy(SET CMP0026 OLD)
-endif()
 
 include(CheckCCompilerFlag)
 enable_testing()
@@ -37,8 +34,6 @@ enable_testing()
 project(PCUT C)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
-set(PCUT_ROOT ${PROJECT_SOURCE_DIR})
-find_package(PCUT)
 
 macro(add_cc_flag_when_supported flag variable)
 	check_c_compiler_flag(${flag} ${variable})
@@ -57,7 +52,6 @@ function(add_self_test testname sources)
 		set_source_files_properties(${source} PROPERTIES COMPILE_FLAGS "-DPCUT_CURRENT_FILENAME=\\\"${basename}\\\"")
 	endforeach()
 	add_pcut_executable("test-${testname}" ${sources})
-	get_property(TEST_LOCATION TARGET "test-${testname}" PROPERTY LOCATION)
 	
 	add_test(NAME "${testname}"
 		COMMAND ${CMAKE_COMMAND}
@@ -107,11 +101,16 @@ include_directories(include)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DPCUT_DEBUG_BUILD")
 
 add_library(pcut ${SOURCES})
-get_property(PCUT_LIBRARIES TARGET pcut PROPERTY LOCATION)
-
 add_executable(pcutpp src/preproc.c)
-get_property(PCUT_PREPROCESSOR TARGET pcutpp PROPERTY LOCATION)
 
+
+# Find outselves so we can use add_pcut_executable for
+# linking self-tests.
+set(PCUT_ROOT ${PROJECT_SOURCE_DIR})
+set(PCUT_LIBRARIES pcut)
+set(PCUT_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
+set(PCUT_PREPROCESSOR $<TARGET_FILE:pcutpp>)
+find_package(PCUT)
 
 add_self_test(abort tests/abort.c)
 add_self_test(asserts tests/asserts.c)
