@@ -82,7 +82,7 @@ add_cc_flag_when_supported(-Wmissing-prototypes CC_FLAG_WARNING_MISSING_PROTOTYP
 add_cc_flag_when_supported(-Werror-implicit-function-declaration CC_FLAG_WARNING_IMPLICIT_FUNCTION_DECLARATION)
 add_cc_flag_when_supported(-Werror CC_FLAG_WARNING_INTO_ERROR)
 add_cc_flag_when_supported(-Wno-variadic-macros CC_FLAG_VARIADIC_MACROS_ARE_OKAY)
-
+add_cc_flag_when_supported(-pthread CC_FLAG_PTHREAD)
 
 
 set(SOURCES
