@@ -155,7 +155,7 @@ leave_no_kill:
  * @param self_path Path to itself, that is to current binary.
  * @param test Test to be run.
  */
-void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
+int pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	before_test_start(test);
 
 	char tempfile_name[PCUT_TEMP_FILENAME_BUFFER_SIZE];
@@ -163,7 +163,7 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	int tempfile = open(tempfile_name, O_CREAT | O_RDWR);
 	if (tempfile < 0) {
 		pcut_report_test_done(test, TEST_OUTCOME_ERROR, "Failed to create temporary file.", NULL, NULL);
-		return;
+		return PCUT_OUTCOME_INTERNAL_ERROR;
 	}
 
 	char test_number_argument[MAX_TEST_NUMBER_WIDTH];
@@ -209,9 +209,9 @@ void pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 		goto leave_close_tempfile;
 	}
 	if (task_exit == TASK_EXIT_UNEXPECTED) {
-		status = TEST_OUTCOME_ERROR;
+		status = PCUT_OUTCOME_INTERNAL_ERROR;
 	} else {
-		status = task_retval == 0 ? TEST_OUTCOME_PASS : TEST_OUTCOME_FAIL;
+		status = task_retval == 0 ? PCUT_OUTCOME_PASS : PCUT_OUTCOME_FAIL;
 	}
 
 	fibril_mutex_lock(&forced_termination_mutex);
@@ -226,6 +226,8 @@ leave_close_tempfile:
 	unlink(tempfile_name);
 
 	pcut_report_test_done_unparsed(test, status, extra_output_buffer, OUTPUT_BUFFER_SIZE);
+
+	return status;
 }
 
 void pcut_hook_before_test(pcut_item_t *test) {

@@ -44,8 +44,9 @@ endmacro()
 
 set(SELF_TESTS)
 file(WRITE "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# Re-generate with CMake\n\n")
-function(add_self_test testname sources)
+function(add_self_test testname rc sources)
 	set(sources ${ARGV})
+	list(REMOVE_AT sources 0)
 	list(REMOVE_AT sources 0)
 	foreach(source ${sources})
 		get_filename_component(basename ${source} NAME)
@@ -57,6 +58,7 @@ function(add_self_test testname sources)
 		COMMAND ${CMAKE_COMMAND}
 			"-DTEST_EXECUTABLE=$<TARGET_FILE:test-${testname}>"
 			"-DEXPECTED_OUTPUT=${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
+			"-DEXPECTED_EXIT_VALUE=${rc}"
 			-P "${PROJECT_SOURCE_DIR}/run_test.cmake"
 	)
 	
@@ -112,24 +114,24 @@ set(PCUT_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
 set(PCUT_PREPROCESSOR $<TARGET_FILE:pcutpp>)
 find_package(PCUT)
 
-add_self_test(abort tests/abort.c)
-add_self_test(asserts tests/asserts.c)
-add_self_test(beforeafter tests/beforeafter.c)
-add_self_test(errno tests/errno.c)
-add_self_test(inithook tests/inithook.c)
-add_self_test(manytests tests/manytests.c)
-add_self_test(multisuite tests/suite_all.c tests/suite1.c tests/suite2.c
+add_self_test(abort 1 tests/abort.c)
+add_self_test(asserts 1 tests/asserts.c)
+add_self_test(beforeafter 0 tests/beforeafter.c)
+add_self_test(errno 1 tests/errno.c)
+add_self_test(inithook 0 tests/inithook.c)
+add_self_test(manytests 0 tests/manytests.c)
+add_self_test(multisuite 1 tests/suite_all.c tests/suite1.c tests/suite2.c
 	tests/tested.c)
-add_self_test(preinithook tests/inithook.c)
-add_self_test(printing tests/printing.c)
-add_self_test(simple tests/simple.c tests/tested.c)
-add_self_test(skip tests/skip.c)
-add_self_test(suites tests/suites.c tests/tested.c)
-add_self_test(teardownaborts tests/teardownaborts.c)
-add_self_test(teardown tests/teardown.c tests/tested.c)
-add_self_test(testlist tests/testlist.c)
-add_self_test(timeout tests/timeout.c)
-add_self_test(xmlreport tests/xmlreport.c tests/tested.c)
+add_self_test(preinithook 0 tests/inithook.c)
+add_self_test(printing 1 tests/printing.c)
+add_self_test(simple 1 tests/simple.c tests/tested.c)
+add_self_test(skip 0 tests/skip.c)
+add_self_test(suites 1 tests/suites.c tests/tested.c)
+add_self_test(teardownaborts 1 tests/teardownaborts.c)
+add_self_test(teardown 1 tests/teardown.c tests/tested.c)
+add_self_test(testlist 0 tests/testlist.c)
+add_self_test(timeout 1 tests/timeout.c)
+add_self_test(xmlreport 1 tests/xmlreport.c tests/tested.c)
 
 
 install(TARGETS pcut DESTINATION lib)

@@ -137,26 +137,23 @@ static void tap_test_done(pcut_item_t *test, int outcome,
 	const char *status_str = NULL;
 	const char *fail_error_str = NULL;
 
-	if (outcome != TEST_OUTCOME_PASS) {
+	if (outcome != PCUT_OUTCOME_PASS) {
 		failed_tests_in_suite++;
 		failed_test_counter++;
 	}
 
 	switch (outcome) {
-	case TEST_OUTCOME_PASS:
+	case PCUT_OUTCOME_PASS:
 		status_str = "ok";
 		fail_error_str = "";
 		break;
-	case TEST_OUTCOME_FAIL:
+	case PCUT_OUTCOME_FAIL:
 		status_str = "not ok";
 		fail_error_str = " failed";
 		break;
-	case TEST_OUTCOME_ERROR:
+	default:
 		status_str = "not ok";
 		fail_error_str = " aborted";
-		break;
-	default:
-		/* Shall not get here. */
 		break;
 	}
 	printf("%s %d %s%s\n", status_str, test_counter, test_name, fail_error_str);

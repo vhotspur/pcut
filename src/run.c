@@ -155,19 +155,19 @@ void pcut_failed_assertion(const char *message) {
 
 		/* Tear-down was okay. */
 		if (report_test_result) {
-			pcut_report_test_done(current_test, TEST_OUTCOME_FAIL,
+			pcut_report_test_done(current_test, PCUT_OUTCOME_FAIL,
 				message, NULL, NULL);
 		}
 	} else {
 		if (report_test_result) {
-			pcut_report_test_done(current_test, TEST_OUTCOME_FAIL,
+			pcut_report_test_done(current_test, PCUT_OUTCOME_FAIL,
 				prev_message, message, NULL);
 		}
 	}
 
 	prev_message = NULL;
 
-	leave_test(TEST_OUTCOME_FAIL); /* No return. */
+	leave_test(PCUT_OUTCOME_FAIL); /* No return. */
 }
 
 /** Run a test.
@@ -184,7 +184,7 @@ static int run_test(pcut_item_t *test) {
 #ifndef PCUT_NO_LONG_JUMP
 	int test_finished = setjmp(start_test_jump);
 	if (test_finished) {
-		return 1;
+		return PCUT_OUTCOME_FAIL;
 	}
 #endif
 
@@ -226,11 +226,11 @@ static int run_test(pcut_item_t *test) {
 	 * this test.
 	 */
 	if (report_test_result) {
-		pcut_report_test_done(current_test, TEST_OUTCOME_PASS,
+		pcut_report_test_done(current_test, PCUT_OUTCOME_PASS,
 			NULL, NULL, NULL);
 	}
 
-	return 0;
+	return PCUT_OUTCOME_PASS;
 }
 
 /** Run a test in a forked mode.

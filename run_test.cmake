@@ -39,7 +39,7 @@ execute_process(
 	RESULT_VARIABLE test_result
 )
 
-if(NOT test_result EQUAL 0)
+if(NOT test_result EQUAL ${EXPECTED_EXIT_VALUE})
 	message(FATAL_ERROR "Test execution failed for some reason.")
 endif()
 
