@@ -50,6 +50,12 @@
 #include <string.h>
 #include "../internal.h"
 
+/*
+ * It seems that not all Unixes are the same and snprintf
+ * may not be always exported?
+ */
+extern int snprintf(char *, size_t, const char *, ...);
+
 /** Maximum size of stdout we are able to capture. */
 #define OUTPUT_BUFFER_SIZE 8192
 
