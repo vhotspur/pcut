@@ -7,5 +7,7 @@ script:
  - make test
 compiler:
  - gcc
+ - clang
 os:
  - linux
+ - osx
