@@ -64,6 +64,10 @@ Other examples can be found on the Wiki.
 Building and installing
 -----------------------
 
+.. image:: https://travis-ci.org/vhotspur/pcut.svg?branch=master
+  :alt: Build status
+  :target: https://travis-ci.org/vhotspur/pcut
+
 PCUT uses CMake (http://www.cmake.org/).
 On Unix systems, following commands build the library and execute the
 built-in tests::
