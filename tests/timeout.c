@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Vojtech Horky
+ * Copyright (c) 2012-2018 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #ifdef __helenos__
 #include <thread.h>
 #else
-#ifdef __unix
+#if defined(__unix) || defined(__APPLE__)
 #include <unistd.h>
 #endif
 #if defined(__WIN64) || defined(__WIN32) || defined(_WIN32)
@@ -46,7 +46,7 @@ static void my_sleep(int sec) {
 #ifdef __helenos__
 	thread_sleep(sec);
 #else
-#ifdef __unix
+#if defined(__unix) || defined(__APPLE__)
 	sleep(sec);
 #endif
 #if defined(__WIN64) || defined(__WIN32) || defined(_WIN32)
