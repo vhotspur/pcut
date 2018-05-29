@@ -65,8 +65,11 @@ Building and installing
 -----------------------
 
 .. image:: https://travis-ci.org/vhotspur/pcut.svg?branch=master
-  :alt: Build status
+  :alt: Build status (GNU/Linux, OS X)
   :target: https://travis-ci.org/vhotspur/pcut
+.. image:: https://ci.appveyor.com/api/projects/status/ygj891mswmsjggjg?svg=true
+  :alt: Build status (Windows)
+  :target: https://ci.appveyor.com/project/vhotspur/pcut
 
 PCUT uses CMake (http://www.cmake.org/).
 On Unix systems, following commands build the library and execute the
