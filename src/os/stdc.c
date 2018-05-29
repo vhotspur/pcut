@@ -31,7 +31,10 @@
  * String operation functions for systems with a standard C library.
  */
 
+#pragma warning(push, 0)
 #include <string.h>
+#pragma warning(pop)
+
 #include "../internal.h"
 
 int pcut_str_equals(const char *a, const char *b) {

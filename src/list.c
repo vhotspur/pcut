@@ -31,8 +31,11 @@
  * Helper functions for working with list of items.
  */
 
+#pragma warning(push, 0)
 #include <assert.h>
 #include <stdlib.h>
+#pragma warning(pop)
+
 #include "internal.h"
 #include <pcut/pcut.h>
 

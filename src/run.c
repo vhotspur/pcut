@@ -32,8 +32,11 @@
  */
 
 #include "internal.h"
+
 #ifndef PCUT_NO_LONG_JUMP
+#pragma warning(push, 0)
 #include <setjmp.h>
+#pragma warning(pop)
 #endif
 
 #ifndef PCUT_NO_LONG_JUMP

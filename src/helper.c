@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Vojtech Horky
+ * Copyright (c) 2018 Vojtech Horky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,44 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define _BSD_SOURCE
-#define _DEFAULT_SOURCE
+/** @file
+ *
+ * Helper functions.
+ */
 
-#include <pcut/pcut.h>
-#include <stdlib.h>
+#include "internal.h"
+
+#pragma warning(push, 0)
+#include <stdarg.h>
 #include <stdio.h>
+#pragma warning(pop)
 
-PCUT_INIT
-
-static char *buffer = NULL;
-#define BUFFER_SIZE 512
-
-PCUT_TEST_SUITE(suite_with_setup_and_teardown);
-
-PCUT_TEST_BEFORE {
-	buffer = malloc(BUFFER_SIZE);
-	PCUT_ASSERT_NOT_NULL(buffer);
-}
-
-PCUT_TEST_AFTER {
-	free(buffer);
-	buffer = NULL;
-}
-
-PCUT_TEST(test_with_setup_and_teardown) {
-#if (defined(__WIN64) || defined(__WIN32) || defined(_WIN32)) && defined(_MSC_VER)
-	_snprintf_s(buffer, BUFFER_SIZE - 1, _TRUNCATE, "%d-%s", 56, "abcd");
-#else
-	snprintf(buffer, BUFFER_SIZE - 1, "%d-%s", 56, "abcd");
+/*
+ * It seems that not all Unixes are the same and snprintf
+ * may not be always exported?
+ */
+#ifdef __unix
+extern int snprintf(char *, size_t, const char *, ...);
 #endif
 
-	PCUT_ASSERT_STR_EQUALS("56-abcd", buffer);
+
+int pcut_snprintf(char *dest, size_t size, const char *format, ...) {
+	va_list args;
+	int ret;
+
+	va_start(args, format);
+
+	/*
+	 * Use sprintf_s in Windows but only with Microsoft compiler.
+	 * Namely, let MinGW use snprintf.
+	 */
+#if (defined(__WIN64) || defined(__WIN32) || defined(_WIN32)) && defined(_MSC_VER)
+	ret = _vsnprintf_s(dest, size, _TRUNCATE, format, args);
+#else
+	ret = vsnprintf(dest, size, format, args);
+#endif
+
+	va_end(args);
+
+	return ret;
 }
-
-PCUT_TEST_SUITE(another_without_setup);
-
-PCUT_TEST(test_without_any_setup_or_teardown) {
-	PCUT_ASSERT_NULL(buffer);
-}
-
-
-PCUT_MAIN()

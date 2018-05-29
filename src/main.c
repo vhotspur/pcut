@@ -33,9 +33,13 @@
 
 #include "internal.h"
 #include "report/report.h"
+
+#pragma warning(push, 0)
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#pragma warning(pop)
+
 
 /** Current running mode. */
 int pcut_run_mode = PCUT_RUN_MODE_FORKING;

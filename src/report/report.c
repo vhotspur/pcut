@@ -32,10 +32,17 @@
  */
 
 #include "../internal.h"
+
 #ifndef __helenos__
+#pragma warning(push, 0)
 #include <string.h>
+#pragma warning(pop)
 #endif
+
+#pragma warning(push, 0)
 #include <stdio.h>
+#pragma warning(pop)
+
 
 /** Currently used report ops. */
 static pcut_report_ops_t *report_ops = NULL;

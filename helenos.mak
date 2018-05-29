@@ -29,6 +29,7 @@
 SOURCES = \
 	src/os/helenos.c \
 	src/assert.c \
+	src/helper.c \
 	src/list.c \
 	src/main.c \
 	src/print.c \

@@ -33,10 +33,17 @@
 
 #include "../internal.h"
 #include "report.h"
+
 #ifndef __helenos__
+#pragma warning(push, 0)
 #include <string.h>
+#pragma warning(pop)
 #endif
+
+#pragma warning(push, 0)
 #include <stdio.h>
+#pragma warning(pop)
+
 
 /** Counter of all run tests. */
 static int test_counter;

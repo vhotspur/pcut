@@ -34,7 +34,10 @@
 #define PCUT_INTERNAL_H_GUARD
 
 #include <pcut/pcut.h>
+
+#pragma warning(push, 0)
 #include <stdlib.h>
+#pragma warning(pop)
 
 
 /** @def PCUT_DEBUG(msg, ...)
@@ -47,7 +50,9 @@
  * @param ... Extra arguments for printf.
  */
 #ifdef PCUT_DEBUG_BUILD
+#pragma warning(push, 0)
 #include <stdio.h>
+#pragma warning(pop)
 #define PCUT_DEBUG_INTERNAL(msg, ...) \
 	fprintf(stderr, "[PCUT %s:%d]: " msg "%s", __FILE__, __LINE__, __VA_ARGS__)
 #define PCUT_DEBUG(...) \
@@ -77,14 +82,6 @@
  * fatally (that is causing an unexpected program exit).
  */
 #define PCUT_RUN_MODE_SINGLE 2
-
-/*
- * Use sprintf_s in Windows but only with Microsoft compiler.
- * Namely, let MinGW use snprintf.
- */
-#if (defined(__WIN64) || defined(__WIN32) || defined(_WIN32)) && defined(_MSC_VER)
-#define snprintf sprintf_s
-#endif
 
 extern int pcut_run_mode;
 
@@ -186,5 +183,9 @@ int pcut_str_to_int(const char *s);
  */
 char *pcut_str_find_char(const char *haystack, const char needle);
 
+/** Format string to a buffer.
+ *
+ */
+int pcut_snprintf(char *dest, size_t size, const char *format, ...);
 
 #endif

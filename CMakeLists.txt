@@ -71,18 +71,23 @@ function(add_self_test testname rc sources)
 	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "\n\n")
 endfunction()
 
+add_cc_flag_when_supported(-pthread CC_FLAG_PTHREAD)
 add_cc_flag_when_supported(-pedantic CC_FLAG_PEDANTIC)
 add_cc_flag_when_supported(-Wall CC_FLAG_WARNING_ALL)
 add_cc_flag_when_supported(-Wextra CC_FLAG_WARNING_EXTRA)
 add_cc_flag_when_supported(-Wmissing-prototypes CC_FLAG_WARNING_MISSING_PROTOTYPES)
 add_cc_flag_when_supported(-Werror-implicit-function-declaration CC_FLAG_WARNING_IMPLICIT_FUNCTION_DECLARATION)
 add_cc_flag_when_supported(-Werror CC_FLAG_WARNING_INTO_ERROR)
-add_cc_flag_when_supported(-Wno-variadic-macros CC_FLAG_VARIADIC_MACROS_ARE_OKAY)
-add_cc_flag_when_supported(-pthread CC_FLAG_PTHREAD)
+add_cc_flag_when_supported(-Wno-variadic-macros CC_FLAG_NO_WARN_VARIADIC_MACROS)
+add_cc_flag_when_supported(-Wno-unknown-pragmas CC_FLAG_NO_WARN_UNKNOWN_PRAGMAS)
+add_cc_flag_when_supported(/wd4710 CC_FLAG_NO_WARN_FUNCTION_NOT_INLINED)
+add_cc_flag_when_supported(/wd4711 CC_FLAG_NO_WARN_FUNCTION_INLINED)
+add_cc_flag_when_supported(/wd4820 CC_FLAG_NO_WARN_PADDING_ADDED)
 
 
 set(SOURCES
 	src/assert.c
+	src/helper.c
 	src/list.c
 	src/main.c
 	src/print.c

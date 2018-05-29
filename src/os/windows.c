@@ -38,10 +38,13 @@
 
 #include "../internal.h"
 
+#pragma warning(push, 0)
 #include <windows.h>
 #include <tchar.h>
 #include <stdio.h>
 #include <strsafe.h>
+#pragma warning(pop)
+
 
 
 /** Maximum size of stdout we are able to capture. */
@@ -74,9 +77,9 @@ static void before_test_start(pcut_item_t *test) {
  */
 static void report_func_fail(pcut_item_t *test, const char *failed_function_name) {
 	/* TODO: get error description. */
-	sprintf_s(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+	pcut_snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 		"%s failed: %s.", failed_function_name, "unknown reason");
-	pcut_report_test_done(test, TEST_OUTCOME_ERROR, error_message_buffer, NULL, NULL);
+	pcut_report_test_done(test, PCUT_OUTCOME_INTERNAL_ERROR, error_message_buffer, NULL, NULL);
 }
 
 /** Read full buffer from given file descriptor.
@@ -214,7 +217,7 @@ int pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	start_info.dwFlags |= STARTF_USESTDHANDLES;
 
 	/* Format the command line. */
-	sprintf_s(command, PCUT_COMMAND_LINE_BUFFER_SIZE - 1,
+	pcut_snprintf(command, PCUT_COMMAND_LINE_BUFFER_SIZE - 1,
 		"\"%s\" -t%d", self_path, test->id);
 
 	/* Run the process. */
@@ -280,7 +283,7 @@ int pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 		okay = TerminateProcess(process_info.hProcess, 5);
 		if (!okay) {
 			report_func_fail(test, "TerminateProcess(/* PROCESS_INFORMATION.hProcess */)");
-			return PCUT_ERROR_INTERNAL_FAILURE;
+			return PCUT_OUTCOME_INTERNAL_ERROR;
 		}
 		rc = WaitForSingleObject(process_info.hProcess, INFINITE);
 	}
@@ -308,7 +311,7 @@ int pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 	rc = WaitForSingleObject(test_output_thread_reader, INFINITE);
 	if (rc != WAIT_OBJECT_0) {
 		report_func_fail(test, "WaitForSingleObject(/* stdout reader thread */)");
-		return PCUT_ERROR_INTERNAL_FAILURE;
+		return PCUT_OUTCOME_INTERNAL_ERROR;
 	}
 
 	pcut_report_test_done_unparsed(test, outcome, extra_output_buffer, OUTPUT_BUFFER_SIZE);

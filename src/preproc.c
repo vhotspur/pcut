@@ -26,10 +26,13 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#pragma warning(push, 0)
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#pragma warning(pop)
+
 
 #define MAX_IDENTIFIER_LENGTH 256
 

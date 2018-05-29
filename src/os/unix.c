@@ -50,12 +50,6 @@
 #include <string.h>
 #include "../internal.h"
 
-/*
- * It seems that not all Unixes are the same and snprintf
- * may not be always exported?
- */
-extern int snprintf(char *, size_t, const char *, ...);
-
 /** Maximum size of stdout we are able to capture. */
 #define OUTPUT_BUFFER_SIZE 8192
 
@@ -159,14 +153,14 @@ int pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 
 	rc = pipe(link_stdout);
 	if (rc == -1) {
-		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+		pcut_snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
 		pcut_report_test_done(test, PCUT_OUTCOME_INTERNAL_ERROR, error_message_buffer, NULL, NULL);
 		return PCUT_OUTCOME_INTERNAL_ERROR;
 	}
 	rc = pipe(link_stderr);
 	if (rc == -1) {
-		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+		pcut_snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 				"pipe() failed: %s.", strerror(rc));
 		pcut_report_test_done(test, PCUT_OUTCOME_INTERNAL_ERROR, error_message_buffer, NULL, NULL);
 		return PCUT_OUTCOME_INTERNAL_ERROR;
@@ -174,7 +168,7 @@ int pcut_run_test_forking(const char *self_path, pcut_item_t *test) {
 
 	child_pid = fork();
 	if (child_pid == (pid_t)-1) {
-		snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
+		pcut_snprintf(error_message_buffer, OUTPUT_BUFFER_SIZE - 1,
 			"fork() failed: %s.", strerror(rc));
 		outcome = PCUT_OUTCOME_INTERNAL_ERROR;
 		goto leave_close_pipes;

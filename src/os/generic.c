@@ -30,13 +30,15 @@
  *
  * Platform-dependent test execution function when system() is available.
  */
-
+#pragma warning(push, 0)
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <assert.h>
 #include <string.h>
+#pragma warning(pop)
+
 #include "../internal.h"
 
 /** Maximum command-line length. */
@@ -54,17 +56,17 @@
 #include <process.h>
 
 #define FORMAT_COMMAND(buffer, buffer_size, self_path, test_id, temp_file) \
-	snprintf(buffer, buffer_size, "\"\"%s\" -t%d >%s\"", self_path, test_id, temp_file)
+	pcut_snprintf(buffer, buffer_size, "\"\"%s\" -t%d >%s\"", self_path, test_id, temp_file)
 #define FORMAT_TEMP_FILENAME(buffer, buffer_size) \
-	snprintf(buffer, buffer_size, "pcut_%d.tmp", _getpid())
+	pcut_snprintf(buffer, buffer_size, "pcut_%d.tmp", _getpid())
 
 #elif defined(__unix)
 #include <unistd.h>
 
 #define FORMAT_COMMAND(buffer, buffer_size, self_path, test_id, temp_file) \
-	snprintf(buffer, buffer_size, "%s -t%d &>%s", self_path, test_id, temp_file)
+	pcut_snprintf(buffer, buffer_size, "%s -t%d &>%s", self_path, test_id, temp_file)
 #define FORMAT_TEMP_FILENAME(buffer, buffer_size) \
-	snprintf(buffer, buffer_size, "pcut_%d.tmp", getpid())
+	pcut_snprintf(buffer, buffer_size, "pcut_%d.tmp", getpid())
 
 #else
 #error "Unknown operating system."

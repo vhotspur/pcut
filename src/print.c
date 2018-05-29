@@ -32,9 +32,13 @@
  */
 
 #include <pcut/pcut.h>
+
+#pragma warning(push, 0)
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#pragma warning(pop)
+
 #include "internal.h"
 
 /** Print all items in the given list.
