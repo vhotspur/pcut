@@ -38,6 +38,6 @@ SOURCES = \
 	src/report/xml.c \
 	src/run.c
 
-EXTRA_CFLAGS = -D__helenos__
+EXTRA_CFLAGS = -D__helenos__ -Wno-unknown-pragmas
 
 LIBRARY = libpcut
