@@ -33,7 +33,9 @@
 
 #include "../internal.h"
 
-#ifndef __helenos__
+#ifdef __helenos__
+#include <mem.h>
+#else
 #pragma warning(push, 0)
 #include <string.h>
 #pragma warning(pop)
