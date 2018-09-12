@@ -29,7 +29,7 @@
 #include <pcut/pcut.h>
 
 #ifdef __helenos__
-#include <thread.h>
+#include <fibril.h>
 #else
 #if defined(__unix) || defined(__APPLE__)
 #include <unistd.h>
@@ -44,7 +44,7 @@
 
 static void my_sleep(int sec) {
 #ifdef __helenos__
-	thread_sleep(sec);
+	fibril_sleep(sec);
 #else
 #if defined(__unix) || defined(__APPLE__)
 	sleep(sec);
