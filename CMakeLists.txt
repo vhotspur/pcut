@@ -71,6 +71,7 @@ function(add_self_test testname rc sources)
 	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "\n\n")
 endfunction()
 
+add_cc_flag_when_supported(-std=c99 CC_FLAG_C99)
 add_cc_flag_when_supported(-pthread CC_FLAG_PTHREAD)
 add_cc_flag_when_supported(-pedantic CC_FLAG_PEDANTIC)
 add_cc_flag_when_supported(-Wall CC_FLAG_WARNING_ALL)
