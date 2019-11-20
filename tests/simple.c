@@ -43,7 +43,7 @@ PCUT_TEST(one_exponent) {
 PCUT_TEST(same_strings) {
 	const char *p = "xyz";
 	PCUT_ASSERT_STR_EQUALS("xyz", p);
-	PCUT_ASSERT_STR_EQUALS("abc", "XXXabd" + 3);
+	PCUT_ASSERT_STR_EQUALS("abc", &"XXXabd"[3]);
 }
 
 PCUT_MAIN()

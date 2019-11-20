@@ -10,7 +10,7 @@
 ]]></error-message>
 		</testcase><!-- one_exponent -->
 		<testcase name="same_strings" status="fail">
-			<error-message><![CDATA[xmlreport.c:49: Expected <abc> but got <abd> ("abc" != "XXXabd" + 3)
+			<error-message><![CDATA[xmlreport.c:49: Expected <abc> but got <abd> ("abc" != &"XXXabd"[3])
 ]]></error-message>
 		</testcase><!-- same_strings -->
 	</suite><!-- Default: 3 / 3 -->
