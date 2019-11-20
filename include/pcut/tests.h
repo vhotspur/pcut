@@ -73,6 +73,9 @@
 #define PCUT_ITEM_COUNTER __COUNTER__
 #endif
 
+/** Default test function prefix. */
+#define PCUT_TEST_FUNC_PREFIX test_
+
 
 /*
  * Helper macros
@@ -177,15 +180,15 @@
 		__VA_ARGS__ \
 	}; \
 	static int PCUT_CC_UNUSED_VARIABLE(PCUT_JOIN(testname, 0_test_name_missing_or_duplicated), 0); \
-	static void PCUT_JOIN(test_, testname)(void); \
+	static void PCUT_JOIN(PCUT_TEST_FUNC_PREFIX, testname)(void); \
 	PCUT_ADD_ITEM(number, PCUT_KIND_TEST, \
 		PCUT_QUOTE(testname), \
-		PCUT_JOIN(test_, testname), \
+		PCUT_JOIN(PCUT_TEST_FUNC_PREFIX, testname), \
 		NULL, NULL, \
 		PCUT_ITEM_EXTRAS_NAME(number), \
 		NULL, NULL \
 	); \
-	void PCUT_JOIN(test_, testname)(void)
+	void PCUT_JOIN(PCUT_TEST_FUNC_PREFIX, testname)(void)
 
 /** @endcond */
 
