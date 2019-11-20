@@ -74,7 +74,7 @@
 #endif
 
 /** Default test function prefix. */
-#define PCUT_TEST_FUNC_PREFIX test_
+#define PCUT_TEST_FUNC_PREFIX pcut_test__
 
 
 /*
