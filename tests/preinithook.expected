@@ -1,6 +1,0 @@
-1..2
-#> Starting suite Default.
-ok 1 check_init_counter
-ok 2 check_init_counter_2
-#> Finished suite Default (passed).
-#> Done: all tests passed.

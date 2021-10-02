@@ -1,6 +1,0 @@
-1..2
-#> Starting suite Default.
-ok 1 normal_test
-ok 2 again_normal_test
-#> Finished suite Default (passed).
-#> Done: all tests passed.
