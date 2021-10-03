@@ -1,9 +1,0 @@
-*.o
-*.out
-
-.project
-.cproject
-.settings
-
-build/
-build.*/
