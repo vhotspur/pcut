@@ -8,14 +8,23 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        build_type: [Debug, Release]
     steps:
       - uses: actions/checkout@v3
+
+      # Select compiler and build type
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.CMAKE_BUILD_TYPE}}
+        env:
+          CC: ${{ matrix.compiler }}
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
 
       - name: Test
+        if: ${{ matrix.build_type == 'Release' }}
         working-directory: ${{github.workspace}}/build
-        run: ctest -C ${{env.BUILD_TYPE}}
+        run: ctest -C ${{matrix.build_type}}
