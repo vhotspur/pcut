@@ -2,6 +2,11 @@ name: Linux packages
 
 on: [push, pull_request]
 
+env:
+  PACKAGE_NAME: libpcut
+  PACKAGE_MAINTAINER: vhotspur
+  PACKAGE_DESCRIPTION: "Plain C unit testing framework"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,3 +24,18 @@ jobs:
         env:
           DESTDIR: ${{github.workspace}}/pkg
         run: cmake --install ${{github.workspace}}/build
+
+      - uses: jiro4989/build-deb-action@v3
+        with:
+          package_root: ${{github.workspace}}/pkg
+          package: ${{ env.PACKAGE_NAME }}
+          maintainer: ${{ env.PACKAGE_MAINTAINER }}
+          desc: '${{ env.PACKAGE_DESCRIPTION }}'
+          version: 0.0.1
+          arch: 'amd64'
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifact-deb
+          path: |
+            ./*.deb
