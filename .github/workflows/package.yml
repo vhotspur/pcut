@@ -6,6 +6,7 @@ env:
   PACKAGE_NAME: libpcut
   PACKAGE_MAINTAINER: vhotspur
   PACKAGE_DESCRIPTION: "Plain C unit testing framework"
+  PACKAGE_VERSION: 0.0.1
 
 jobs:
   build:
@@ -31,11 +32,26 @@ jobs:
           package: ${{ env.PACKAGE_NAME }}
           maintainer: ${{ env.PACKAGE_MAINTAINER }}
           desc: '${{ env.PACKAGE_DESCRIPTION }}'
-          version: 0.0.1
+          version: '${{ env.PACKAGE_VERSION }}'
           arch: 'amd64'
 
       - uses: actions/upload-artifact@v3
         with:
-          name: artifact-deb
+          name: deb-package
           path: |
             ./*.deb
+
+      - uses: jiro4989/build-rpm-action@v2
+        with:
+          package_root: ${{github.workspace}}/pkg
+          package: ${{ env.PACKAGE_NAME }}
+          maintainer: ${{ env.PACKAGE_MAINTAINER }}
+          desc: '${{ env.PACKAGE_DESCRIPTION }}'
+          version: '${{ env.PACKAGE_VERSION }}'
+          arch: 'x86_64'
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rpm-package
+          path: |
+            ./*.rpm
