@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  PACKAGE_NAME: libpcut
+  PACKAGE_MAINTAINER: vhotspur
+  PACKAGE_SUMMARY: "Plain C unit testing framework"
+  PACKAGE_VERSION: 0.0.1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Select compiler and build type
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release --install-prefix=/usr
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build
+
+      - name: Prepare install for Debian
+        env:
+          DESTDIR: ${{github.workspace}}/pkg-deb
+        run: cmake --install ${{github.workspace}}/build
+
+      - name: Prepare install for RPM
+        env:
+          DESTDIR: ${{github.workspace}}/pkg-rpm
+        run: cmake --install ${{github.workspace}}/build
+
+      - uses: jiro4989/build-deb-action@v3
+        with:
+          package_root: ${{github.workspace}}/pkg-deb
+          package: ${{ env.PACKAGE_NAME }}
+          maintainer: ${{ env.PACKAGE_MAINTAINER }}
+          desc: '${{ env.PACKAGE_SUMMARY }}'
+          version: '${{ env.PACKAGE_VERSION }}'
+          arch: 'amd64'
+
+      - uses: jiro4989/build-rpm-action@v2
+        with:
+          package_root: ${{github.workspace}}/pkg-rpm
+          package: ${{ env.PACKAGE_NAME }}
+          maintainer: ${{ env.PACKAGE_MAINTAINER }}
+          summary: '${{ env.PACKAGE_SUMMARY }}'
+          version: '${{ env.PACKAGE_VERSION }}'
+          arch: 'x86_64'
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *.deb
+            *.rpm
