@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
   PACKAGE_NAME: libpcut
   PACKAGE_MAINTAINER: vhotspur
-  PACKAGE_DESCRIPTION: "Plain C unit testing framework"
+  PACKAGE_SUMMARY: "Plain C unit testing framework"
   PACKAGE_VERSION: 0.0.1
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
           package_root: ${{github.workspace}}/pkg-deb
           package: ${{ env.PACKAGE_NAME }}
           maintainer: ${{ env.PACKAGE_MAINTAINER }}
-          desc: '${{ env.PACKAGE_DESCRIPTION }}'
+          desc: '${{ env.PACKAGE_SUMMARY }}'
           version: '${{ env.PACKAGE_VERSION }}'
           arch: 'amd64'
 
@@ -51,7 +51,7 @@ jobs:
           package_root: ${{github.workspace}}/pkg-rpm
           package: ${{ env.PACKAGE_NAME }}
           maintainer: ${{ env.PACKAGE_MAINTAINER }}
-          desc: '${{ env.PACKAGE_DESCRIPTION }}'
+          summary: '${{ env.PACKAGE_SUMMARY }}'
           version: '${{ env.PACKAGE_VERSION }}'
           arch: 'x86_64'
 
