@@ -21,14 +21,19 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build
 
-      - name: Install
+      - name: Prepare install for Debian
         env:
-          DESTDIR: ${{github.workspace}}/pkg
+          DESTDIR: ${{github.workspace}}/pkg-deb
+        run: cmake --install ${{github.workspace}}/build
+
+      - name: Prepare install for RPM
+        env:
+          DESTDIR: ${{github.workspace}}/pkg-rpm
         run: cmake --install ${{github.workspace}}/build
 
       - uses: jiro4989/build-deb-action@v3
         with:
-          package_root: ${{github.workspace}}/pkg
+          package_root: ${{github.workspace}}/pkg-deb
           package: ${{ env.PACKAGE_NAME }}
           maintainer: ${{ env.PACKAGE_MAINTAINER }}
           desc: '${{ env.PACKAGE_DESCRIPTION }}'
@@ -43,7 +48,7 @@ jobs:
 
       - uses: jiro4989/build-rpm-action@v2
         with:
-          package_root: ${{github.workspace}}/pkg
+          package_root: ${{github.workspace}}/pkg-rpm
           package: ${{ env.PACKAGE_NAME }}
           maintainer: ${{ env.PACKAGE_MAINTAINER }}
           desc: '${{ env.PACKAGE_DESCRIPTION }}'
