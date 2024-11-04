@@ -26,7 +26,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.20)
 
 include(CheckCCompilerFlag)
 enable_testing()
@@ -141,7 +141,7 @@ add_self_test(timeout 1 tests/timeout.c)
 add_self_test(xmlreport 1 tests/xmlreport.c tests/tested.c)
 
 
-install(TARGETS pcut DESTINATION lib)
-install(TARGETS pcutpp DESTINATION bin)
+install(TARGETS pcut DESTINATION lib ARCHIVE)
+install(TARGETS pcutpp DESTINATION bin RUNTIME)
 install(DIRECTORY include/pcut DESTINATION include)
-
+include(CPack)
