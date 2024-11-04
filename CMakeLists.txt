@@ -26,7 +26,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.12)
 
 include(CheckCCompilerFlag)
 enable_testing()
@@ -53,7 +53,7 @@ function(add_self_test testname rc sources)
 		set_source_files_properties(${source} PROPERTIES COMPILE_FLAGS "-DPCUT_CURRENT_FILENAME=\\\"${basename}\\\"")
 	endforeach()
 	add_pcut_executable("test-${testname}" ${sources})
-	
+
 	add_test(NAME "${testname}"
 		COMMAND ${CMAKE_COMMAND}
 			"-DTEST_EXECUTABLE=$<TARGET_FILE:test-${testname}>"
@@ -61,7 +61,7 @@ function(add_self_test testname rc sources)
 			"-DEXPECTED_EXIT_VALUE=${rc}"
 			-P "${PROJECT_SOURCE_DIR}/run_test.cmake"
 	)
-	
+
 	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# ${testname}\n")
 	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "$(PCUT_TEST_PREFIX)${testname}$(PCUT_TEST_SUFFIX):")
 	foreach(source ${sources})
