@@ -15,7 +15,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release --install-prefix=/usr
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+        run: cmake --build ${{github.workspace}}/build --config Release
 
       - name: Package
         working-directory: ${{github.workspace}}/build
@@ -37,7 +37,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+        run: cmake --build ${{github.workspace}}/build --config Release
 
       - name: Package
         working-directory: ${{github.workspace}}/build
