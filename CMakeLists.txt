@@ -46,39 +46,39 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 
 macro(add_cc_flag_when_supported flag variable)
-	check_c_compiler_flag(${flag} ${variable})
-	if(${variable})
-		add_definitions(${flag})
-	endif()
+    check_c_compiler_flag(${flag} ${variable})
+    if(${variable})
+        add_definitions(${flag})
+    endif()
 endmacro()
 
 set(SELF_TESTS)
 file(WRITE "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# Re-generate with CMake\n\n")
 function(add_self_test testname rc sources)
-	set(sources ${ARGV})
-	list(REMOVE_AT sources 0)
-	list(REMOVE_AT sources 0)
-	foreach(source ${sources})
-		get_filename_component(basename ${source} NAME)
-		set_source_files_properties(${source} PROPERTIES COMPILE_FLAGS "-DPCUT_CURRENT_FILENAME=\\\"${basename}\\\"")
-	endforeach()
-	add_pcut_executable("test-${testname}" ${sources})
+    set(sources ${ARGV})
+    list(REMOVE_AT sources 0)
+    list(REMOVE_AT sources 0)
+    foreach(source ${sources})
+        get_filename_component(basename ${source} NAME)
+        set_source_files_properties(${source} PROPERTIES COMPILE_FLAGS "-DPCUT_CURRENT_FILENAME=\\\"${basename}\\\"")
+    endforeach()
+    add_pcut_executable("test-${testname}" ${sources})
 
-	add_test(NAME "${testname}"
-		COMMAND ${CMAKE_COMMAND}
-			"-DTEST_EXECUTABLE=$<TARGET_FILE:test-${testname}>"
-			"-DEXPECTED_OUTPUT=${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
-			"-DEXPECTED_EXIT_VALUE=${rc}"
-			-P "${PROJECT_SOURCE_DIR}/run_test.cmake"
-	)
+    add_test(NAME "${testname}"
+        COMMAND ${CMAKE_COMMAND}
+            "-DTEST_EXECUTABLE=$<TARGET_FILE:test-${testname}>"
+            "-DEXPECTED_OUTPUT=${PROJECT_SOURCE_DIR}/tests/${testname}.expected"
+            "-DEXPECTED_EXIT_VALUE=${rc}"
+            -P "${PROJECT_SOURCE_DIR}/run_test.cmake"
+    )
 
-	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# ${testname}\n")
-	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "$(PCUT_TEST_PREFIX)${testname}$(PCUT_TEST_SUFFIX):")
-	foreach(source ${sources})
-		string(REGEX REPLACE ".c$" ".o" source "${source}")
-		file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" " ${source}")
-	endforeach()
-	file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "\n\n")
+    file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "# ${testname}\n")
+    file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "$(PCUT_TEST_PREFIX)${testname}$(PCUT_TEST_SUFFIX):")
+    foreach(source ${sources})
+        string(REGEX REPLACE ".c$" ".o" source "${source}")
+        file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" " ${source}")
+    endforeach()
+    file(APPEND "${CMAKE_SOURCE_DIR}/helenos.test.mak" "\n\n")
 endfunction()
 
 add_cc_flag_when_supported(-std=c99 CC_FLAG_C99)
@@ -98,21 +98,21 @@ add_cc_flag_when_supported(/wd4820 CC_FLAG_NO_WARN_PADDING_ADDED)
 
 
 set(SOURCES
-	src/assert.c
-	src/helper.c
-	src/list.c
-	src/main.c
-	src/print.c
-	src/report/report.c
-	src/report/tap.c
-	src/report/xml.c
-	src/run.c
+    src/assert.c
+    src/helper.c
+    src/list.c
+    src/main.c
+    src/print.c
+    src/report/report.c
+    src/report/tap.c
+    src/report/xml.c
+    src/run.c
 )
 if(${UNIX})
-	list(APPEND SOURCES src/os/stdc.c src/os/unix.c)
+    list(APPEND SOURCES src/os/stdc.c src/os/unix.c)
 endif()
 if(${WIN32})
-	list(APPEND SOURCES src/os/stdc.c src/os/windows.c)
+    list(APPEND SOURCES src/os/stdc.c src/os/windows.c)
 endif()
 
 
@@ -138,7 +138,7 @@ add_self_test(errno 1 tests/errno.c)
 add_self_test(inithook 0 tests/inithook.c)
 add_self_test(manytests 0 tests/manytests.c)
 add_self_test(multisuite 1 tests/suite_all.c tests/suite1.c tests/suite2.c
-	tests/tested.c)
+    tests/tested.c)
 add_self_test(preinithook 0 tests/inithook.c)
 add_self_test(printing 1 tests/printing.c)
 add_self_test(simple 1 tests/simple.c tests/tested.c)
