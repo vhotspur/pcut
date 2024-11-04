@@ -32,7 +32,7 @@ include(CheckCCompilerFlag)
 enable_testing()
 
 project(PCUT
-    VERSION 0.0.3
+    VERSION 0.0.4
     HOMEPAGE_URL "https://github.com/vhotspur/pcut"
     LANGUAGES C
 )
