@@ -31,7 +31,7 @@ jobs:
 
       - name: Package
         working-directory: ${{github.workspace}}/build
-        run: cpack -C ${{matrix.build_type}}
+        run: cpack -C ${{matrix.build_type}} -G "RPM;DEB;TGZ"
 
   macos:
     runs-on: macos-latest
@@ -52,4 +52,4 @@ jobs:
 
       - name: Package
         working-directory: ${{github.workspace}}/build
-        run: cpack
+        run: cpack -G productbuild

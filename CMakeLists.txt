@@ -31,7 +31,17 @@ cmake_minimum_required(VERSION 3.20)
 include(CheckCCompilerFlag)
 enable_testing()
 
-project(PCUT C)
+project(PCUT
+    VERSION 0.0.1
+    HOMEPAGE_URL "https://github.com/vhotspur/pcut"
+    LANGUAGES C
+)
+set(CPACK_PACKAGE_NAME "pcut")
+set(CPACK_PACKAGE_CONTACT "Vojtech Horky <github.com/vhotspur>")
+set(CPACK_PACKAGE_VENDOR "Vojtech Horky")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Plain C unit testing mini-framework")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/README.rst")
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 
