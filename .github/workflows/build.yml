@@ -52,4 +52,4 @@ jobs:
 
       - name: Package
         working-directory: ${{github.workspace}}/build
-        run: cpack -G PACKAGEMAKER
+        run: cpack -G productbuild
