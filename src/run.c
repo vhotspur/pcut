@@ -75,7 +75,7 @@ static pcut_item_t *current_suite = NULL;
 static pcut_item_t default_suite;
 static int default_suite_initialized = 0;
 
-static void init_default_suite_when_needed() {
+static void init_default_suite_when_needed(void) {
 	if (default_suite_initialized) {
 		return;
 	}
