@@ -6,7 +6,7 @@ env:
   PACKAGE_NAME: libpcut
   PACKAGE_MAINTAINER: vhotspur
   PACKAGE_SUMMARY: "Plain C unit testing framework"
-  PACKAGE_VERSION: 0.0.1
+  PACKAGE_VERSION: 0.1.0
 
 jobs:
   build:
