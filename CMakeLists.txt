@@ -157,9 +157,6 @@ install(DIRECTORY include/pcut DESTINATION include)
 install(FILES FindPCUT.cmake DESTINATION share/pcut/cmake)
 
 if(APPLE)
-    # Installer packages are relocatable only with some effort, so install
-    # to the conventional location for third-party software.
-    set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
     set(CPACK_PRODUCTBUILD_IDENTIFIER "io.github.vhotspur.pcut")
     if(CMAKE_OSX_ARCHITECTURES)
         set(PCUT_MACOS_ARCH "${CMAKE_OSX_ARCHITECTURES}")
@@ -168,6 +165,5 @@ if(APPLE)
     endif()
     string(REPLACE ";" "-" PCUT_MACOS_ARCH "${PCUT_MACOS_ARCH}")
     set(CPACK_PACKAGE_FILE_NAME "pcut-${PROJECT_VERSION}-macos-${PCUT_MACOS_ARCH}")
-    set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.rst")
 endif()
 include(CPack)
