@@ -49,10 +49,6 @@
 include(FindPackageHandleStandardArgs)
 include(CheckCSourceCompiles)
 
-find_package_handle_standard_args(PCUT
-	FOUND_VAR PCUT_FOUND
-	REQUIRED_VARS PCUT_LIBRARIES PCUT_INCLUDE_DIRS PCUT_PREPROCESSOR)
-
 set(PCUT_NAMES pcut)
 
 find_path(PCUT_INCLUDE_DIRS
@@ -69,11 +65,9 @@ find_program(PCUT_PREPROCESSOR
 	PATH_SUFFIXES bin)
 
 
-if(PCUT_INCLUDE_DIRS)
-	set(PCUT_FOUND true)
-else()
-	set(PCUT_FOUND false)
-endif()
+find_package_handle_standard_args(PCUT
+	FOUND_VAR PCUT_FOUND
+	REQUIRED_VARS PCUT_LIBRARIES PCUT_INCLUDE_DIRS PCUT_PREPROCESSOR)
 
 
 set(PCUT_SOURCE_CC_SUPPORTS_COUNTER
@@ -142,7 +136,7 @@ function(add_pcut_executable executable sources)
 			)
 			add_custom_command(
 				OUTPUT ${outfile_c}
-				COMMAND $<TARGET_FILE:pcutpp>
+				COMMAND ${PCUT_PREPROCESSOR}
 					ARGS
 						<${outfile_i}
 						>${outfile_c}

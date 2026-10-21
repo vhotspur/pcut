@@ -33,21 +33,34 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Universal binary so that the package works on both Apple Silicon
+      # and Intel Macs.
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+        run: >
+          cmake -B ${{github.workspace}}/build
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config Release
 
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C Release
+
+      # The .pkg is for installing system-wide (/usr/local), the .tar.gz
+      # can be unpacked anywhere (no root needed, used by FetchContent).
       - name: Package
         working-directory: ${{github.workspace}}/build
-        run: cpack -C Release -G "productbuild" -B pkg
+        run: cpack -C Release -G "productbuild;TGZ" -B pkg
 
       - name: Upload built packages
         uses: actions/upload-artifact@v4
         with:
           name: macos-packages
-          path: build/pkg/pcut*
+          path: |
+            build/pkg/pcut*.pkg
+            build/pkg/pcut*.tar.gz
           retention-days: 1
 
   release:

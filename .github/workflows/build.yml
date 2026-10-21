@@ -39,17 +39,23 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Configure CMake
-        env:
-          CC: ${{ matrix.compiler }}
-        run: cmake -B ${{github.workspace}}/build
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build
+        run: cmake --build ${{github.workspace}}/build --config Release
 
       - name: Test
         working-directory: ${{github.workspace}}/build
-        run: ctest
+        run: ctest -C Release
 
       - name: Package
         working-directory: ${{github.workspace}}/build
-        run: cpack -G productbuild
+        run: cpack -C Release -G "productbuild;TGZ"
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-packages
+          path: |
+            build/*.pkg
+            build/*.tar.gz
